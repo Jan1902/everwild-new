@@ -42,6 +42,7 @@ var _target_object := ""
 var _game := {}
 ## Black cover for the change between worlds. While it is up, taps are ignored.
 var _curtain: ColorRect
+var _dialogue: DialogueBox
 var _travelling := false
 ## File the game is saved to. Empty for a game that is not saved.
 var _save_path := SaveFile.DEFAULT_PATH
@@ -52,9 +53,13 @@ func _ready() -> void:
 	var arguments := OS.get_cmdline_user_args()
 	if not arguments.is_empty():
 		_save_path = ""
+	var language := ""
 	for argument in arguments:
 		if argument.begins_with("--save="):
 			_save_path = argument.trim_prefix("--save=")
+		elif argument.begins_with("--language="):
+			language = argument.trim_prefix("--language=")
+	Texts.use(language)
 
 	_game = JSON.parse_string(FileAccess.get_file_as_string(GAME_PATH))
 	if not _save_path.is_empty():
@@ -66,6 +71,8 @@ func _ready() -> void:
 	_build_grading()
 	_build_curtain()
 	_build_music()
+	_dialogue = DialogueBox.new()
+	add_child(_dialogue)
 	_camera = Camera2D.new()
 	_camera.zoom = Vector2.ONE * ZOOM
 	_camera.position_smoothing_enabled = true
@@ -158,6 +165,10 @@ func save() -> void:
 		SaveFile.write(_save_path, session.state.to_data())
 
 
+func is_talking() -> bool:
+	return _dialogue.is_open()
+
+
 ## Seconds the music track has been playing. -1 without music.
 func music_position() -> float:
 	return _music.get_playback_position() if _music.playing else -1.0
@@ -201,6 +212,10 @@ func _arrive() -> void:
 func _show(effects: Array) -> void:
 	if effects.is_empty():
 		return
+	for effect: Dictionary in effects:
+		if effect.has("say"):
+			var who: String = effect.get("who", "")
+			_dialogue.say("" if who.is_empty() else Texts.text("name." + who), Texts.lines(effect["say"]))
 	if effects.any(func(effect: Dictionary) -> bool: return effect.has("go")):
 		_travel()
 	else:

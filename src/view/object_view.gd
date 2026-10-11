@@ -108,8 +108,11 @@ func follow(object: Dictionary) -> bool:
 
 ## Whether the image of the object is under this point of the world.
 func covers(point: Vector2) -> bool:
-	if _image == null or not visible:
+	if not visible:
 		return false
+	if _image == null:
+		# Placeholders are drawn about one cell wide and a person tall.
+		return Rect2(-40, -84, 80, 96).has_point(point - position)
 	var pixel := Vector2i((point - position - _image.position) / _image.scale - _image.offset)
 	var mask := _get_mask(kind, _image.texture)
 	if not Rect2i(Vector2i.ZERO, mask.get_size()).has_point(pixel):
@@ -174,6 +177,8 @@ func _draw() -> void:
 			_draw_rock()
 		"house":
 			_draw_house()
+		"person":
+			_draw_person()
 
 
 ## Image with its foot point at the sprite's origin, so mirroring and shadows can hinge on it.
@@ -264,6 +269,16 @@ func _draw_tree() -> void:
 	draw_circle(Vector2(24, -80), 28.0, Color("4f8a55"))
 	draw_circle(Vector2(0, -98), 44.0, Color("5c9a5e"))
 	draw_circle(Vector2(-10, -110), 22.0, Color("71ad6c"))
+
+
+## A person as a placeholder, like the player character but in muted colours.
+func _draw_person() -> void:
+	_draw_ground_shadow(22.0)
+	draw_colored_polygon(
+		PackedVector2Array([Vector2(-18, 0), Vector2(18, 0), Vector2(11, -54), Vector2(-11, -54)]), Color("5f6f86")
+	)
+	draw_circle(Vector2(-2 if _shown.mirrored else 2, -66), 14.0, Color("e6cdb0"))
+	draw_arc(Vector2(0, -68), 14.0, PI, TAU, 12, Color("d9d6d0"), 5.0)
 
 
 func _draw_rock() -> void:

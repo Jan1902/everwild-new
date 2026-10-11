@@ -13,8 +13,29 @@
 		"  _   ",
 		"      "
 	],
-	"objects": [],
+	"objects": [
+		{"id": "old_man", "kind": "person", "cell": [3, 1]}
+	],
 	"rules": [
+		{
+			"on": "interact", "object": "old_man",
+			"if": [{"fact": "met_old_man", "is": false}],
+			"do": [{"say": "old_man.first", "who": "old_man"}, {"set": "met_old_man"}]
+		},
+		{
+			"on": "interact", "object": "old_man",
+			"if": [{"fixed": "brook", "world": "village"}, {"fixed": "wind", "world": "village"}],
+			"do": [{"say": "old_man.whole", "who": "old_man"}]
+		},
+		{
+			"on": "interact", "object": "old_man",
+			"if": [{"fixed": "brook", "world": "village", "is": false}],
+			"do": [{"say": "old_man.hint_brook", "who": "old_man"}]
+		},
+		{
+			"on": "interact", "object": "old_man",
+			"do": [{"say": "old_man.hint_wind", "who": "old_man"}]
+		},
 		{
 			"on": "enter", "cells": [[2, 5]],
 			"do": [{"go": "village", "cell": [10, 6]}]

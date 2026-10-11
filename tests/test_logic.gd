@@ -15,6 +15,7 @@ func _init() -> void:
 	_test_rules()
 	_test_village_game()
 	_test_save_file()
+	_test_texts()
 	print("%d checks, %d failed" % [_checks, _failures])
 	quit(1 if _failures > 0 else 0)
 
@@ -241,6 +242,36 @@ func _test_rules() -> void:
 	_check(not Solver.check(_tiny_game(), hopeless).solvable, "Unsolvable game is not found")
 
 
+func _test_texts() -> void:
+	# Every text the worlds refer to has to exist, in every language.
+	var needed := {}
+	var game: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://data/game.json"))
+	for world_id: String in game.worlds:
+		var world := World.from_file(Session.WORLD_DIR + world_id + ".json")
+		for rule in world.rules:
+			for effect: Dictionary in rule.get("do", []):
+				if effect.has("say"):
+					needed[effect["say"]] = true
+				if effect.has("who"):
+					needed["name." + effect["who"]] = true
+	var reference := Texts.read(Texts.LANGUAGES[0]).keys()
+	reference.sort()
+	_check(not reference.is_empty(), "No texts found")
+	for language: String in Texts.LANGUAGES:
+		var texts := Texts.read(language)
+		var keys := texts.keys()
+		keys.sort()
+		_check(keys == reference, "Language '%s' does not have the same texts as '%s'" % [language, Texts.LANGUAGES[0]])
+		for key: String in needed:
+			_check(texts.has(key), "Text '%s' is missing in language '%s'" % [key, language])
+	Texts.use("de")
+	_check(Texts.language == "de" and Texts.text("name.old_man") == "Alter Mann", "German texts are not used")
+	Texts.use("xx")
+	_check(Texts.language == "en", "Unknown language does not fall back to English")
+	_check(Texts.lines("old_man.first").size() == 3, "Lines of a dialogue are not read")
+	_check(Texts.text("no.such.text") == "no.such.text", "Missing text does not show as its key")
+
+
 func _test_save_file() -> void:
 	var path := "user://test_save.json"
 	SaveFile.delete(path)
@@ -290,7 +321,11 @@ func _test_village_game() -> void:
 	session.interact("house_mid")
 	_check(session.state.world == "house_inside", "Door of the repaired village does not lead inside")
 	_check(session.world().errors().is_empty(), "Room has data errors: %s" % [session.world().errors()])
+	session.state.cell = Vector2i(3, 2)
+	_check(session.interact("old_man")[0].get("say") == "old_man.first", "Old man does not greet the player")
+	_check(session.interact("old_man")[0].get("say") == "old_man.whole", "Old man does not notice the repaired village")
 	session.apply([{"break": "village"}], "village")
+	_check(session.interact("old_man")[0].get("say") == "old_man.hint_brook", "Old man gives no hint about the brook")
 	_check(session.mood().wind < 0.0, "Room does not share the mood of the village")
 	session.enter(Vector2i(2, 5))
 	_check(session.state.world == "village" and session.state.cell == Vector2i(10, 6), "Leaving the room does not lead back in front of the door")

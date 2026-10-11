@@ -61,7 +61,8 @@
 		{"id": "rock_east", "kind": "rock", "cell": [14, 14]},
 		{"id": "lantern_west", "kind": "lantern", "cell": [7, 8], "state": "lit"},
 		{"id": "lantern_bridge", "kind": "lantern", "cell": [12, 10], "state": "lit"},
-		{"id": "lantern_east", "kind": "lantern", "cell": [15, 10], "state": "lit"}
+		{"id": "lantern_east", "kind": "lantern", "cell": [15, 10], "state": "lit"},
+		{"id": "stranger", "kind": "person", "cell": [16, 11], "mirrored": true}
 	],
 	"broken": {
 		"rock_bridge": {"cell": [12, 9]},
@@ -93,6 +94,15 @@
 		}
 	],
 	"rules": [
+		{
+			"on": "interact", "object": "stranger",
+			"if": [{"fixed": "brook"}, {"fixed": "wind"}, {"fixed": "lanterns"}],
+			"do": [{"say": "stranger.remembers", "who": "stranger"}, {"set": "stranger_remembers"}]
+		},
+		{
+			"on": "interact", "object": "stranger",
+			"do": [{"say": "stranger.unsure", "who": "stranger"}]
+		},
 		{
 			"on": "interact", "object": "house_mid",
 			"if": [{"fixed": "lanterns"}],

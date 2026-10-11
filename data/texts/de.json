@@ -1,0 +1,30 @@
+{
+	"name.old_man": "Alter Mann",
+	"name.stranger": "Frau am Bach",
+
+	"old_man.first": [
+		"… Du. Ich kenne deinen Gang.",
+		"Die Laternen brennen wieder. Warst du das?",
+		"Hier stimmt so vieles nicht mehr. Der Bach, der Wind. Ich weiß nur nicht mehr, wie es einmal war."
+	],
+	"old_man.hint_brook": [
+		"Der Stein an der Brücke. Der lag nie dort. Da bin ich mir fast sicher."
+	],
+	"old_man.hint_wind": [
+		"Drüben im Osten steht ein Baum falsch herum.",
+		"Sieh dir an, was neben ihm liegt."
+	],
+	"old_man.whole": [
+		"Jetzt höre ich es wieder. Das Dorf klingt wie früher.",
+		"Ich erinnere mich an deinen Namen. Lass mir einen Moment, dann finde ich ihn."
+	],
+
+	"stranger.unsure": [
+		"Kennen wir uns?",
+		"Nein. Und doch."
+	],
+	"stranger.remembers": [
+		"Du bist früher jeden Abend über diese Brücke gegangen.",
+		"Ich habe nie gefragt, wohin."
+	]
+}

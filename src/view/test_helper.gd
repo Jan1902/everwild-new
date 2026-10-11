@@ -11,8 +11,9 @@ extends Node
 ## --intact           starts in the intact version of the world
 ## --save=path        loads the game from this file and saves it there (without it, runs with
 ##                    arguments neither load nor save)
-## Afterwards the character's cell, the open faults and the music position are printed and the
-## game quits.
+## --language=code    shows the texts in this language instead of the one of the device
+## Afterwards the character's cell, the open faults, whether a dialogue is open and the music
+## position are printed and the game quits.
 
 
 func _ready() -> void:
@@ -41,8 +42,9 @@ func _ready() -> void:
 	if not screenshot.is_empty():
 		await RenderingServer.frame_post_draw
 		get_viewport().get_texture().get_image().save_png(screenshot)
-	print("player=%d,%d open_faults=%s music=%.1f" % [
-		game.player.cell.x, game.player.cell.y, ",".join(game.session.open_faults()), game.music_position(),
+	print("player=%d,%d open_faults=%s talking=%s music=%.1f" % [
+		game.player.cell.x, game.player.cell.y, ",".join(game.session.open_faults()), game.is_talking(),
+		game.music_position(),
 	])
 	# The music has to have died away before Godot closes, otherwise it reports a leak.
 	game.stop_music()

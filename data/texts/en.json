@@ -1,0 +1,30 @@
+{
+	"name.old_man": "Old man",
+	"name.stranger": "Woman by the brook",
+
+	"old_man.first": [
+		"... You. I know the way you walk.",
+		"The lanterns are burning again. Was that you?",
+		"So much is wrong here now. The brook, the wind. I just cannot recall how it used to be."
+	],
+	"old_man.hint_brook": [
+		"That stone by the bridge. It never lay there. I am almost sure."
+	],
+	"old_man.hint_wind": [
+		"Over in the east a tree is standing the wrong way round.",
+		"Look at what lies next to it."
+	],
+	"old_man.whole": [
+		"Now I can hear it again. The village sounds the way it did.",
+		"I remember your name. Give me a moment and I will find it."
+	],
+
+	"stranger.unsure": [
+		"Do we know each other?",
+		"No. And yet."
+	],
+	"stranger.remembers": [
+		"You used to cross this bridge every evening.",
+		"I never asked where you were going."
+	]
+}
