@@ -11,8 +11,8 @@ config_version=5
 [application]
 
 config/name="Everwild"
-config/description="Ruhiges, isometrisches Explorations-Puzzle für Mobile."
-run/main_scene="res://scenes/spiel.tscn"
+config/description="A quiet isometric exploration puzzle for mobile."
+run/main_scene="res://scenes/game.tscn"
 config/features=PackedStringArray("4.7", "Mobile")
 
 [display]
@@ -35,11 +35,11 @@ wind={
 "type": "float",
 "value": 1.0
 }
-wasser={
+water={
 "type": "float",
 "value": 1.0
 }
-schatten={
+shadow={
 "type": "vec2",
 "value": Vector2(0.5, 0.2)
 }

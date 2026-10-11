@@ -3,16 +3,16 @@
 *.translation
 /android/
 
-# Zugangsdaten
+# Credentials
 .env
 .env.*
 *.keystore
 *.jks
 
-# Python-Werkzeuge
+# Python tools
 .venv/
 __pycache__/
 
-# Lokale Zwischenstände
+# Local scratch files
 *.tmp
 /build/
