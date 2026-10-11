@@ -3,7 +3,12 @@
 	"size": [6, 7],
 	"start": [2, 4],
 	"mood_from": "village",
-	"music": "res://assets/music/village_theme.mp3",
+	"music": "res://assets/music/room_theme.mp3",
+	"ground_image": {
+		"path": "res://assets/worlds/house_inside_ground.png",
+		"scale": 1.52,
+		"origin": [-505.26, -271.16]
+	},
 	"ground": [
 		"      ",
 		" ____ ",
@@ -14,7 +19,9 @@
 		"      "
 	],
 	"objects": [
-		{"id": "old_man", "kind": "person", "cell": [3, 1]}
+		{"id": "old_man", "kind": "old_man", "cell": [3, 1]},
+		{"kind": "cupboard", "cell": [1, 2]},
+		{"kind": "table", "cell": [4, 3]}
 	],
 	"rules": [
 		{

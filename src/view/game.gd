@@ -7,6 +7,8 @@ const SKY_TOP := Color("9db7c9")
 const SKY_BOTTOM := Color("f1dcc0")
 const SHADOW_OPACITY := 0.3
 const MUSIC_VOLUME := -6.0
+## Seconds a track takes to fade in, and the previous one to fade out.
+const MUSIC_CROSSFADE := 3.0
 ## Seconds the mood takes to follow a change of the world.
 const MOOD_CHANGE_DURATION := 2.5
 ## Seconds the picture takes to fade to black, and again to come back, when changing worlds.
@@ -39,6 +41,8 @@ var _marker: TargetMarker
 var _camera: Camera2D
 var _grading: ShaderMaterial
 var _music: AudioStreamPlayer
+## The track that is fading out while another one fades in.
+var _music_leaving: AudioStreamPlayer
 var _muffler: AudioEffectLowPassFilter
 var _mood_from := Mood.new()
 var _mood_to := Mood.new()
@@ -219,8 +223,9 @@ func music_position() -> float:
 
 
 func stop_music() -> void:
-	_music.stop()
-	_music.stream = null
+	for music: AudioStreamPlayer in [_music, _music_leaving]:
+		music.stop()
+		music.stream = null
 
 
 func _on_start_dismissed() -> void:
@@ -390,6 +395,7 @@ func _build_stage() -> void:
 	player.place(session.state.cell)
 	player.cell_reached.connect(_on_cell_reached)
 	_layer.add_child(player)
+	_shadows.add_child(player.shadow)
 
 	_camera.position = _camera_target()
 	_camera.reset_smoothing()
@@ -444,6 +450,7 @@ func _apply_mood() -> void:
 	_grading.set_shader_parameter("tint", Vector3(m.tint.r, m.tint.g, m.tint.b))
 	_grading.set_shader_parameter("fog", m.fog)
 	_music.pitch_scale = m.pitch
+	_music_leaving.pitch_scale = m.pitch
 	# From open (20 kHz) to heavily muffled (800 Hz), spread evenly by ear.
 	_muffler.cutoff_hz = 20000.0 * pow(0.04, m.muffle)
 
@@ -528,12 +535,24 @@ func _build_music() -> void:
 	_music = AudioStreamPlayer.new()
 	_music.bus = "Music"
 	add_child(_music)
+	_music_leaving = AudioStreamPlayer.new()
+	_music_leaving.bus = "Music"
+	add_child(_music_leaving)
 
 
-## Fades in the track of a world. A track that is already playing just keeps playing.
+## Fades in the track of a world while the previous one fades out. A track that is already
+## playing just keeps playing.
 func _play_music(path: String) -> void:
 	if not _started or (_music.stream and _music.stream.resource_path == path):
 		return
+	# The two players swap roles: the one that was playing leaves.
+	var leaving := _music
+	_music = _music_leaving
+	_music_leaving = leaving
+	if leaving.playing:
+		var fade := create_tween()
+		fade.tween_property(leaving, "volume_db", -40.0, MUSIC_CROSSFADE)
+		fade.tween_callback(leaving.stop)
 	_music.stop()
 	_music.stream = null
 	if path.is_empty() or not ResourceLoader.exists(path):
@@ -544,4 +563,4 @@ func _play_music(path: String) -> void:
 	_music.stream = track
 	_music.volume_db = -40.0
 	_music.play()
-	create_tween().tween_property(_music, "volume_db", MUSIC_VOLUME, 3.0)
+	create_tween().tween_property(_music, "volume_db", MUSIC_VOLUME, MUSIC_CROSSFADE)

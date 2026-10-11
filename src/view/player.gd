@@ -1,19 +1,52 @@
 class_name Player
 extends Node2D
-## The player character as a placeholder. Walks a path of cells and reports every cell it reaches.
+## The player character. Walks a path of cells and reports every cell it reaches.
+##
+## There is one image from the front and one from behind, both looking to the right. Mirrored,
+## they cover the other two directions. Walking is shown by a slight bobbing only.
 
 signal cell_reached(cell: Vector2i)
 
 ## Cells per second.
 const SPEED := 3.5
+const IMAGE_DIR := "res://assets/objects/"
+## Placement of the images, as in ObjectView.IMAGES.
+const LAYOUT := {"width": 44.0, "foot": Vector2(0.5, 0.96)}
+const BASE_RADIUS := 19.0
 
 ## Cell reached most recently.
 var cell := Vector2i.ZERO
+## Shadow of the character for the shadow layer. It follows the character by itself.
+var shadow := Node2D.new()
 
 var _exact := Vector2.ZERO
 var _path: Array[Vector2i] = []
 var _stride := 0.0
-var _facing := 1.0
+var _body := Node2D.new()
+var _front: Sprite2D
+var _back: Sprite2D
+var _cast_front: Sprite2D
+var _cast_back: Sprite2D
+
+
+func _init() -> void:
+	add_child(_body)
+	_front = ObjectView.build_image(load(IMAGE_DIR + "player_front.png"), LAYOUT, false)
+	_back = ObjectView.build_image(load(IMAGE_DIR + "player_back.png"), LAYOUT, false)
+	_body.add_child(_front)
+	_body.add_child(_back)
+
+	var base := Sprite2D.new()
+	base.texture = ObjectView.base_blob()
+	base.modulate = BoxShadow.COLOR
+	base.scale = Vector2(1.0, 0.5) * (BASE_RADIUS * 2.0 / base.texture.get_width())
+	shadow.add_child(base)
+	_cast_front = _front.duplicate()
+	_cast_back = _back.duplicate()
+	for cast: Sprite2D in [_cast_front, _cast_back]:
+		cast.material = ObjectView.shadow_material()
+		shadow.add_child(cast)
+	_face(true, false)
 
 
 func place(new_cell: Vector2i) -> void:
@@ -21,6 +54,7 @@ func place(new_cell: Vector2i) -> void:
 	_exact = Vector2(new_cell)
 	_path.clear()
 	position = Iso.to_point(_exact)
+	shadow.position = position
 
 
 ## Cell a new path has to start from: the target of the step in progress.
@@ -56,21 +90,22 @@ func _process(delta: float) -> void:
 		else:
 			_exact = _exact.move_toward(target, remaining)
 			remaining = 0.0
-	var new_position := Iso.to_point(_exact)
-	if absf(new_position.x - position.x) > 0.01:
-		_facing = signf(new_position.x - position.x)
-	position = new_position
+	var step := Iso.to_point(_exact) - position
+	position += step
+	shadow.position = position
+	# Sideways steps keep front or back as it was, steps straight up or down keep the side.
+	var towards_viewer := _front.visible if absf(step.y) < 0.01 else step.y > 0.0
+	var to_the_left := _body.scale.x < 0.0 if absf(step.x) < 0.01 else step.x < 0.0
+	_face(towards_viewer, to_the_left)
 	_stride = 0.0 if _path.is_empty() else _stride + delta * 12.0
-	queue_redraw()
+	_body.position.y = -absf(sin(_stride)) * 4.0
 
 
-func _draw() -> void:
-	draw_set_transform(Vector2.ZERO, 0.0, Vector2(1.0, 0.5))
-	draw_circle(Vector2.ZERO, 22.0, Color(0, 0, 0, 0.2))
-	# Slight bobbing while walking
-	draw_set_transform(Vector2(0, -absf(sin(_stride)) * 5.0))
-	draw_colored_polygon(
-		PackedVector2Array([Vector2(-18, 0), Vector2(18, 0), Vector2(11, -54), Vector2(-11, -54)]), Color("b5533c")
-	)
-	draw_circle(Vector2(3.0 * _facing, -66), 14.0, Color("f0d2b0"))
-	draw_set_transform(Vector2.ZERO)
+func _face(towards_viewer: bool, to_the_left: bool) -> void:
+	_front.visible = towards_viewer
+	_back.visible = not towards_viewer
+	_cast_front.visible = towards_viewer
+	_cast_back.visible = not towards_viewer
+	_body.scale.x = -1.0 if to_the_left else 1.0
+	for cast: Sprite2D in [_cast_front, _cast_back]:
+		cast.flip_h = to_the_left

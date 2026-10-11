@@ -21,6 +21,10 @@ const IMAGES := {
 	"rock": {"width": 84.0, "foot": Vector2(0.5, 0.78), "base": 50.0},
 	"lantern": {"width": 85.0, "foot": Vector2(0.19, 0.97), "light": Vector2(48, -70), "base": 18.0},
 	"bridge": {"width": 180.0, "foot": Vector2(0.5, 0.45)},
+	"old_man": {"width": 52.0, "foot": Vector2(0.5, 0.96), "base": 20.0},
+	"woman": {"width": 39.0, "foot": Vector2(0.5, 0.97), "base": 18.0},
+	"table": {"width": 100.0, "foot": Vector2(0.5, 0.78), "base": 44.0},
+	"cupboard": {"width": 104.0, "foot": Vector2(0.5, 0.85), "base": 46.0},
 }
 const LIGHT_COLOR := Color(1.0, 0.78, 0.42)
 ## Colour laid over a lantern that is out.
@@ -66,7 +70,7 @@ func setup(object: Dictionary) -> void:
 	var layout: Dictionary = IMAGES[kind]
 	var mirrored: bool = object.mirrored
 	var lit: bool = object.state != "out"
-	_image = _build_image(load(path), layout, mirrored)
+	_image = build_image(load(path), layout, mirrored)
 	if layout.get("wind", false):
 		_image.material = _get_wind_material()
 	if not lit:
@@ -141,14 +145,14 @@ func build_shadow() -> Node2D:
 	shadow.position = position + _image.position
 	# Soft blob right at the foot. Without it the object looks as if it hovers above the ground.
 	var base := Sprite2D.new()
-	base.texture = _get_base_blob()
+	base.texture = base_blob()
 	base.modulate = BoxShadow.COLOR
 	base.scale = Vector2(1.0, 0.5) * (layout.base * 2.0 / base.texture.get_width())
 	shadow.add_child(base)
 
 	var cast := _image.duplicate() as Sprite2D
 	cast.position = Vector2.ZERO
-	cast.material = _get_shadow_material()
+	cast.material = shadow_material()
 	shadow.add_child(cast)
 	return shadow
 
@@ -177,12 +181,12 @@ func _draw() -> void:
 			_draw_rock()
 		"house":
 			_draw_house()
-		"person":
+		"person", "old_man", "woman":
 			_draw_person()
 
 
 ## Image with its foot point at the sprite's origin, so mirroring and shadows can hinge on it.
-func _build_image(texture: Texture2D, layout: Dictionary, mirrored: bool) -> Sprite2D:
+static func build_image(texture: Texture2D, layout: Dictionary, mirrored: bool) -> Sprite2D:
 	var content := texture.get_width() / (1.0 + 2.0 * MARGIN)
 	var foot: Vector2 = layout.foot
 	var fraction := 1.0 - foot.x if mirrored else foot.x
@@ -212,7 +216,8 @@ static func _get_wind_material() -> ShaderMaterial:
 	return _wind_material
 
 
-static func _get_shadow_material() -> ShaderMaterial:
+## Material that lays the silhouette of a sprite flat on the ground as its shadow.
+static func shadow_material() -> ShaderMaterial:
 	if _shadow_material == null:
 		_shadow_material = ShaderMaterial.new()
 		_shadow_material.shader = preload("res://src/view/shaders/shadow.gdshader")
@@ -233,7 +238,8 @@ static func _get_light_blob() -> GradientTexture2D:
 	return _light_blob
 
 
-static func _get_base_blob() -> GradientTexture2D:
+## Soft round blob for the shadow right at the foot of an object.
+static func base_blob() -> GradientTexture2D:
 	if _base_blob == null:
 		_base_blob = _build_blob(0.6)
 	return _base_blob

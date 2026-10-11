@@ -11,9 +11,10 @@ from PIL import Image, ImageDraw
 
 CELL = (128, 64)
 EDGE = 90
-LAND = ".=~#"
-COLORS = {".": "#7fae6b", "=": "#d8c394", "~": "#74b6cc", "#": "#74b6cc"}
+LAND = ".=~#_"
+COLORS = {".": "#7fae6b", "=": "#d8c394", "~": "#74b6cc", "#": "#74b6cc", "_": "#b89468"}
 EARTH_LIGHT, EARTH_DARK = "#8a6a4f", "#6e533f"
+WALL_LEFT, WALL_RIGHT = "#d6cab0", "#e6dcc6"
 
 
 def to_point(x, y):
@@ -46,8 +47,11 @@ def placement(ground, image_size, margin_top=0.05, margin_bottom=0.2):
     return scale, origin
 
 
-def draw(ground, image_size, scale, origin, grid=False, backdrop=None):
-    """Layout plan on white. With backdrop, only the grid is laid over an existing image instead."""
+def draw(ground, image_size, scale, origin, grid=False, backdrop=None, walls=0):
+    """Layout plan on white. With backdrop, only the grid is laid over an existing image instead.
+
+    With walls, the two rear sides of the land get upright walls of that height (for rooms).
+    """
     image = backdrop.convert("RGBA") if backdrop else Image.new("RGBA", image_size, "white")
     pen = ImageDraw.Draw(image)
 
@@ -59,6 +63,14 @@ def draw(ground, image_size, scale, origin, grid=False, backdrop=None):
 
     cells = [(x, y) for y, row in enumerate(ground) for x, s in enumerate(row) if s in LAND]
     if not backdrop:
+        if walls:
+            first_x, first_y = min(x for x, _ in cells), min(y for _, y in cells)
+            for x, y in cells:
+                c = corners(x, y)
+                if x == first_x:
+                    pen.polygon(to_image([c[3], c[0]]) + to_image([c[0], c[3]], -walls), fill=WALL_LEFT)
+                if y == first_y:
+                    pen.polygon(to_image([c[0], c[1]]) + to_image([c[1], c[0]], -walls), fill=WALL_RIGHT)
         for x, y in cells:
             c = corners(x, y)
             if symbol(x + 1, y) == " ":

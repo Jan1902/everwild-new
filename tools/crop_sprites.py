@@ -14,10 +14,17 @@ from PIL import Image
 
 from env import PROJECT
 
-RAW = PROJECT / "styletest" / "village"
+VILLAGE = PROJECT / "styletest" / "village"
+ROOM = PROJECT / "styletest" / "room"
 OBJECTS = PROJECT / "assets" / "objects"
 WORLDS = PROJECT / "assets" / "worlds"
-NAMES = ["house", "tree", "rock", "lantern", "bridge"]
+MUSIC = PROJECT / "assets" / "music"
+# Name of each sprite and the folder its raw image lies in.
+SOURCES = {
+    "house": VILLAGE, "tree": VILLAGE, "rock": VILLAGE, "lantern": VILLAGE, "bridge": VILLAGE,
+    "player_front": ROOM, "player_back": ROOM, "old_man": ROOM, "woman": ROOM,
+    "table": ROOM, "cupboard": ROOM,
+}
 # Below this opacity a pixel counts as empty. Hides faint haze around the object.
 THRESHOLD = 24
 # Margin per side as a fraction of the content width. Has to match MARGIN in src/view/object_view.gd.
@@ -25,7 +32,7 @@ MARGIN = 0.12
 
 
 def crop(name):
-    image = Image.open(RAW / f"{name}.png").convert("RGBA")
+    image = Image.open(SOURCES[name] / f"{name}.png").convert("RGBA")
     alpha = image.getchannel("A")
     # The model does not deliver full opacity even inside the object. Stretch to the full range.
     peak = alpha.getextrema()[1]
@@ -45,12 +52,14 @@ def crop(name):
 
 
 def main():
-    images = [crop(name) for name in NAMES]
-    for name, image in zip(NAMES, images):
+    images = [crop(name) for name in SOURCES]
+    for name, image in zip(SOURCES, images):
         print(name, image.size)
 
     WORLDS.mkdir(parents=True, exist_ok=True)
-    shutil.copyfile(RAW / "ground.png", WORLDS / "village_ground.png")
+    shutil.copyfile(VILLAGE / "ground.png", WORLDS / "village_ground.png")
+    shutil.copyfile(ROOM / "ground.png", WORLDS / "house_inside_ground.png")
+    shutil.copyfile(ROOM / "room_theme.mp3", MUSIC / "room_theme.mp3")
 
     if len(sys.argv) > 1:
         height = 600

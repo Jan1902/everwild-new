@@ -50,6 +50,33 @@ GROUND = (
 )
 
 
+ROOM = (
+    "Repaint the attached flat-coloured map as the finished painted inside of a small cottage "
+    "room, shown as an open cutaway diorama floating in the air. "
+    "Keep the layout exactly: every shape stays at the same position, with the same size, outline "
+    "and angles as in the map. Do not move, add, remove, widen or straighten anything. "
+    "Meaning of the colours: light brown is a floor of wide wooden planks. The two pale upright "
+    "areas at the back are the two rear walls of the room, pale plaster with a dark wooden beam "
+    "along the top; the right one has one small window. Dark brown below the floor is the "
+    "cut-through stone foundation of the house. The single floor tile sticking out at the lower "
+    "left is the doorstep and has a plain woven doormat. "
+    "Everything white in the map becomes fully transparent background. "
+    "Paint only the floor and the walls: no furniture, no people, no objects on the floor, no "
+    "pictures, no shadows of objects, no text."
+)
+
+# Figures are small on screen. Picture-book proportions keep them readable.
+FIGURE = (
+    "A single person as a game sprite, the whole figure from head to feet, standing still, with "
+    "picture-book proportions: a slightly large head and a small, simple body. No facial details "
+    "beyond two small dots for eyes."
+)
+
+
+def room_prompt():
+    return "\n\n".join([ROOM, VIEW, PAINTED_STYLE])
+
+
 def sprite_prompt(subject, with_reference=False):
     parts = [subject, SPRITE_RULES, VIEW, PAINTED_STYLE]
     if with_reference:

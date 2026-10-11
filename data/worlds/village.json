@@ -62,7 +62,7 @@
 		{"id": "lantern_west", "kind": "lantern", "cell": [7, 8], "state": "lit"},
 		{"id": "lantern_bridge", "kind": "lantern", "cell": [12, 10], "state": "lit"},
 		{"id": "lantern_east", "kind": "lantern", "cell": [15, 10], "state": "lit"},
-		{"id": "stranger", "kind": "person", "cell": [16, 11], "mirrored": true}
+		{"id": "stranger", "kind": "woman", "cell": [16, 11]}
 	],
 	"broken": {
 		"rock_bridge": {"cell": [12, 9]},

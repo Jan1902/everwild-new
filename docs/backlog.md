@@ -12,9 +12,9 @@ Spielspeicher, Regeln je Welt, Stimmung aus dem Zustand, Lösbarkeitsprüfung un
 
 ## Spielinhalt
 
-1. **Richtige Spielfigur.** Sprite statt Platzhalter, Laufanimation in den nötigen Richtungen, passender Schatten. Offen ist der Weg dorthin (siehe `concept.md`, Offene Punkte). Braucht Bildgenerierung.
+1. **Laufanimation der Spielfigur.** Die Figur hat je ein Bild von vorn und von hinten, gespiegelt für die anderen beiden Richtungen, und wippt beim Gehen nur. Eine echte Laufanimation fehlt, ebenso bewegte NPCs. Offen ist, ob ein Bildmodell dafür stimmige Einzelbilder liefert.
 2. **NPCs und Dialoge ausbauen.** Figuren sind Objekte der Welt, was sie sagen, hängt über Regeln am Spielstand, die Texte stehen je Sprache in `data/texts/`. Es gibt zwei Figuren als Probelauf (alter Mann im Haus, Frau am Bach). Es fehlen die eigentlichen Figuren und Texte der Geschichte und, falls gewünscht, Antworten zur Auswahl.
-3. **Weitere Welten.** Der Wechsel zwischen Welten steht (Türen und Portale sind Regeln mit einem Ziel, das vom Zustand abhängt, dazwischen eine Blende). Es gibt bisher nur das Dorf und einen leeren Raum als Platzhalter. Es fehlen echte weitere Welten und ein weicher Wechsel der Musik zwischen verschiedenen Stücken.
+3. **Weitere Welten.** Der Wechsel zwischen Welten steht (Türen und Portale sind Regeln mit einem Ziel, das vom Zustand abhängt, dazwischen eine Blende). Es gibt bisher das Dorf und den Raum im Haus, jeweils mit eigenem Musikstück, das beim Wechsel überblendet. Es fehlen echte weitere Welten.
 4. **Notizbuch ausbauen.** Das Notizbuch sammelt Erinnerungen, Weltstücke und Hinweise (`data/notes.json`) und zeigt zu jedem Eintrag, womit er zusammenhängt. Noch nicht gefundene Verwandte erscheinen als Lücke. Es fehlt eine Darstellung der Beziehungen als Bild (Karte der Weltstücke statt Liste) und die Gestaltung im gemalten Stil.
 5. **Erinnerung und Verweilen abstimmen.** Wer stehen bleibt, sieht die Erinnerung durchscheinen, und Regeln können auf das Verweilen warten. Offen ist das Gefühl: Wartezeit (3,5 s), Dauer (4,5 s), wie deutlich die Erinnerung sein darf und ob sie ein eigenes Geräusch bekommt. Noch keine Welt benutzt eine Verweil-Regel.
 6. **Tutorial-Dorf als fertiger Abschnitt.** Heile Fassung mit den Aufgaben für den alten Mann, der Bruch, das Aufwachen, die kaputte Fassung mit vier bis sechs Fehlern. Die drei Fehler, die das Dorf jetzt hat (Stein vor der Brücke, Stein im Osten mit gespiegeltem Baum, dunkle Laternen), sind nur ein Probelauf für die Mechanik, und das Spiel beginnt vorläufig direkt im kaputten Dorf.
@@ -28,9 +28,8 @@ Spielspeicher, Regeln je Welt, Stimmung aus dem Zustand, Lösbarkeitsprüfung un
 
 ## Grafik und Ton
 
-1. **Figuren.** Die NPCs sind gezeichnete Platzhalter wie die Spielfigur. Brauchen Sprites im selben Verfahren wie die Spielfigur.
 2. **Dialogfeld und Notizbuch.** Beide nutzen die Standardschrift von Godot und schlichte Flächen. Brauchen eine Schrift und Gestaltung, die zum gemalten Stil passen.
-3. **Innenräume.** Der Raum im Haus ist eine gezeichnete Platzhalter-Fläche ohne Wände und Möbel. Braucht ein Bodenbild und Objekte aus der Bildgenerierung.
+3. **Raum einrichten.** Der Raum hat gemalten Boden und Wände, einen Tisch und einen Schrank. Für Rätsel im Haus fehlen Dinge, mit denen man etwas tun kann.
 4. **Verdeckung durch hohe Objekte.** Häuser und Bäume verdecken die Figur und Wege. Braucht eine Lösung (durchscheinen, Umriss oder Regeln für die Platzierung).
 5. **Brücke.** Das Sprite ist zu lang und zu schmal für den ein Feld breiten Bach. Neu generieren mit Formvorlage.
 6. **Schatten auf Höhenunterschieden.** Der Schatten der Laterne fällt über Brücke und Bach, als wäre alles flach.
