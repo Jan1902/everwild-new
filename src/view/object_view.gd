@@ -15,6 +15,8 @@ const MARGIN := 0.12
 ##   base    radius of the soft shadow right at the foot, which anchors the object to the ground
 ##   box     wall and ridge height in world pixels; the shadow is then computed from the
 ##           footprint instead of the silhouette
+##   wall    the object is flat and upright and stands along a ground axis, like an arch or a
+##           gate; its shadow is cast from that plane instead of from a flat silhouette
 ##   image   name of the image file if it is not the kind
 ##   sails   windmill sails that turn in the plane of the right wall: "hub" is their centre
 ##           relative to the foot, "size" their diameter in world pixels
@@ -31,8 +33,8 @@ const IMAGES := {
 	"cupboard": {"width": 104.0, "foot": Vector2(0.5, 0.85), "base": 46.0},
 	"raft": {"image": "bridge", "width": 127.0, "foot": Vector2(0.499, 0.457)},
 	"mill": {"width": 190.0, "foot": Vector2(0.5, 0.865), "base": 80.0, "sails": {"hub": Vector2(60, -126), "size": 250.0}},
-	"arch": {"width": 104.0, "foot": Vector2(0.516, 0.827), "light": Vector2(0, -36)},
-	"sluice": {"width": 90.0, "foot": Vector2(0.5, 0.82), "base": 36.0},
+	"arch": {"width": 104.0, "foot": Vector2(0.516, 0.827), "wall": true, "light": Vector2(0, -36)},
+	"sluice": {"width": 90.0, "foot": Vector2(0.5, 0.82), "wall": true},
 	"miller": {"width": 60.0, "foot": Vector2(0.5, 0.96), "base": 22.0},
 }
 ## States in which an object with a light is dark.
@@ -54,6 +56,8 @@ static var shadow_cast := Vector2(0.5, 0.2)
 
 static var _wind_material: ShaderMaterial
 static var _shadow_material: ShaderMaterial
+## Shadow materials for upright flat objects, one per direction they can stand in.
+static var _wall_shadow_materials := {}
 static var _light_blob: GradientTexture2D
 static var _base_blob: GradientTexture2D
 ## Kind -> which pixels of its image are painted, for telling what a tap hits.
@@ -217,7 +221,7 @@ func build_shadow() -> Node2D:
 
 	var cast := _image.duplicate() as Sprite2D
 	cast.position = Vector2.ZERO
-	cast.material = shadow_material()
+	cast.material = _wall_shadow_material(_shown.mirrored) if layout.get("wall", false) else shadow_material()
 	shadow.add_child(cast)
 	return shadow
 
@@ -271,6 +275,7 @@ static func build_image(texture: Texture2D, layout: Dictionary, mirrored: bool) 
 static func cleanup() -> void:
 	_wind_material = null
 	_shadow_material = null
+	_wall_shadow_materials.clear()
 	_light_blob = null
 	_base_blob = null
 	_masks.clear()
@@ -303,6 +308,15 @@ static func _get_light_blob() -> GradientTexture2D:
 	if _light_blob == null:
 		_light_blob = _build_blob(0.0)
 	return _light_blob
+
+
+static func _wall_shadow_material(mirrored: bool) -> ShaderMaterial:
+	if not _wall_shadow_materials.has(mirrored):
+		var material := ShaderMaterial.new()
+		material.shader = preload("res://src/view/shaders/wall_shadow.gdshader")
+		material.set_shader_parameter("axis", -1.0 if mirrored else 1.0)
+		_wall_shadow_materials[mirrored] = material
+	return _wall_shadow_materials[mirrored]
 
 
 ## Soft round blob for the shadow right at the foot of an object.
