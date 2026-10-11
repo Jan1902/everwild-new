@@ -1,4 +1,7 @@
 {
+	"start.advice": "This game lives from its mood.\nIt is at its best with headphones, or somewhere quiet.",
+	"start.begin": "Tap to begin",
+
 	"notebook.title": "Notebook",
 	"notebook.empty": "Nothing written down yet.",
 	"notebook.links": "Belongs with",

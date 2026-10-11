@@ -45,6 +45,8 @@ var _curtain: ColorRect
 var _dialogue: DialogueBox
 var _notebook: NotebookView
 var _travelling := false
+## False while the start screen is up. The music waits for it.
+var _started := true
 ## File the game is saved to. Empty for a game that is not saved.
 var _save_path := SaveFile.DEFAULT_PATH
 
@@ -80,9 +82,15 @@ func _ready() -> void:
 	_camera.zoom = Vector2.ONE * ZOOM
 	_camera.position_smoothing_enabled = true
 	add_child(_camera)
+	# Runs driven by the test helper skip the start screen, unless they ask for it.
+	if arguments.is_empty() or "--start-screen" in arguments:
+		_started = false
+		var start := StartScreen.new()
+		start.dismissed.connect(_on_start_dismissed)
+		add_child(start)
 	_build_stage()
 
-	if not OS.get_cmdline_user_args().is_empty():
+	if not arguments.is_empty():
 		add_child(TestHelper.new())
 
 
@@ -185,6 +193,11 @@ func music_position() -> float:
 func stop_music() -> void:
 	_music.stop()
 	_music.stream = null
+
+
+func _on_start_dismissed() -> void:
+	_started = true
+	_play_music(world.music)
 
 
 func _walk(path: Array[Vector2i]) -> void:
@@ -450,7 +463,7 @@ func _build_music() -> void:
 
 ## Fades in the track of a world. A track that is already playing just keeps playing.
 func _play_music(path: String) -> void:
-	if _music.stream and _music.stream.resource_path == path:
+	if not _started or (_music.stream and _music.stream.resource_path == path):
 		return
 	_music.stop()
 	_music.stream = null

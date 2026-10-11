@@ -257,6 +257,8 @@ func _test_texts() -> void:
 				if effect.has("note"):
 					_check(Notebook.read().has(effect["note"]), "Rule gives unknown note '%s'" % effect["note"])
 		needed["world." + world_id] = true
+	for key: String in ["start.advice", "start.begin", "notebook.title", "notebook.empty", "notebook.links", "notebook.unknown"]:
+		needed[key] = true
 	var notes := Notebook.read()
 	_check(Notebook.errors(notes).is_empty(), "Notes have errors: %s" % [Notebook.errors(notes)])
 	for note: String in notes:

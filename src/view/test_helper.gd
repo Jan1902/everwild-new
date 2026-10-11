@@ -11,6 +11,7 @@ extends Node
 ## --intact           starts in the intact version of the world
 ## --save=path        loads the game from this file and saves it there (without it, runs with
 ##                    arguments neither load nor save)
+## --start-screen     shows the start screen, which runs with arguments skip otherwise
 ## --notebook[=note]  opens the notebook at the end, on this note if one is given
 ## --language=code    shows the texts in this language instead of the one of the device
 ## Afterwards the character's cell, the open faults, whether a dialogue is open and the music

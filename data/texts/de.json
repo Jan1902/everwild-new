@@ -1,4 +1,7 @@
 {
+	"start.advice": "Dieses Spiel lebt von seiner Stimmung.\nAm schönsten ist es mit Kopfhörern oder an einem ruhigen Ort.",
+	"start.begin": "Tippen, um zu beginnen",
+
 	"notebook.title": "Notizbuch",
 	"notebook.empty": "Noch nichts aufgeschrieben.",
 	"notebook.links": "Gehört zu",

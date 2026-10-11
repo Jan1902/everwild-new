@@ -23,10 +23,9 @@ Spielspeicher, Regeln je Welt, Stimmung aus dem Zustand, Lösbarkeitsprüfung un
 
 ## Rahmen
 
-1. **Startbildschirm mit Hinweis.** Vor dem Spiel ein ruhiger Bildschirm: Die Atmosphäre ist ein wesentlicher Teil, deshalb die Empfehlung, in ruhiger Umgebung oder mit Kopfhörern zu spielen.
-2. **Titel, Pause und Einstellungen.** Fortsetzen, neu beginnen, Lautstärke. So wenig wie möglich.
-3. **Sprache wählen.** Die Texte liegen auf Deutsch und Englisch vor, gewählt wird nach der Sprache des Geräts. Eine Umstellung im Spiel fehlt.
-4. **Android-Export.** Bauen, auf einem echten Gerät starten, Touch und Leistung prüfen. Bisher ist nur die Maus getestet.
+1. **Titel, Pause und Einstellungen.** Der Startbildschirm mit dem Hinweis auf Kopfhörer steht. Es fehlen Titel, Fortsetzen, neu beginnen (vorläufig Taste N) und Lautstärke. So wenig wie möglich.
+2. **Sprache wählen.** Die Texte liegen auf Deutsch und Englisch vor, gewählt wird nach der Sprache des Geräts. Eine Umstellung im Spiel fehlt.
+3. **Android-Export.** Bauen, auf einem echten Gerät starten, Touch und Leistung prüfen. Bisher ist nur die Maus getestet.
 
 ## Grafik und Ton
 
