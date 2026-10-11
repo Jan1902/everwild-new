@@ -2,13 +2,15 @@ class_name NotebookView
 extends CanvasLayer
 ## The notebook: a small button in the corner that opens a page with everything the player has
 ## found. The button only shows once the player carries the notebook. While the page is open it
-## takes all taps.
+## takes all taps. It closes with the cross in its corner, the button, or a tap beside the page.
 
 const PAPER := Color(0.93, 0.89, 0.8)
 const INK := Color(0.2, 0.17, 0.15)
 const FAINT := Color(0.2, 0.17, 0.15, 0.55)
 const MARK := Color(0.72, 0.36, 0.24)
 const BUTTON_SIZE := 92.0
+## Size of the area that reacts to a tap on the cross. Larger than the cross itself, for fingers.
+const CLOSE_SIZE := 76.0
 ## Item the player has to carry for the notebook to be there.
 const ITEM := "notebook"
 
@@ -20,6 +22,7 @@ var _selected := ""
 var _unread := false
 var _button: Control
 var _page: Control
+var _close: Control
 var _list: VBoxContainer
 var _detail: VBoxContainer
 ## Controls that react to a tap, each with the id of the note they show.
@@ -61,6 +64,20 @@ func _ready() -> void:
 	paper.anchor_bottom = 0.9
 	paper.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_page.add_child(paper)
+
+	# The cross in the upper right corner of the paper.
+	_close = Control.new()
+	_close.anchor_left = paper.anchor_right
+	_close.anchor_right = paper.anchor_right
+	_close.anchor_top = paper.anchor_top
+	_close.anchor_bottom = paper.anchor_top
+	_close.offset_left = -CLOSE_SIZE - 16.0
+	_close.offset_right = -16.0
+	_close.offset_top = 16.0
+	_close.offset_bottom = 16.0 + CLOSE_SIZE
+	_close.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_close.draw.connect(_draw_close)
+	_page.add_child(_close)
 
 	var columns := HBoxContainer.new()
 	columns.add_theme_constant_override("separation", 64)
@@ -121,6 +138,9 @@ func _input(event: InputEvent) -> void:
 	get_viewport().set_input_as_handled()
 	if not touch.pressed:
 		return
+	if _close.get_global_rect().has_point(touch.position):
+		close()
+		return
 	for target in _targets:
 		if target.control.get_global_rect().has_point(touch.position):
 			_selected = target.id
@@ -171,6 +191,13 @@ func _label(text: String, font_size: int, color: Color) -> Label:
 	label.add_theme_font_size_override("font_size", font_size)
 	label.add_theme_color_override("font_color", color)
 	return label
+
+
+func _draw_close() -> void:
+	var inset := CLOSE_SIZE * 0.3
+	var far := CLOSE_SIZE - inset
+	_close.draw_line(Vector2(inset, inset), Vector2(far, far), FAINT, 5.0, true)
+	_close.draw_line(Vector2(far, inset), Vector2(inset, far), FAINT, 5.0, true)
 
 
 ## A little book on a dark disc, with a dot while there is something unread.

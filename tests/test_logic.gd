@@ -269,8 +269,7 @@ func _test_texts() -> void:
 			for effect: Dictionary in rule.get("do", []):
 				if effect.has("say"):
 					needed[effect["say"]] = true
-				if effect.has("who"):
-					needed["name." + effect["who"]] = true
+					needed["name." + effect.get("who", "self")] = true
 				if effect.has("note"):
 					_check(Notebook.read().has(effect["note"]), "Rule gives unknown note '%s'" % effect["note"])
 		needed["world." + world_id] = true

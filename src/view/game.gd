@@ -311,8 +311,8 @@ func _show(effects: Array) -> void:
 		if effect.has("note"):
 			_notebook.mark_unread()
 		if effect.has("say"):
-			var who: String = effect.get("who", "")
-			_dialogue.say("" if who.is_empty() else Texts.text("name." + who), Texts.lines(effect["say"]))
+			# Lines without a speaker are the player talking to themselves.
+			_dialogue.say(Texts.text("name." + effect.get("who", "self")), Texts.lines(effect["say"]))
 	if effects.any(func(effect: Dictionary) -> bool: return effect.has("go")):
 		_travel()
 	else:

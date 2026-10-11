@@ -23,7 +23,8 @@ extends RefCounted
 ##   {"restore": world}               turns a world back into the intact one
 ##   {"go": world, "cell": [x, y]}    moves the player to another world (default: its start cell)
 ##   {"say": text, "who": person}     changes nothing; the view shows the lines of the text, with
-##                                    the text "name.<person>" as the speaker
+##                                    the text "name.<person>" as the speaker. Without "who" the
+##                                    player talks to themselves ("name.self")
 ##
 ## A rule only fires if its conditions hold and its effects are possible. Of several rules for
 ## the same trigger, only the first one that can fire does.
