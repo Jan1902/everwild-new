@@ -1,0 +1,14 @@
+# Godot
+.godot/
+*.translation
+/android/
+
+# Zugangsdaten
+.env
+.env.*
+*.keystore
+*.jks
+
+# Lokale Zwischenstände
+*.tmp
+/build/
