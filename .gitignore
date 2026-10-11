@@ -9,6 +9,10 @@
 *.keystore
 *.jks
 
+# Python-Werkzeuge
+.venv/
+__pycache__/
+
 # Lokale Zwischenstände
 *.tmp
 /build/

@@ -104,6 +104,7 @@ Grundregel: Jeder sichtbare Unterschied zwischen zwei Varianten einer Welt ist A
 
 - **Stil:** Gemalt und illustrativ, mittlerer Detailgrad. Objekte müssen einzeln klar erkennbar sein. Kein Fotorealismus, keine überladenen Bilder.
 - **Richtung:** Old Man's Journey, Carto, The Gardens Between.
+- **Eher schlicht:** Der erste Test-Sprite (Laterne mit Holzmaserung, Nieten, Rost) war Jan zu detailliert. Materialien werden über Farbe und Form angedeutet, nicht über Textur. Die Stilvorgabe für alle Bild-Prompts steht zentral in `tools/stil.py`.
 - **Welt als schwebendes Diorama:** Jede Welt ist ein Bruchstück. Die Stücke können sich im Notizbuch sichtbar zusammensetzen.
 - **Aufbau in Ebenen:**
   - *Untergrund:* ein gemaltes Bild pro Welt, in allen Varianten pixelgleich.
