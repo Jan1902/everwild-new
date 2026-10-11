@@ -6,10 +6,9 @@ Die Reihenfolge innerhalb eines Abschnitts ist die vorgeschlagene Reihenfolge de
 
 ## Fundament
 
-Diese Punkte bauen aufeinander auf, fast alles Weitere hängt an ihnen.
+Spielspeicher, Regeln je Welt, Stimmung aus dem Zustand, Lösbarkeitsprüfung und lokale Speicherung stehen. Es fehlt:
 
-1. **Persistierung lokal.** Spielspeicher bei jeder Änderung auf das Gerät schreiben, beim Start laden, mit Versionsnummer für spätere Änderungen am Format.
-2. **Speicherung in Google Play.** Spielstand über Google Play Games (Saved Games) sichern und zwischen Geräten abgleichen, mit Regel für Konflikte zwischen lokalem und entferntem Stand.
+1. **Speicherung in Google Play.** Spielstand über Google Play Games (Saved Games) sichern und zwischen Geräten abgleichen, mit Regel für Konflikte zwischen lokalem und entferntem Stand.
 
 ## Spielinhalt
 

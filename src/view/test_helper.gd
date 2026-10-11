@@ -9,6 +9,8 @@ extends Node
 ## --wait=s           waiting time after each tap, default 1
 ## --screenshot=path  saves a screenshot at the end
 ## --intact           starts in the intact version of the world
+## --save=path        loads the game from this file and saves it there (without it, runs with
+##                    arguments neither load nor save)
 ## Afterwards the character's cell, the open faults and the music position are printed and the
 ## game quits.
 

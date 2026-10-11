@@ -14,6 +14,7 @@ func _init() -> void:
 	_test_state()
 	_test_rules()
 	_test_village_game()
+	_test_save_file()
 	print("%d checks, %d failed" % [_checks, _failures])
 	quit(1 if _failures > 0 else 0)
 
@@ -238,6 +239,32 @@ func _test_rules() -> void:
 	var hopeless := _tiny_sources()
 	hopeless.tiny.rules.clear()
 	_check(not Solver.check(_tiny_game(), hopeless).solvable, "Unsolvable game is not found")
+
+
+func _test_save_file() -> void:
+	var path := "user://test_save.json"
+	SaveFile.delete(path)
+	_check(SaveFile.read(path) == null, "Missing save file is not reported as missing")
+
+	var session := Session.create(_tiny_game(), _tiny_sources())
+	session.enter(Vector2i(1, 0))
+	session.interact("gate")
+	_check(SaveFile.write(path, session.state.to_data()), "Save file cannot be written")
+	var continued := Session.resume(_tiny_game(), SaveFile.read(path), _tiny_sources())
+	_check(continued != null and continued.state.key() == session.state.key(), "Game read from a file differs from the saved one")
+	_check(continued != null and continued.open_faults() == ["lamp"], "Game read from a file loses fixed faults")
+
+	# Saving again replaces the file.
+	session.enter(Vector2i(2, 0))
+	SaveFile.write(path, session.state.to_data())
+	_check(GameState.from_data(SaveFile.read(path)).cell == Vector2i(2, 0), "Second save does not replace the first")
+	_check(not FileAccess.file_exists(path + ".tmp"), "Draft of the save file is left behind")
+
+	var file := FileAccess.open(path, FileAccess.WRITE)
+	file.store_string("{\"version\": 1, \"world\": ")
+	file.close()
+	_check(Session.resume(_tiny_game(), SaveFile.read(path), _tiny_sources()) == null, "Half-written save file is accepted")
+	SaveFile.delete(path)
 
 
 func _test_village_game() -> void:

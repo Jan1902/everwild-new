@@ -37,11 +37,25 @@ var _mood_change: Tween
 ## Where the walk in progress leads, and the object to use on arrival (empty for none).
 var _destination := Vector2i.ZERO
 var _target_object := ""
+var _game := {}
+## File the game is saved to. Empty for a game that is not saved.
+var _save_path := SaveFile.DEFAULT_PATH
 
 
 func _ready() -> void:
-	var game: Variant = JSON.parse_string(FileAccess.get_file_as_string(GAME_PATH))
-	session = Session.create(game)
+	# Runs driven by the test helper leave the player's save alone, unless they name a file.
+	var arguments := OS.get_cmdline_user_args()
+	if not arguments.is_empty():
+		_save_path = ""
+	for argument in arguments:
+		if argument.begins_with("--save="):
+			_save_path = argument.trim_prefix("--save=")
+
+	_game = JSON.parse_string(FileAccess.get_file_as_string(GAME_PATH))
+	if not _save_path.is_empty():
+		session = Session.resume(_game, SaveFile.read(_save_path))
+	if session == null:
+		session = Session.create(_game)
 
 	_build_sky()
 	_build_grading()
@@ -60,6 +74,12 @@ func _exit_tree() -> void:
 	ObjectView.cleanup()
 
 
+func _notification(what: int) -> void:
+	# The last chance to save before the app goes to the background or closes.
+	if what in [NOTIFICATION_APPLICATION_PAUSED, NOTIFICATION_WM_CLOSE_REQUEST, NOTIFICATION_WM_GO_BACK_REQUEST]:
+		save()
+
+
 func _process(_delta: float) -> void:
 	_camera.position = _camera_target()
 
@@ -72,6 +92,9 @@ func _unhandled_input(event: InputEvent) -> void:
 	var key := event as InputEventKey
 	if key and key.pressed and not key.echo and key.physical_keycode == KEY_F:
 		set_broken(session.open_faults().is_empty())
+	# Temporary as well: N throws the saved game away and starts a new one.
+	if key and key.pressed and not key.echo and key.physical_keycode == KEY_N:
+		new_game()
 
 
 ## Reacts to a tap on a point of the world: uses the object there, otherwise walks to the cell.
@@ -113,6 +136,20 @@ func set_broken(enabled: bool, instant := false) -> void:
 	session.apply([{("break" if enabled else "restore"): world.id}], world.id)
 	_sync_objects()
 	_change_mood(instant)
+	save()
+
+
+## Throws the game in progress away and starts from the beginning.
+func new_game() -> void:
+	session = Session.create(_game)
+	_build_stage()
+	save()
+
+
+## Writes the game to its save file.
+func save() -> void:
+	if session and not _save_path.is_empty():
+		SaveFile.write(_save_path, session.state.to_data())
 
 
 ## Seconds the music track has been playing. -1 without music.
@@ -145,6 +182,7 @@ func _on_cell_reached(cell: Vector2i) -> void:
 
 
 func _arrive() -> void:
+	save()
 	if _target_object.is_empty():
 		return
 	var object_id := _target_object
@@ -159,9 +197,10 @@ func _show(effects: Array) -> void:
 		return
 	if session.state.world != world.id:
 		_build_stage()
-		return
-	_sync_objects()
-	_change_mood()
+	else:
+		_sync_objects()
+		_change_mood()
+	save()
 
 
 ## The interactive object whose image is under the point, the one furthest in front first.

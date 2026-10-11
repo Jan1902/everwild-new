@@ -36,7 +36,7 @@ Godot liegt unter `C:\godot\godot.exe` (4.7.2). Nach neuen Skripten mit `class_n
 & "C:\godot\godot.exe" --path . -- --tap=11,9 --tap=16,9 --wait=3 --screenshot=C:/path/image.png
 ```
 
-Der dritte Befehl startet das Spiel im Fenster, tippt nacheinander auf die Zellen, speichert ein Bildschirmfoto und gibt die Zelle der Figur, die offenen Fehler und den Stand der Musik aus (`src/view/test_helper.gd`). Ein Tipp auf ein Objekt mit Regel benutzt es. Mit `--intact` startet die Welt in der heilen Fassung. Im Spiel selbst wechselt vorläufig die Taste F zwischen heil und kaputt. Headless kann Godot nicht rendern, für Bildschirmfotos braucht es das Fenster.
+Der dritte Befehl startet das Spiel im Fenster, tippt nacheinander auf die Zellen, speichert ein Bildschirmfoto und gibt die Zelle der Figur, die offenen Fehler und den Stand der Musik aus (`src/view/test_helper.gd`). Ein Tipp auf ein Objekt mit Regel benutzt es. Mit `--intact` startet die Welt in der heilen Fassung. Im Spiel selbst wechselt vorläufig die Taste F zwischen heil und kaputt, die Taste N beginnt ein neues Spiel. Der Spielstand liegt in `user://save.json` (`%APPDATA%\Godot\app_userdata\Everwild`); Läufe mit Argumenten laden und speichern nur mit `--save=Pfad`. Headless kann Godot nicht rendern, für Bildschirmfotos braucht es das Fenster.
 
 Der Test prüft auch die Lösbarkeit: Nach jeder Änderung an Welten oder Regeln laufen lassen.
 
