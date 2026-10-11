@@ -24,10 +24,16 @@
 		"                    ",
 		"                    "
 	],
+	"bodenbild": {
+		"pfad": "res://assets/welten/dorf_boden.png",
+		"massstab": 1.298,
+		"ursprung": [-922.13, 104.53]
+	},
 	"objekte": [
+		{"art": "bruecke", "zelle": [13, 9]},
 		{"art": "haus", "zelle": [8, 5], "groesse": [2, 2]},
 		{"art": "haus", "zelle": [2, 6], "groesse": [2, 2]},
-		{"art": "haus", "zelle": [15, 11], "groesse": [2, 2]},
+		{"art": "haus", "zelle": [16, 6], "groesse": [2, 2]},
 		{"art": "baum", "zelle": [4, 3]},
 		{"art": "baum", "zelle": [10, 2]},
 		{"art": "baum", "zelle": [16, 5]},

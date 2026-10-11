@@ -1,14 +1,25 @@
 class_name ObjektAnsicht
 extends Node2D
-## Zeigt ein Objekt der Welt. Bis auf die Laterne sind alle Objekte gezeichnete Platzhalter.
+## Zeigt ein Objekt der Welt: als gemaltes Bild, wenn es eines gibt, sonst als gezeichneten Platzhalter.
 
-const LATERNE := "res://assets/objekte/laterne.png"
-## Fußpunkt des Pfostens im Laternenbild und Maßstab des Bildes in der Welt.
-const LATERNE_FUSS := Vector2(610, 950)
-const LATERNE_MASS := 0.2
+const BILDORDNER := "res://assets/objekte/"
+## Wie die Bilder in der Welt sitzen:
+##   breite   Breite des Bildes in Weltpixeln
+##   fuss     Stelle im Bild (Anteil von Breite und Höhe), die auf dem Boden steht
+##   versatz  Lage dieser Stelle relativ zur Mitte der Grundfläche
+##   schatten Radius des Bodenschattens, 0 für keinen
+const BILDER := {
+	"haus": {"breite": 298.0, "fuss": Vector2(0.51, 0.985), "versatz": Vector2(0, 64), "schatten": 0.0},
+	"baum": {"breite": 190.0, "fuss": Vector2(0.49, 0.97), "versatz": Vector2.ZERO, "schatten": 46.0},
+	"stein": {"breite": 84.0, "fuss": Vector2(0.5, 0.78), "versatz": Vector2.ZERO, "schatten": 0.0},
+	"laterne": {"breite": 85.0, "fuss": Vector2(0.19, 0.97), "versatz": Vector2.ZERO, "schatten": 16.0},
+	"bruecke": {"breite": 180.0, "fuss": Vector2(0.5, 0.45), "versatz": Vector2.ZERO, "schatten": 0.0},
+}
 
 var art := ""
 var groesse := Vector2i.ONE
+
+var _hat_bild := false
 
 
 ## Richtet das Objekt ein. Der Knoten sitzt in der Mitte seiner Grundfläche, damit die
@@ -17,16 +28,25 @@ func richte_ein(objekt: Dictionary) -> void:
 	art = objekt.art
 	groesse = objekt.groesse
 	position = Iso.zu_punkt(Vector2(objekt.zelle) + Vector2(groesse - Vector2i.ONE) * 0.5)
-	if art == "laterne":
-		var bild := Sprite2D.new()
-		bild.texture = load(LATERNE)
-		bild.centered = false
-		bild.offset = -LATERNE_FUSS
-		bild.scale = Vector2.ONE * LATERNE_MASS
-		add_child(bild)
+
+	var pfad := BILDORDNER + art + ".png"
+	if not BILDER.has(art) or not ResourceLoader.exists(pfad):
+		return
+	_hat_bild = true
+	var lage: Dictionary = BILDER[art]
+	var bild := Sprite2D.new()
+	bild.texture = load(pfad)
+	bild.centered = false
+	bild.scale = Vector2.ONE * (lage.breite / bild.texture.get_width())
+	bild.position = lage.versatz - Vector2(bild.texture.get_size()) * lage.fuss * bild.scale
+	add_child(bild)
 
 
 func _draw() -> void:
+	if _hat_bild:
+		if BILDER[art].schatten > 0.0:
+			_zeichne_schatten(BILDER[art].schatten)
+		return
 	match art:
 		"baum":
 			_zeichne_baum()
@@ -34,8 +54,6 @@ func _draw() -> void:
 			_zeichne_stein()
 		"haus":
 			_zeichne_haus()
-		"laterne":
-			_zeichne_schatten(18.0)
 
 
 func _zeichne_schatten(radius: float) -> void:

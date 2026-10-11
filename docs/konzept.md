@@ -148,6 +148,14 @@ Ausgeschieden: Midjourney (keine offizielle API).
 
 **Empfehlung:** Den Stiltest mit GPT Image 2.5 und Nano Banana 2.1 nebeneinander fahren, dazu PixelLab oder Retro Diffusion für die Pixel-Art-Vergleichsvariante. Transparenz ist für die Objekt-Ebene entscheidend, deshalb ist GPT Image der Favorit. Scenario oder Recraft kommen erst ins Spiel, wenn der Stil feststeht und die Konsistenz über viele Objekte nicht reicht.
 
+**Erprobt am 2026-10-11 mit GPT Image 2.5 (`sunburst`):**
+
+- Ein Bild kostet rund 5 Cent (1024x1024 in hoher Qualität), das Bodenbild in 2560x1440 rund 7 Cent.
+- **Bodenbild aus Lageplan:** `tools/weltplan.py` zeichnet aus der Weltdatei einen flachen Lageplan in der Projektion des Spiels. Das Modell malt ihn aus und hält sich dabei fast pixelgenau an die Vorlage, sodass das Bild ohne Nacharbeit unter dem Logikraster liegt.
+- **Stil-Konsistenz:** Fünf Objekte, einzeln erzeugt mit dem Bodenbild als Stilreferenz, passen in Stil, Perspektive und Licht zueinander und zum Boden.
+- **Transparenz:** Hintergründe sind sauber freigestellt. Die Deckkraft im Objekt ist nicht ganz voll und wird von `tools/zuschneiden.py` gestreckt.
+- **Schwäche:** Proportionen lassen sich über den Prompt nur grob steuern. Die Brücke wurde zu lang und zu schmal für den ein Feld breiten Bach.
+
 ### Musik
 
 | Modell | Stärke für uns | Schwäche | Preis |
@@ -226,7 +234,8 @@ Die gesamte kreative und aufwändige Arbeit:
 ## 11. Offene Punkte
 
 - **Name:** „Everwild“ hieß ein angekündigtes Spiel von Rare/Microsoft. Für einen Release braucht es einen anderen Namen.
-- **Stil-Konsistenz:** Ob einzeln generierte Objekte sauber zum Untergrund passen, ist ungeprüft. Der Stiltest klärt das.
+- **Stil-Konsistenz:** Für fünf Objekte und ein Bodenbild bestätigt (Abschnitt 7). Offen ist, ob sie über 30 und mehr Objekte und über mehrere Welten hält.
+- **Verdeckung:** Hohe Objekte wie Häuser verdecken Wege und die Figur dahinter. Braucht eine Lösung, etwa Objekte durchscheinend machen, wenn die Figur dahinter steht.
 - **Figuren-Animation:** Der schwierigste Teil bei generierter Grafik. Lösung offen (wenige Frames, kleine Figur).
 - **Modellauswahl:** Recherchiert (Abschnitt 7), aber noch nicht entschieden. Ungeprüft sind: Kosten pro Bild bei GPT Image 2.5, Nutzungsrechte an den Bildern bei allen Bildanbietern, die Stem-Trennung von ElevenLabs und ihre Lizenz.
 - **Story:** Das Grundgerüst steht (Abschnitt 3). Offen sind: was den Bruch auslöst, wer der Spieler ist und warum ihn Fremde kennen (hat er selbst etwas vergessen?), ob der alte Mann beim Bruch eine Rolle spielt, wie das Spiel endet und welche Bruchstücke es gibt.

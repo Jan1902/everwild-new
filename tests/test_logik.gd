@@ -46,6 +46,7 @@ func _teste_dorf() -> void:
 	_pruefe(not welt.begehbar(Vector2i(8, 5)), "Haus ist begehbar")
 	_pruefe(not welt.begehbar(Vector2i(9, 6)), "Zweite Zelle des Hauses ist begehbar")
 	_pruefe(not welt.begehbar(Vector2i(7, 8)), "Laterne ist begehbar")
+	_pruefe(welt.objekte.any(func(o: Dictionary) -> bool: return o.art == "bruecke"), "Dorf hat kein Brückenobjekt")
 	_pruefe(not welt.begehbar(Vector2i(-1, 5)), "Zelle außerhalb des Rasters ist begehbar")
 
 	var ziel := Vector2i(16, 9)

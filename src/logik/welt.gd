@@ -14,6 +14,8 @@ const ZEICHEN := {
 	"#": Boden.BRUECKE,
 }
 const BEGEHBAR := [Boden.GRAS, Boden.WEG, Boden.BRUECKE]
+## Objektarten, die flach am Boden liegen: Sie versperren nichts und die Figur läuft darüber.
+const FLACHE_ARTEN := ["bruecke"]
 
 var titel := ""
 var groesse := Vector2i.ZERO
@@ -21,6 +23,9 @@ var start := Vector2i.ZERO
 var spieler := Vector2i.ZERO
 ## Einträge mit "art" (String), "zelle" (Vector2i, hintere Ecke) und "groesse" (Vector2i).
 var objekte: Array[Dictionary] = []
+## Gemaltes Bodenbild mit "pfad", "massstab" (Bildpixel pro Weltpixel) und "ursprung"
+## (Weltpunkt der linken oberen Bildecke). Leer, solange die Welt keines hat.
+var bodenbild := {}
 
 var _boden := PackedInt32Array()
 var _belegt := {}
@@ -43,6 +48,7 @@ static func aus_daten(daten: Dictionary) -> Welt:
 	welt.groesse = _zu_zelle(daten.get("groesse", [0, 0]))
 	welt.start = _zu_zelle(daten.get("start", [0, 0]))
 	welt.spieler = welt.start
+	welt.bodenbild = daten.get("bodenbild", {})
 	welt._lies_boden(daten.get("boden", []))
 	for eintrag: Dictionary in daten.get("objekte", []):
 		welt.objekte.append({
@@ -60,9 +66,10 @@ func fehler() -> Array[String]:
 	if not begehbar(start):
 		liste.append("Startzelle %s ist nicht begehbar" % start)
 	for objekt in objekte:
+		var grund := Boden.BRUECKE if objekt.art == "bruecke" else Boden.GRAS
 		for zelle in belegte_zellen(objekt):
-			if boden(zelle) != Boden.GRAS:
-				liste.append("Objekt '%s' steht bei %s nicht auf Gras" % [objekt.art, zelle])
+			if boden(zelle) != grund:
+				liste.append("Objekt '%s' steht bei %s auf dem falschen Boden" % [objekt.art, zelle])
 	return liste
 
 
@@ -116,6 +123,8 @@ func _lies_boden(zeilen: Array) -> void:
 
 func _baue_wege() -> void:
 	for objekt in objekte:
+		if objekt.art in FLACHE_ARTEN:
+			continue
 		for zelle in belegte_zellen(objekt):
 			_belegt[zelle] = true
 	_wege.region = Rect2i(Vector2i.ZERO, groesse)

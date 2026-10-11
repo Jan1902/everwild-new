@@ -20,21 +20,24 @@ func _ready() -> void:
 
 	_baue_himmel()
 
-	var boden := BodenAnsicht.new()
-	boden.welt = welt
-	add_child(boden)
+	_baue_boden()
+
+	# Flache Objekte wie die Brücke liegen direkt auf dem Boden, die Figur läuft immer darüber.
+	var flach := Node2D.new()
+	add_child(flach)
 
 	_marke = Zielmarke.new()
 	add_child(_marke)
 
-	# Objekte und Figur liegen in einer Ebene, die nach y sortiert: was weiter vorne steht, verdeckt.
+	# Alle anderen Objekte und die Figur liegen in einer Ebene, die nach y sortiert:
+	# was weiter vorne steht, verdeckt.
 	var ebene := Node2D.new()
 	ebene.y_sort_enabled = true
 	add_child(ebene)
 	for objekt in welt.objekte:
 		var ansicht := ObjektAnsicht.new()
 		ansicht.richte_ein(objekt)
-		ebene.add_child(ansicht)
+		(flach if objekt.art in Welt.FLACHE_ARTEN else ebene).add_child(ansicht)
 
 	spieler = Spieler.new()
 	spieler.setze(welt.spieler)
@@ -73,6 +76,22 @@ func gehe_zu(zelle: Vector2i) -> bool:
 
 func _kameraziel() -> Vector2:
 	return spieler.position + Vector2(0, -40)
+
+
+## Nimmt das gemalte Bodenbild der Welt. Gibt es keines, wird der Boden als Platzhalter gezeichnet.
+func _baue_boden() -> void:
+	var pfad: String = welt.bodenbild.get("pfad", "")
+	if pfad.is_empty() or not ResourceLoader.exists(pfad):
+		var platzhalter := BodenAnsicht.new()
+		platzhalter.welt = welt
+		add_child(platzhalter)
+		return
+	var bild := Sprite2D.new()
+	bild.texture = load(pfad)
+	bild.centered = false
+	bild.position = Vector2(welt.bodenbild.ursprung[0], welt.bodenbild.ursprung[1])
+	bild.scale = Vector2.ONE / welt.bodenbild.massstab
+	add_child(bild)
 
 
 func _baue_himmel() -> void:

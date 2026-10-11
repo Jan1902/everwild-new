@@ -16,13 +16,46 @@ STIL_GEMALT = (
     "rendering, no photographic lighting. It must read clearly when shown small on a phone screen."
 )
 
+# Projektion und Licht müssen bei allen Bildern gleich sein, sonst passen sie nicht zusammen.
+ANSICHT = (
+    "View: classic 2:1 isometric game projection seen from above, where a square on the ground "
+    "appears as a diamond twice as wide as it is tall. Soft daylight coming from the upper left."
+)
+
 SPRITE_REGELN = (
-    "A single object as a game sprite, seen from a fixed isometric three-quarter view from above, "
-    "fully visible and centred with empty margin around it. "
-    "Fully transparent background. No ground, no cast shadow, no glow or light halo around the "
-    "object, no other objects, no text."
+    "A single object as a game sprite, fully visible and centred with empty margin around it. "
+    "Fully transparent background. No ground, no grass, no cast shadow, no glow or light halo "
+    "around the object, no other objects, no text."
+)
+
+STILREFERENZ = (
+    "The attached image is the painted ground of the game world. Use it only as a reference for "
+    "painting style, brushwork and colour palette. Do not copy anything from its content."
+)
+
+BODEN = (
+    "Repaint the attached flat-coloured map as a finished painted ground for a game world: a small "
+    "island floating in the air. "
+    "Keep the layout exactly: every shape stays at the same position, with the same size, outline "
+    "and angles as in the map. Do not move, add, remove, widen or straighten anything. "
+    "Meaning of the colours: green is a grass meadow, sand is a trodden dirt path, blue is a "
+    "shallow brook of clear water, brown is the broken-off earth at the island's edge. "
+    "Paint the grass, paths and water as calm, flat areas with gentle colour variation. Let the "
+    "paths blend softly into the grass and give the brook soft grassy banks. "
+    "Below the brown edge, continue the island downwards as a rough underside of earth and rock "
+    "that tapers and breaks off, with a few hanging roots. "
+    "Everything white in the map becomes fully transparent background. "
+    "Paint only ground: no houses, no trees, no bushes, no stones, no bridge, no fences, no "
+    "people, no shadows of objects, no clouds, no text."
 )
 
 
-def sprite_prompt(motiv):
-    return f"{motiv}\n\n{SPRITE_REGELN}\n\n{STIL_GEMALT}"
+def sprite_prompt(motiv, mit_referenz=False):
+    teile = [motiv, SPRITE_REGELN, ANSICHT, STIL_GEMALT]
+    if mit_referenz:
+        teile.append(STILREFERENZ)
+    return "\n\n".join(teile)
+
+
+def boden_prompt():
+    return "\n\n".join([BODEN, ANSICHT, STIL_GEMALT])
