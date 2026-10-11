@@ -42,6 +42,17 @@ Der dritte Befehl startet das Spiel im Fenster, tippt nacheinander auf die Zelle
 
 Der Test prüft auch die Lösbarkeit: Nach jeder Änderung an Welten oder Regeln laufen lassen.
 
+Aufs Handy (USB-Debugging an, per USB verbunden):
+
+```powershell
+& "C:\godot\godot.exe" --headless --path . --export-debug "Android" build/everwild.apk
+adb install -r build\everwild.apk
+adb shell monkey -p org.everwild.dev -c android.intent.category.LAUNCHER 1
+adb logcat -d -s godot:*
+```
+
+Die Export-Vorlagen von Godot 4.7.2 liegen in `%APPDATA%\Godot\export_templates`, SDK, Java und Debug-Schlüssel stehen in Godots Editor-Einstellungen. Die Paket-ID `org.everwild.dev` ist nur für Testbauten.
+
 Bild- und Musikgenerierung kostet Geld: nur auf ausdrückliche Anweisung von Jan und nur in der genannten Menge.
 
 ## Regeln

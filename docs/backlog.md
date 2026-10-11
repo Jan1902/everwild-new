@@ -24,7 +24,7 @@ Spielspeicher, Regeln je Welt, Stimmung aus dem Zustand, Lösbarkeitsprüfung un
 
 1. **Titel, Pause und Einstellungen.** Der Startbildschirm mit dem Hinweis auf Kopfhörer steht und erscheint nur beim allerersten Start. Es fehlen Titel, Fortsetzen, neu beginnen (vorläufig Taste N) und Lautstärke. So wenig wie möglich.
 2. **Sprache wählen.** Die Texte liegen auf Deutsch und Englisch vor, gewählt wird nach der Sprache des Geräts. Eine Umstellung im Spiel fehlt.
-3. **Android-Export.** Bauen, auf einem echten Gerät starten, Touch und Leistung prüfen. Bisher ist nur die Maus getestet.
+3. **Android prüfen.** Der Testbau lässt sich per ADB aufs Handy spielen und startet dort. Offen: Touch, Leistung, Schriftgrößen und Ränder auf dem echten Bildschirm (Kamera-Aussparung, sehr breites Format), App-Symbol.
 
 ## Grafik und Ton
 
