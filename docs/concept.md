@@ -197,6 +197,7 @@ Keys gehören in eine lokale `.env`-Datei, die nicht ins Repository kommt.
 - **Ein zentraler Spielspeicher:** Ort der Figur, Fakten, Abweichungen der Objekte je Welt, Gegenstände und Notizen. Er wird nach jeder Änderung lokal gespeichert.
 - **Lösbarkeit wird durchgespielt:** Ein Prüfer geht alle Zustände durch, die das Spiel annehmen kann, und meldet jeden, aus dem es nicht mehr zu Ende gespielt werden kann.
 - **Verweilen zeigt die Erinnerung:** Bleibt die Figur einige Sekunden stehen, erscheint alles, was gerade anders ist, durchscheinend so, wie es einmal war, und Farbe und Musik nähern sich kurz der heilen Welt. Ein Tipp beendet das. So zeigt die Erinnerung, was falsch ist, ohne eigene Schaltfläche.
+- **Figuren aus Bildbögen:** Ein Bildmodell liefert zu einem Standbild einen Bogen mit vier Schritt-Bildern derselben Figur, wenn es das Standbild als Vorlage bekommt. Ein Skript schneidet den Bogen und richtet die Bilder an Kopf und Füßen aus. Zwei Ansichten (vorn, hinten) reichen, gespiegelt ergeben sie alle vier Laufrichtungen.
 - **Texte je Sprache:** Alle sichtbaren Texte stehen in Sprachdateien (Deutsch und Englisch), Regeln nennen nur Schlüssel.
 
 ### Verworfen

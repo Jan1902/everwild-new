@@ -12,7 +12,7 @@ Spielspeicher, Regeln je Welt, Stimmung aus dem Zustand, Lösbarkeitsprüfung un
 
 ## Spielinhalt
 
-1. **Laufanimation der Spielfigur.** Die Figur hat je ein Bild von vorn und von hinten, gespiegelt für die anderen beiden Richtungen, und wippt beim Gehen nur. Eine echte Laufanimation fehlt, ebenso bewegte NPCs. Offen ist, ob ein Bildmodell dafür stimmige Einzelbilder liefert.
+1. **Laufanimation abstimmen.** Die Figur hat je Ansicht (vorn, hinten, jeweils auch gespiegelt) ein Standbild und vier Schritt-Bilder aus einem generierten Bogen (`tools/walk_images.py`). Offen ist, ob vier Bilder flüssig genug wirken, ob Tempo (7 Bilder je Sekunde) und Schrittweite zusammenpassen und ob der Schatten mitlaufen soll (er zeigt immer das Standbild). NPCs stehen still.
 2. **NPCs und Dialoge ausbauen.** Figuren sind Objekte der Welt, was sie sagen, hängt über Regeln am Spielstand, die Texte stehen je Sprache in `data/texts/`. Es gibt zwei Figuren als Probelauf (alter Mann im Haus, Frau am Bach). Es fehlen die eigentlichen Figuren und Texte der Geschichte und, falls gewünscht, Antworten zur Auswahl.
 3. **Weitere Welten.** Der Wechsel zwischen Welten steht (Türen und Portale sind Regeln mit einem Ziel, das vom Zustand abhängt, dazwischen eine Blende). Es gibt bisher das Dorf und den Raum im Haus, jeweils mit eigenem Musikstück, das beim Wechsel überblendet. Es fehlen echte weitere Welten.
 4. **Notizbuch ausbauen.** Das Notizbuch sammelt Erinnerungen, Weltstücke und Hinweise (`data/notes.json`) und zeigt zu jedem Eintrag, womit er zusammenhängt. Noch nicht gefundene Verwandte erscheinen als Lücke. Es fehlt eine Darstellung der Beziehungen als Bild (Karte der Weltstücke statt Liste) und die Gestaltung im gemalten Stil.
