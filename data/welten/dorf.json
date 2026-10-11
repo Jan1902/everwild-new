@@ -29,6 +29,19 @@
 		"massstab": 1.298,
 		"ursprung": [-922.13, 104.53]
 	},
+	"musik": "res://assets/musik/dorf_thema.mp3",
+	"stimmung": {},
+	"stimmung_falsch": {
+		"wind": -1.4,
+		"wasser": -1.0,
+		"schatten": [-0.55, 0.15],
+		"saettigung": 0.55,
+		"farbe": [0.86, 0.92, 1.0],
+		"nebel": 0.18,
+		"licht": 0.35,
+		"tonhoehe": 0.93,
+		"daempfung": 0.6
+	},
 	"objekte": [
 		{"art": "bruecke", "zelle": [13, 9]},
 		{"art": "haus", "zelle": [8, 5], "groesse": [2, 2]},
@@ -37,9 +50,9 @@
 		{"art": "baum", "zelle": [4, 3]},
 		{"art": "baum", "zelle": [10, 2]},
 		{"art": "baum", "zelle": [16, 5]},
-		{"art": "baum", "zelle": [11, 7]},
+		{"art": "baum", "zelle": [11, 7], "gespiegelt": true},
 		{"art": "baum", "zelle": [17, 8]},
-		{"art": "baum", "zelle": [3, 12]},
+		{"art": "baum", "zelle": [3, 12], "gespiegelt": true},
 		{"art": "baum", "zelle": [9, 13]},
 		{"art": "baum", "zelle": [15, 15]},
 		{"art": "baum", "zelle": [8, 16]},

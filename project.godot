@@ -29,6 +29,21 @@ window/handheld/orientation=4
 
 pointing/emulate_touch_from_mouse=true
 
+[shader_globals]
+
+wind={
+"type": "float",
+"value": 1.0
+}
+wasser={
+"type": "float",
+"value": 1.0
+}
+schatten={
+"type": "vec2",
+"value": Vector2(0.5, 0.2)
+}
+
 [rendering]
 
 renderer/rendering_method="mobile"

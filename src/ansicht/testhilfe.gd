@@ -7,7 +7,8 @@ extends Node
 ## --tippe=x,y  tippt auf die Zelle (mehrfach möglich, nacheinander mit je --warte Sekunden Abstand)
 ## --warte=s    Wartezeit nach jedem Tippen, Standard 1
 ## --foto=pfad  speichert am Ende ein Bildschirmfoto
-## Danach wird die Zelle der Figur ausgegeben und das Spiel beendet.
+## --falsch     schaltet sofort auf die falsche Stimmung der Welt
+## Danach werden die Zelle der Figur und der Stand der Musik ausgegeben und das Spiel beendet.
 
 
 func _ready() -> void:
@@ -24,6 +25,8 @@ func _ready() -> void:
 			foto = argument.trim_prefix("--foto=")
 
 	var spiel := get_parent()
+	if "--falsch" in OS.get_cmdline_user_args():
+		spiel.setze_falsch(true, true)
 	await get_tree().create_timer(0.5).timeout
 	for zelle in tipps:
 		_tippe(spiel, zelle)
@@ -34,7 +37,10 @@ func _ready() -> void:
 	if not foto.is_empty():
 		await RenderingServer.frame_post_draw
 		get_viewport().get_texture().get_image().save_png(foto)
-	print("spieler=%d,%d" % [spiel.spieler.zelle.x, spiel.spieler.zelle.y])
+	print("spieler=%d,%d musik=%.1f" % [spiel.spieler.zelle.x, spiel.spieler.zelle.y, spiel.musikstand()])
+	# Die Musik muss ausgeklungen sein, bevor Godot schließt, sonst meldet es ein Leck.
+	spiel.stoppe_musik()
+	await get_tree().create_timer(0.2).timeout
 	get_tree().quit()
 
 

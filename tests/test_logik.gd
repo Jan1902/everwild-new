@@ -10,6 +10,7 @@ var _pruefungen := 0
 func _init() -> void:
 	_teste_iso()
 	_teste_dorf()
+	_teste_stimmung()
 	print("%d Prüfungen, %d fehlgeschlagen" % [_pruefungen, _fehlschlaege])
 	quit(1 if _fehlschlaege > 0 else 0)
 
@@ -32,6 +33,25 @@ func _teste_iso() -> void:
 				if Iso.zu_zelle(mitte + versatz) != zelle:
 					stimmt = false
 	_pruefe(stimmt, "Iso: Punkt und Zelle lassen sich nicht hin und zurück umrechnen")
+
+
+func _teste_stimmung() -> void:
+	var heil := Stimmung.aus_daten({"wind": 2.0})
+	var falsch := Stimmung.aus_daten({"wasser": -1.0, "schatten": [-1.0, 0.5], "farbe": [0.5, 0.5, 1.0]}, heil)
+	_pruefe(heil.wind == 2.0 and heil.wasser == 1.0, "Stimmung übernimmt Werte oder Normalwerte nicht")
+	_pruefe(falsch.wind == 2.0, "Falsche Stimmung erbt nicht von der heilen")
+	_pruefe(falsch.schatten == Vector2(-1.0, 0.5), "Schattenrichtung wird nicht gelesen")
+	_pruefe(heil.wasser == 1.0, "Lesen der falschen Stimmung verändert die heile")
+
+	var mitte := Stimmung.mische(heil, falsch, 0.5)
+	_pruefe(is_zero_approx(mitte.wasser), "Mischen trifft die Mitte nicht")
+	_pruefe(is_equal_approx(mitte.farbe.r, 0.75), "Farbe wird nicht gemischt")
+	_pruefe(Stimmung.mische(heil, falsch, 0.0).wasser == 1.0, "Anteil 0 ergibt nicht die heile Stimmung")
+	_pruefe(Stimmung.mische(heil, falsch, 1.0).wasser == -1.0, "Anteil 1 ergibt nicht die falsche Stimmung")
+
+	var dorf := Welt.aus_datei("res://data/welten/dorf.json")
+	_pruefe(dorf.stimmung.wind > 0.0 and dorf.stimmung_falsch.wind < 0.0, "Im falschen Dorf weht der Wind nicht andersherum")
+	_pruefe(not dorf.musik.is_empty(), "Dorf hat keine Musik")
 
 
 func _teste_dorf() -> void:

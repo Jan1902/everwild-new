@@ -21,8 +21,14 @@ var titel := ""
 var groesse := Vector2i.ZERO
 var start := Vector2i.ZERO
 var spieler := Vector2i.ZERO
-## Einträge mit "art" (String), "zelle" (Vector2i, hintere Ecke) und "groesse" (Vector2i).
+## Einträge mit "art" (String), "zelle" (Vector2i, hintere Ecke), "groesse" (Vector2i)
+## und "gespiegelt" (bool).
 var objekte: Array[Dictionary] = []
+## Pfad des Musikstücks, leer für keines.
+var musik := ""
+## Stimmung der heilen Welt und der falschen Fassung.
+var stimmung := Stimmung.new()
+var stimmung_falsch := Stimmung.new()
 ## Gemaltes Bodenbild mit "pfad", "massstab" (Bildpixel pro Weltpixel) und "ursprung"
 ## (Weltpunkt der linken oberen Bildecke). Leer, solange die Welt keines hat.
 var bodenbild := {}
@@ -49,12 +55,16 @@ static func aus_daten(daten: Dictionary) -> Welt:
 	welt.start = _zu_zelle(daten.get("start", [0, 0]))
 	welt.spieler = welt.start
 	welt.bodenbild = daten.get("bodenbild", {})
+	welt.musik = daten.get("musik", "")
+	welt.stimmung = Stimmung.aus_daten(daten.get("stimmung", {}))
+	welt.stimmung_falsch = Stimmung.aus_daten(daten.get("stimmung_falsch", {}), welt.stimmung)
 	welt._lies_boden(daten.get("boden", []))
 	for eintrag: Dictionary in daten.get("objekte", []):
 		welt.objekte.append({
 			"art": eintrag.get("art", ""),
 			"zelle": _zu_zelle(eintrag.get("zelle", [0, 0])),
 			"groesse": _zu_zelle(eintrag.get("groesse", [1, 1])),
+			"gespiegelt": eintrag.get("gespiegelt", false),
 		})
 	welt._baue_wege()
 	return welt

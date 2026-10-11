@@ -3,23 +3,43 @@ extends Node2D
 ## Zeigt ein Objekt der Welt: als gemaltes Bild, wenn es eines gibt, sonst als gezeichneten Platzhalter.
 
 const BILDORDNER := "res://assets/objekte/"
+## Durchsichtiger Rand links und rechts als Anteil der Inhaltsbreite. Muss zu
+## tools/zuschneiden.py passen. Der Wind-Shader braucht ihn als Platz zum Schwanken.
+const RAND := 0.12
 ## Wie die Bilder in der Welt sitzen:
-##   breite   Breite des Bildes in Weltpixeln
-##   fuss     Stelle im Bild (Anteil von Breite und Höhe), die auf dem Boden steht
+##   breite   Breite des Bildinhalts in Weltpixeln
+##   fuss     Stelle im Bildinhalt (Anteil von Breite und Höhe), die auf dem Boden steht
 ##   versatz  Lage dieser Stelle relativ zur Mitte der Grundfläche
-##   schatten Radius des Bodenschattens, 0 für keinen
+##   wind     wiegt sich im Wind
+##   licht    Stelle einer Lichtquelle, in Weltpixeln relativ zum Fuß
+##   stand    Radius des weichen Schattens direkt am Fuß, der das Objekt am Boden verankert
+##   kasten   Wand- und Firsthöhe in Weltpixeln; der Schatten wird dann aus der Grundfläche
+##            berechnet statt aus der Silhouette
 const BILDER := {
-	"haus": {"breite": 298.0, "fuss": Vector2(0.51, 0.985), "versatz": Vector2(0, 64), "schatten": 0.0},
-	"baum": {"breite": 190.0, "fuss": Vector2(0.49, 0.97), "versatz": Vector2.ZERO, "schatten": 46.0},
-	"stein": {"breite": 84.0, "fuss": Vector2(0.5, 0.78), "versatz": Vector2.ZERO, "schatten": 0.0},
-	"laterne": {"breite": 85.0, "fuss": Vector2(0.19, 0.97), "versatz": Vector2.ZERO, "schatten": 16.0},
-	"bruecke": {"breite": 180.0, "fuss": Vector2(0.5, 0.45), "versatz": Vector2.ZERO, "schatten": 0.0},
+	"haus": {"breite": 298.0, "fuss": Vector2(0.51, 0.985), "versatz": Vector2(0, 64), "kasten": Vector2(105, 215)},
+	"baum": {"breite": 190.0, "fuss": Vector2(0.49, 0.97), "wind": true, "stand": 38.0},
+	"stein": {"breite": 84.0, "fuss": Vector2(0.5, 0.78), "stand": 50.0},
+	"laterne": {"breite": 85.0, "fuss": Vector2(0.19, 0.97), "licht": Vector2(48, -70), "stand": 18.0},
+	"bruecke": {"breite": 180.0, "fuss": Vector2(0.5, 0.45)},
 }
+const LICHTFARBE := Color(1.0, 0.78, 0.42)
+
+## Helligkeit aller Lichter, gesetzt aus der Stimmung der Welt.
+static var licht := 1.0
+## Schattenwurf in der Bodenebene, gesetzt aus der Stimmung der Welt.
+static var schattenwurf := Vector2(0.5, 0.2)
+
+static var _wind_stoff: ShaderMaterial
+static var _schatten_stoff: ShaderMaterial
+static var _lichtfleck: GradientTexture2D
+static var _standfleck: GradientTexture2D
 
 var art := ""
 var groesse := Vector2i.ONE
 
-var _hat_bild := false
+var _bild: Sprite2D
+var _schein: Sprite2D
+var _flackern := 0.0
 
 
 ## Richtet das Objekt ein. Der Knoten sitzt in der Mitte seiner Grundfläche, damit die
@@ -32,20 +52,67 @@ func richte_ein(objekt: Dictionary) -> void:
 	var pfad := BILDORDNER + art + ".png"
 	if not BILDER.has(art) or not ResourceLoader.exists(pfad):
 		return
-	_hat_bild = true
 	var lage: Dictionary = BILDER[art]
-	var bild := Sprite2D.new()
-	bild.texture = load(pfad)
-	bild.centered = false
-	bild.scale = Vector2.ONE * (lage.breite / bild.texture.get_width())
-	bild.position = lage.versatz - Vector2(bild.texture.get_size()) * lage.fuss * bild.scale
-	add_child(bild)
+	var gespiegelt: bool = objekt.gespiegelt
+	_bild = _baue_bild(load(pfad), lage, gespiegelt)
+	if lage.get("wind", false):
+		_bild.material = _hole_wind_stoff()
+	add_child(_bild)
+
+	if lage.has("licht"):
+		var stelle: Vector2 = lage.licht
+		_schein = Sprite2D.new()
+		_schein.texture = _hole_lichtfleck()
+		_schein.position = _bild.position + Vector2(-stelle.x if gespiegelt else stelle.x, stelle.y)
+		var stoff := CanvasItemMaterial.new()
+		stoff.blend_mode = CanvasItemMaterial.BLEND_MODE_ADD
+		_schein.material = stoff
+		_flackern = position.x * 0.05
+		add_child(_schein)
+
+
+## Schatten des Objekts als eigener Knoten für die Schattenebene. Null, wenn es keinen wirft.
+func baue_schatten() -> Node2D:
+	if _bild == null or art in Welt.FLACHE_ARTEN:
+		return null
+	var lage: Dictionary = BILDER[art]
+	var schatten := Node2D.new()
+
+	if lage.has("kasten"):
+		schatten.position = position
+		var kasten := Kastenschatten.new()
+		kasten.groesse = groesse
+		kasten.wandhoehe = lage.kasten.x
+		kasten.firsthoehe = lage.kasten.y
+		schatten.add_child(kasten)
+		return schatten
+
+	schatten.position = position + _bild.position
+	# Weicher Fleck direkt am Fuß. Ohne ihn wirkt das Objekt, als schwebe es über dem Boden.
+	var stand := Sprite2D.new()
+	stand.texture = _hole_standfleck()
+	stand.modulate = Kastenschatten.FARBE
+	stand.scale = Vector2(1.0, 0.5) * (lage.stand * 2.0 / stand.texture.get_width())
+	schatten.add_child(stand)
+
+	var wurf := _bild.duplicate() as Sprite2D
+	wurf.position = Vector2.ZERO
+	wurf.material = _hole_schatten_stoff()
+	schatten.add_child(wurf)
+	return schatten
+
+
+func _process(delta: float) -> void:
+	if _schein == null:
+		return
+	_flackern += delta
+	var unruhe := 0.88 + 0.08 * sin(_flackern * 9.0) + 0.04 * sin(_flackern * 23.0)
+	_schein.modulate = Color(LICHTFARBE, 0.45 * licht * unruhe)
+	_schein.scale = Vector2.ONE * (1.0 + 0.06 * sin(_flackern * 6.0))
 
 
 func _draw() -> void:
-	if _hat_bild:
-		if BILDER[art].schatten > 0.0:
-			_zeichne_schatten(BILDER[art].schatten)
+	if _bild:
 		return
 	match art:
 		"baum":
@@ -54,6 +121,72 @@ func _draw() -> void:
 			_zeichne_stein()
 		"haus":
 			_zeichne_haus()
+
+
+## Bild mit dem Fußpunkt im Ursprung des Sprites, damit Spiegeln und Schatten daran ansetzen.
+func _baue_bild(textur: Texture2D, lage: Dictionary, gespiegelt: bool) -> Sprite2D:
+	var inhalt := textur.get_width() / (1.0 + 2.0 * RAND)
+	var fuss: Vector2 = lage.fuss
+	var anteil := 1.0 - fuss.x if gespiegelt else fuss.x
+	var bild := Sprite2D.new()
+	bild.texture = textur
+	bild.centered = false
+	bild.flip_h = gespiegelt
+	bild.offset = -Vector2((RAND + anteil) * inhalt, fuss.y * textur.get_height())
+	bild.scale = Vector2.ONE * (lage.breite / inhalt)
+	bild.position = lage.get("versatz", Vector2.ZERO)
+	return bild
+
+
+## Gibt die gemeinsam genutzten Materialien frei. Beim Beenden nötig, sonst meldet Godot ein Leck.
+static func raeume_auf() -> void:
+	_wind_stoff = null
+	_schatten_stoff = null
+	_lichtfleck = null
+	_standfleck = null
+
+
+static func _hole_wind_stoff() -> ShaderMaterial:
+	if _wind_stoff == null:
+		_wind_stoff = ShaderMaterial.new()
+		_wind_stoff.shader = preload("res://src/ansicht/shader/wind.gdshader")
+	return _wind_stoff
+
+
+static func _hole_schatten_stoff() -> ShaderMaterial:
+	if _schatten_stoff == null:
+		_schatten_stoff = ShaderMaterial.new()
+		_schatten_stoff.shader = preload("res://src/ansicht/shader/schatten.gdshader")
+	return _schatten_stoff
+
+
+static func _hole_lichtfleck() -> GradientTexture2D:
+	if _lichtfleck == null:
+		_lichtfleck = _baue_fleck(0.0)
+	return _lichtfleck
+
+
+static func _hole_standfleck() -> GradientTexture2D:
+	if _standfleck == null:
+		_standfleck = _baue_fleck(0.6)
+	return _standfleck
+
+
+## Runder Fleck, der bis zum Anteil kern voll deckt und danach zum Rand hin ausläuft.
+static func _baue_fleck(kern: float) -> GradientTexture2D:
+	var verlauf := Gradient.new()
+	verlauf.set_color(0, Color(1, 1, 1, 1))
+	verlauf.set_color(1, Color(1, 1, 1, 0))
+	if kern > 0.0:
+		verlauf.add_point(kern, Color(1, 1, 1, 1))
+	var fleck := GradientTexture2D.new()
+	fleck.gradient = verlauf
+	fleck.fill = GradientTexture2D.FILL_RADIAL
+	fleck.fill_from = Vector2(0.5, 0.5)
+	fleck.fill_to = Vector2(1.0, 0.5)
+	fleck.width = 160
+	fleck.height = 160
+	return fleck
 
 
 func _zeichne_schatten(radius: float) -> void:

@@ -20,6 +20,8 @@ WELTEN = PROJEKT / "assets" / "welten"
 NAMEN = ["haus", "baum", "stein", "laterne", "bruecke"]
 # Unterhalb dieser Deckkraft gilt ein Pixel als leer. Blendet schwache Schleier um das Objekt aus.
 SCHWELLE = 24
+# Rand je Seite als Anteil der Inhaltsbreite. Muss zu RAND in src/ansicht/objekt_ansicht.gd passen.
+RAND = 0.12
 
 
 def beschneide(name):
@@ -33,6 +35,11 @@ def beschneide(name):
     # Im Spiel sind Objekte höchstens rund 300 Weltpixel breit. Die halbe Auflösung reicht dafür
     # und vermeidet Flimmern beim starken Verkleinern.
     bild = bild.resize((bild.width // 2, bild.height // 2), Image.LANCZOS)
+    # Durchsichtiger Rand links und rechts, damit sich das Objekt im Wind neigen kann.
+    rand = round(bild.width * RAND)
+    mit_rand = Image.new("RGBA", (bild.width + 2 * rand, bild.height), (0, 0, 0, 0))
+    mit_rand.paste(bild, (rand, 0))
+    bild = mit_rand
     OBJEKTE.mkdir(parents=True, exist_ok=True)
     bild.save(OBJEKTE / f"{name}.png")
     return bild

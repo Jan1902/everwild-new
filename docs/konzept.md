@@ -188,6 +188,8 @@ Keys gehören in eine lokale `.env`-Datei, die nicht ins Repository kommt.
 - **Engine: Godot 4.** Exportiert nativ nach Android und iOS. Szenen und Skripte sind lesbare Textdateien, alles läuft per Kommandozeile, auch headless.
 - **Spiellogik strikt getrennt vom Rendering** und deterministisch, damit komplette Durchläufe ohne Grafik simulierbar sind.
 - **Welten, Dialoge und Rätsel als Datendateien**, nicht im Code verdrahtet.
+- **Stimmung als Regler:** Jede Welt hat eine heile und eine falsche Stimmung (`stimmung`, `stimmung_falsch` in der Weltdatei). Regler sind Windrichtung, Fließrichtung des Wassers, Schattenrichtung, Sättigung, Farbstich, Dunst, Helligkeit der Lichter sowie Tonhöhe und Dämpfung der Musik. Das Spiel blendet stufenlos zwischen beiden über. Die Effekte selbst macht die Engine per Shader, nicht das Bild.
+- **Spiegeln als Daten:** Ein Objekt mit `"gespiegelt": true` wird gespiegelt gezeigt, ohne neues Bild.
 
 ### Verworfen
 
