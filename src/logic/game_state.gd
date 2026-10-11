@@ -19,6 +19,9 @@ var objects := {}
 var items: Array[String] = []
 ## Ids of the notebook entries, in the order they were found.
 var notes: Array[String] = []
+## Whether the player has seen the start screen with the advice on headphones. It only shows on
+## the very first start, so this outlasts a new game.
+var start_screen_seen := false
 
 
 func change_object(world_id: String, object_id: String, properties: Dictionary) -> void:
@@ -64,6 +67,7 @@ func to_data() -> Dictionary:
 		"objects": changed,
 		"items": items.duplicate(),
 		"notes": notes.duplicate(),
+		"start_screen_seen": start_screen_seen,
 	}
 
 
@@ -91,6 +95,7 @@ static func from_data(data: Variant) -> GameState:
 	state.items.assign(data.get("items", []))
 	state.items.sort()
 	state.notes.assign(data.get("notes", []))
+	state.start_screen_seen = data.get("start_screen_seen", false) == true
 	return state
 
 

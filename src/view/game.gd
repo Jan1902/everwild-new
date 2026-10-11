@@ -95,8 +95,9 @@ func _ready() -> void:
 	_camera.zoom = Vector2.ONE * ZOOM
 	_camera.position_smoothing_enabled = true
 	add_child(_camera)
-	# Runs driven by the test helper skip the start screen, unless they ask for it.
-	if arguments.is_empty() or "--start-screen" in arguments:
+	# The start screen only shows on the very first start. Runs driven by the test helper skip
+	# it, unless they ask for it.
+	if (arguments.is_empty() and not session.state.start_screen_seen) or "--start-screen" in arguments:
 		_started = false
 		var start := StartScreen.new()
 		start.dismissed.connect(_on_start_dismissed)
@@ -190,7 +191,9 @@ func set_broken(enabled: bool, instant := false) -> void:
 
 ## Throws the game in progress away and starts from the beginning.
 func new_game() -> void:
+	var seen := session.state.start_screen_seen
 	session = Session.create(_game)
+	session.state.start_screen_seen = seen
 	_build_stage()
 	save()
 
@@ -222,6 +225,8 @@ func stop_music() -> void:
 
 func _on_start_dismissed() -> void:
 	_started = true
+	session.state.start_screen_seen = true
+	save()
 	_play_music(world.music)
 
 

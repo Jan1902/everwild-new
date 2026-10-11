@@ -161,6 +161,10 @@ func _test_state() -> void:
 	_check(loaded != null and loaded.key() == state.key(), "State changes when saved and loaded")
 	_check(loaded != null and loaded.objects.tiny.gate.cell == Vector2i(2, 1), "Cell of an object is not restored")
 	_check(loaded != null and loaded.notes == ["b", "a"], "Notes lose their order")
+	_check(loaded != null and not loaded.start_screen_seen, "Start screen counts as seen without having been shown")
+	state.start_screen_seen = true
+	loaded = GameState.from_data(JSON.parse_string(JSON.stringify(state.to_data())))
+	_check(loaded != null and loaded.start_screen_seen, "State forgets that the start screen was shown")
 	_check(GameState.from_data("nonsense") == null, "Nonsense is accepted as a saved state")
 	_check(GameState.from_data({"version": 999, "world": "tiny", "cell": [0, 0]}) == null, "Unknown version is accepted")
 	_check(GameState.from_data({"version": 1, "world": "tiny"}) == null, "State without a cell is accepted")
@@ -347,12 +351,13 @@ func _test_village_game() -> void:
 	_check(result.dead_ends == 0, "Game has %d dead ends, for example: %s" % [result.dead_ends, result.dead_end])
 
 	# Doors: the wrong village swaps them, the repaired one leads inside.
-	session.state.cell = Vector2i(10, 6)
+	session.state.cell = Vector2i(4, 7)
+	session.interact("house_west")
+	_check(session.state.world == "village" and session.state.cell == Vector2i(10, 6), "Wrong door does not lead to the other house")
 	session.interact("house_mid")
-	_check(session.state.world == "village" and session.state.cell == Vector2i(4, 7), "Wrong door does not lead to the other house")
+	_check(session.state.cell == Vector2i(4, 7), "Wrong door of the other house does not lead back")
 	session.apply([{"restore": "village"}], "village")
-	session.state.cell = Vector2i(10, 6)
-	session.interact("house_mid")
+	session.interact("house_west")
 	_check(session.state.world == "house_inside", "Door of the repaired village does not lead inside")
 	_check(session.world().errors().is_empty(), "Room has data errors: %s" % [session.world().errors()])
 	session.state.cell = Vector2i(3, 2)
@@ -362,7 +367,7 @@ func _test_village_game() -> void:
 	_check(session.interact("old_man")[0].get("say") == "old_man.hint_brook", "Old man gives no hint about the brook")
 	_check(session.mood().wind < 0.0, "Room does not share the mood of the village")
 	session.enter(Vector2i(2, 5))
-	_check(session.state.world == "village" and session.state.cell == Vector2i(10, 6), "Leaving the room does not lead back in front of the door")
+	_check(session.state.world == "village" and session.state.cell == Vector2i(4, 7), "Leaving the room does not lead back in front of the door")
 	_check(world.cells_beside(world.object("house_mid")) == [Vector2i(10, 6)], "House can be used from a cell other than its door")
 
 	for world_id: String in game.worlds:

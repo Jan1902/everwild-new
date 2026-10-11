@@ -104,18 +104,18 @@
 			"do": [{"say": "stranger.unsure", "who": "stranger"}]
 		},
 		{
-			"on": "interact", "object": "house_mid",
+			"on": "interact", "object": "house_west",
 			"if": [{"fixed": "lanterns"}],
 			"do": [{"go": "house_inside", "cell": [2, 4]}]
 		},
 		{
-			"on": "interact", "object": "house_mid",
-			"do": [{"go": "village", "cell": [4, 7]}]
+			"on": "interact", "object": "house_west",
+			"do": [{"go": "village", "cell": [10, 6]}]
 		},
 		{
-			"on": "interact", "object": "house_west",
+			"on": "interact", "object": "house_mid",
 			"if": [{"fixed": "lanterns", "is": false}],
-			"do": [{"go": "village", "cell": [10, 6]}]
+			"do": [{"go": "village", "cell": [4, 7]}]
 		},
 		{
 			"on": "interact", "object": "rock_bridge",
