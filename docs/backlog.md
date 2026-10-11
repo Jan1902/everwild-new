@@ -12,6 +12,20 @@ Spielspeicher, Regeln je Welt, Stimmung aus dem Zustand, Lösbarkeitsprüfung un
 
 ## Spielinhalt
 
+### Rückmeldung von Jan nach dem ersten Durchspielen auf dem Handy
+
+Insgesamt ist der Ablauf zu schnell, zu simpel und zu vorhersehbar. Im Einzelnen:
+
+- **Wissen gehört zu Figuren.** Wer etwas weiß, muss dazu passen. Dass die Kurbel im Schrank liegt, kann nur der alte Mann wissen (oder das Notizbuch), nicht der Müller. Jeden Hinweis darauf prüfen, wer ihn glaubhaft geben kann.
+- **Widerspruch bei den Laternen.** Die Frau schickt den Spieler zum alten Mann, weil der zu den Laternen Rat wissen soll. Man muss die Laternen aber anzünden, um überhaupt zu ihm zu kommen. Reihenfolge und Begründung neu ordnen.
+- **Kein Überspringen.** Schritte lassen sich auslassen (zum Beispiel die Kurbel holen, ohne mit dem alten Mann gesprochen zu haben). Die Regeln müssen die gedachte Reihenfolge strenger erzwingen, wo sie für die Geschichte zählt.
+- **Klar erkennbar, wann eine Welt heil ist.** Man kann die Mühle in Gang setzen und erst danach ihre Laterne anzünden. Es ist oft nicht offensichtlich, ob eine Welt fertig ist. Braucht einen deutlichen Moment, wenn der letzte Fehler einer Welt behoben ist, und eine sichtbare Anzeige des Zustands (im Notizbuch oder in der Welt selbst).
+- **NPCs reagieren strenger auf den Zustand.** Was eine Figur sagt, muss genau zu dem passen, was schon getan ist und was noch fehlt, auch bei Teilzuständen.
+- **Figuren verwirrter und mysteriöser.** Weniger Auskunft, mehr Andeutung. Es fehlen Denkpausen, Satzfetzen, Abschweifungen und Dinge, die nichts zur Lösung beitragen. Hinweise sollen sich nicht wie Anweisungen lesen.
+- **Mehr Widerstand.** Rätsel brauchen mehr als einen Schritt und Momente, in denen man selbst kombinieren muss. Das Notizbuch soll dafür nötig werden.
+
+### Weitere Punkte
+
 1. **Laufanimation abstimmen.** Die Figur hat je Ansicht (vorn, hinten, jeweils auch gespiegelt) ein Standbild und vier Schritt-Bilder aus einem generierten Bogen (`tools/walk_images.py`). Offen ist, ob vier Bilder flüssig genug wirken, ob Tempo (7 Bilder je Sekunde) und Schrittweite zusammenpassen und ob der Schatten mitlaufen soll (er zeigt immer das Standbild). NPCs stehen still.
 2. **NPCs und Dialoge ausbauen.** Figuren sind Objekte der Welt, was sie sagen, hängt über Regeln am Spielstand, die Texte stehen je Sprache in `data/texts/`. Es gibt drei Figuren (alter Mann im Haus, Frau am Bach, Müller), die den Spieler leiten. Es fehlen die eigentlichen Figuren und Texte der Geschichte und, falls gewünscht, Antworten zur Auswahl.
 3. **Weitere Welten.** Der Wechsel zwischen Welten steht (Türen und Portale sind Regeln mit einem Ziel, das vom Zustand abhängt, dazwischen eine Blende). Es gibt das Dorf mit dem Raum im Haus, den Mühlenhügel und die Quelle, jeweils mit eigenem Musikstück, verbunden durch Steinbögen und mit Abhängigkeiten untereinander. Es fehlen weitere Weltstücke, mehr Fehler je Welt (das Konzept will vier bis sechs, es sind zwei bis drei) und Portale, die man erst finden muss.
@@ -24,7 +38,7 @@ Spielspeicher, Regeln je Welt, Stimmung aus dem Zustand, Lösbarkeitsprüfung un
 
 1. **Titel, Pause und Einstellungen.** Der Startbildschirm mit dem Hinweis auf Kopfhörer steht und erscheint nur beim allerersten Start. Es fehlen Titel, Fortsetzen, neu beginnen (vorläufig Taste N) und Lautstärke. So wenig wie möglich.
 2. **Sprache wählen.** Die Texte liegen auf Deutsch und Englisch vor, gewählt wird nach der Sprache des Geräts. Eine Umstellung im Spiel fehlt.
-3. **Android prüfen.** Der Testbau lässt sich per ADB aufs Handy spielen und startet dort. Offen: Touch, Leistung, Schriftgrößen und Ränder auf dem echten Bildschirm (Kamera-Aussparung, sehr breites Format), App-Symbol.
+3. **Android weiter prüfen.** Der Testbau läuft auf Jans Handy einwandfrei. Offen sind noch das App-Symbol und ein Blick auf Schriftgrößen und Ränder bei anderen Bildschirmformaten.
 
 ## Grafik und Ton
 
