@@ -86,11 +86,11 @@
 		{
 			"on": "interact", "object": "arch_back",
 			"if": [{"fixed": "sluice"}],
-			"do": [{"go": "mill_hill", "cell": [11, 11]}]
+			"do": [{"go": "mill_hill", "cell": [11, 9]}]
 		},
 		{
 			"on": "interact", "object": "arch_back",
-			"do": [{"go": "village", "cell": [16, 12]}, {"note": "arch_spring"}]
+			"do": [{"go": "village", "cell": [14, 13]}, {"note": "arch_spring"}]
 		}
 	]
 }

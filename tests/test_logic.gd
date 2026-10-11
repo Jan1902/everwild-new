@@ -315,21 +315,21 @@ func _test_story() -> void:
 		session.state.cell = cell
 		return session.interact(object_id)
 
-	_check(use.call(Vector2i(16, 13), "arch")[0].get("say") == "arch.closed", "Arch is open before the lanterns burn")
+	_check(use.call(Vector2i(15, 13), "arch")[0].get("say") == "arch.closed", "Arch is open before the lanterns burn")
 	use.call(Vector2i(11, 9), "rock_bridge")
 	for lantern: String in ["lantern_west", "lantern_bridge", "lantern_east"]:
 		use.call(session.world().cells_beside(session.world().object(lantern))[0], lantern)
 	_check(session.world().object("arch").state == "open", "Arch does not open when the lanterns burn")
 	_check(session.open_faults("village") == ["brook", "wind"], "Village faults do not depend on the other worlds")
 
-	use.call(Vector2i(16, 13), "arch")
+	use.call(Vector2i(15, 13), "arch")
 	_check(session.state.world == "mill_hill", "Arch of the village does not lead to the mill hill")
 	_check(session.mood().wind == 0.0, "There is wind on the mill hill although the mill stands still")
 	_check(use.call(Vector2i(8, 5), "mill")[0].get("say") == "mill.stuck", "Mill turns without its crank")
 	use.call(Vector2i(10, 6), "miller")
 	_check(session.state.facts.get("crank_known", false), "Miller does not tell about the crank")
 
-	use.call(Vector2i(11, 12), "arch_spring")
+	use.call(Vector2i(11, 10), "arch_spring")
 	_check(session.state.world == "spring", "Arch of the mill hill does not lead to the spring")
 	_check(not session.world().is_walkable(Vector2i(7, 7)), "Brook can be crossed without the raft")
 	_check(session.enter(Vector2i(6, 7)).size() >= 3, "Missing raft is not noticed")
