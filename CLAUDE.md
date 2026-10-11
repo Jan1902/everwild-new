@@ -4,10 +4,12 @@ Ruhiges, isometrisches Explorations-Puzzle für Mobile, gebaut mit Godot 4.
 
 Alle Entscheidungen zu Spieldesign, Stil, Technik und Arbeitsteilung stehen in `docs/concept.md`. Vor jeder Arbeit lesen und bei neuen Entscheidungen aktualisieren.
 
+Was noch zu bauen ist, steht in `docs/backlog.md`. Erledigtes dort löschen, Neues eintragen.
+
 ## Sprache
 
 - **Englisch:** der gesamte Quellcode (GDScript, Shader, Python), Bezeichner, Kommentare, Datei- und Ordnernamen, Schlüssel und Werte in Datendateien, Kommandozeilen-Argumente und Programmausgaben. Das gilt für alles Neue.
-- **Deutsch:** die Abstimmung mit Jan, `docs/concept.md`, diese Datei und Commit-Nachrichten.
+- **Deutsch:** die Abstimmung mit Jan, `docs/concept.md`, `docs/backlog.md`, diese Datei und Commit-Nachrichten.
 
 ## Aufbau
 
