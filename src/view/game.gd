@@ -1,86 +1,56 @@
 extends Node2D
-## Main scene: loads a world, builds its view and turns taps into movement.
+## Main scene: runs a session, shows the world the player is in and turns taps into moves.
 
-const WORLD_PATH := "res://data/worlds/village.json"
+const GAME_PATH := "res://data/game.json"
 const ZOOM := 1.5
 const SKY_TOP := Color("9db7c9")
 const SKY_BOTTOM := Color("f1dcc0")
 const SHADOW_OPACITY := 0.3
 const MUSIC_VOLUME := -6.0
-## Seconds the change between the intact and the wrong mood takes.
+## Seconds the mood takes to follow a change of the world.
 const MOOD_CHANGE_DURATION := 2.5
 
+var session: Session
+## The world on show, which is the one the player is in.
 var world: World
 var player: Player
-## Current state between the intact (0) and the wrong (1) mood.
-var wrongness := 0.0:
+## How far the shown mood has moved from the previous one (0) to the current one (1).
+var mood_progress := 1.0:
 	set(value):
-		wrongness = value
+		mood_progress = value
 		_apply_mood()
 
+## Everything that belongs to the world on show. Built anew when the player changes worlds.
+var _stage: Node2D
+var _flat: Node2D
+var _shadows: CanvasGroup
+var _layer: Node2D
+var _views := {}
 var _marker: TargetMarker
 var _camera: Camera2D
 var _grading: ShaderMaterial
 var _music: AudioStreamPlayer
 var _muffler: AudioEffectLowPassFilter
+var _mood_from := Mood.new()
+var _mood_to := Mood.new()
 var _mood_change: Tween
-var _is_wrong := false
+## Where the walk in progress leads, and the object to use on arrival (empty for none).
+var _destination := Vector2i.ZERO
+var _target_object := ""
 
 
 func _ready() -> void:
-	world = World.from_file(WORLD_PATH)
-	for message in world.errors():
-		push_error(message)
+	var game: Variant = JSON.parse_string(FileAccess.get_file_as_string(GAME_PATH))
+	session = Session.create(game)
 
 	_build_sky()
-	_build_ground()
-
-	var water := WaterView.new()
-	water.world = world
-	add_child(water)
-
-	# Flat objects such as the bridge lie directly on the ground; the character always walks over them.
-	var flat := Node2D.new()
-	add_child(flat)
-
-	# All shadows lie on the ground together. Drawn as one group, they do not get darker where
-	# they overlap.
-	var shadows := CanvasGroup.new()
-	shadows.fit_margin = 400.0
-	shadows.clear_margin = 400.0
-	shadows.self_modulate = Color(1, 1, 1, SHADOW_OPACITY)
-	add_child(shadows)
-
-	_marker = TargetMarker.new()
-	add_child(_marker)
-
-	# All other objects and the character share one layer that sorts by y: whatever stands
-	# further in front covers what is behind.
-	var layer := Node2D.new()
-	layer.y_sort_enabled = true
-	add_child(layer)
-	for object in world.objects:
-		var view := ObjectView.new()
-		view.setup(object)
-		(flat if object.kind in World.FLAT_KINDS else layer).add_child(view)
-		var shadow := view.build_shadow()
-		if shadow:
-			shadows.add_child(shadow)
-
-	player = Player.new()
-	player.place(world.player)
-	player.cell_reached.connect(world.set_player)
-	layer.add_child(player)
-
-	_camera = Camera2D.new()
-	_camera.zoom = Vector2.ONE * ZOOM
-	_camera.position = _camera_target()
-	_camera.position_smoothing_enabled = true
-	add_child(_camera)
-
 	_build_grading()
 	_build_music()
-	_apply_mood()
+	_camera = Camera2D.new()
+	_camera.zoom = Vector2.ONE * ZOOM
+	_camera.position_smoothing_enabled = true
+	add_child(_camera)
+	_build_stage()
 
 	if not OS.get_cmdline_user_args().is_empty():
 		add_child(TestHelper.new())
@@ -97,11 +67,19 @@ func _process(_delta: float) -> void:
 func _unhandled_input(event: InputEvent) -> void:
 	var touch := event as InputEventScreenTouch
 	if touch and touch.pressed:
-		walk_to(Iso.to_cell(get_canvas_transform().affine_inverse() * touch.position))
-	# Temporary, for trying things out: F switches between the intact and the wrong mood.
+		tap(get_canvas_transform().affine_inverse() * touch.position)
+	# Temporary, for trying things out: F switches between the intact and the broken world.
 	var key := event as InputEventKey
 	if key and key.pressed and not key.echo and key.physical_keycode == KEY_F:
-		set_wrong(not _is_wrong)
+		set_broken(session.open_faults().is_empty())
+
+
+## Reacts to a tap on a point of the world: uses the object there, otherwise walks to the cell.
+func tap(point: Vector2) -> bool:
+	var object_id := _object_at(point)
+	if not object_id.is_empty():
+		return use(object_id)
+	return walk_to(Iso.to_cell(point))
 
 
 ## Sends the character to a cell. Returns false if there is no path to it.
@@ -109,50 +87,200 @@ func walk_to(cell: Vector2i) -> bool:
 	var path := world.find_path(player.next_stop(), cell)
 	if path.is_empty():
 		return false
-	player.walk(path)
+	_target_object = ""
 	_marker.show_at(cell)
+	_walk(path)
 	return true
 
 
-## Fades to the wrong mood of the world or back to the intact one.
-func set_wrong(enabled: bool, instant := false) -> void:
-	_is_wrong = enabled
-	if _mood_change:
-		_mood_change.kill()
-	var target := 1.0 if enabled else 0.0
-	if instant:
-		wrongness = target
-		return
-	_mood_change = create_tween()
-	_mood_change.tween_property(self, "wrongness", target, MOOD_CHANGE_DURATION).set_trans(Tween.TRANS_SINE)
+## Sends the character next to an object and uses it on arrival. Returns false if there is no
+## path to it.
+func use(object_id: String) -> bool:
+	var best: Array[Vector2i] = []
+	for cell in world.cells_beside(world.object(object_id)):
+		var path := world.find_path(player.next_stop(), cell)
+		if not path.is_empty() and (best.is_empty() or path.size() < best.size()):
+			best = path
+	if best.is_empty():
+		return false
+	_target_object = object_id
+	_walk(best)
+	return true
+
+
+## Turns the world on show into its broken or its intact version. For trying things out.
+func set_broken(enabled: bool, instant := false) -> void:
+	session.apply([{("break" if enabled else "restore"): world.id}], world.id)
+	_sync_objects()
+	_change_mood(instant)
 
 
 ## Seconds the music track has been playing. -1 without music.
 func music_position() -> float:
-	return _music.get_playback_position() if _music and _music.playing else -1.0
+	return _music.get_playback_position() if _music.playing else -1.0
 
 
 func stop_music() -> void:
-	if _music:
-		_music.stop()
-		_music.stream = null
+	_music.stop()
+	_music.stream = null
+
+
+func _walk(path: Array[Vector2i]) -> void:
+	_destination = path[-1]
+	player.walk(path)
+	if not player.is_walking():
+		_arrive()
+
+
+func _on_cell_reached(cell: Vector2i) -> void:
+	var effects := session.enter(cell)
+	if not effects.is_empty():
+		_show(effects)
+		if session.state.world != world.id:
+			return
+		# The rule may have changed what is in the way, so the rest of the path is found anew.
+		player.walk(world.find_path(cell, _destination))
+	if not player.is_walking():
+		_arrive()
+
+
+func _arrive() -> void:
+	if _target_object.is_empty():
+		return
+	var object_id := _target_object
+	_target_object = ""
+	if player.cell in world.cells_beside(world.object(object_id)):
+		_show(session.interact(object_id))
+
+
+## Brings the view up to date after rules have fired.
+func _show(effects: Array) -> void:
+	if effects.is_empty():
+		return
+	if session.state.world != world.id:
+		_build_stage()
+		return
+	_sync_objects()
+	_change_mood()
+
+
+## The interactive object whose image is under the point, the one furthest in front first.
+## Otherwise the interactive object standing on the tapped cell. Empty if there is none.
+func _object_at(point: Vector2) -> String:
+	var found := ""
+	var front := -INF
+	for object_id: String in _views:
+		var view: ObjectView = _views[object_id]
+		if session.is_interactive(object_id) and view.covers(point) and view.position.y > front:
+			found = object_id
+			front = view.position.y
+	if found.is_empty():
+		var object := world.object_at(Iso.to_cell(point))
+		if not object.is_empty() and session.is_interactive(object.id):
+			found = object.id
+	return found
+
+
+func _build_stage() -> void:
+	if _stage:
+		_stage.queue_free()
+	_views.clear()
+	_target_object = ""
+	world = session.world()
+	for message in world.errors():
+		push_error(message)
+
+	_stage = Node2D.new()
+	add_child(_stage)
+	_build_ground()
+
+	var water := WaterView.new()
+	water.world = world
+	_stage.add_child(water)
+
+	# Flat objects such as the bridge lie directly on the ground; the character always walks over them.
+	_flat = Node2D.new()
+	_stage.add_child(_flat)
+
+	# All shadows lie on the ground together. Drawn as one group, they do not get darker where
+	# they overlap.
+	_shadows = CanvasGroup.new()
+	_shadows.fit_margin = 400.0
+	_shadows.clear_margin = 400.0
+	_shadows.self_modulate = Color(1, 1, 1, SHADOW_OPACITY)
+	_stage.add_child(_shadows)
+
+	_marker = TargetMarker.new()
+	_stage.add_child(_marker)
+
+	# All other objects and the character share one layer that sorts by y: whatever stands
+	# further in front covers what is behind.
+	_layer = Node2D.new()
+	_layer.y_sort_enabled = true
+	_stage.add_child(_layer)
+	for object in world.objects:
+		_add_object(object)
+
+	player = Player.new()
+	player.place(session.state.cell)
+	player.cell_reached.connect(_on_cell_reached)
+	_layer.add_child(player)
+
+	_camera.position = _camera_target()
+	_camera.reset_smoothing()
+	_play_music(world.music)
+	_change_mood(true)
+
+
+func _add_object(object: Dictionary) -> void:
+	var view := ObjectView.new()
+	view.setup(object)
+	(_flat if object.kind in World.FLAT_KINDS else _layer).add_child(view)
+	var shadow := view.build_shadow()
+	if shadow:
+		_shadows.add_child(shadow)
+	_views[object.id] = view
+
+
+## Lets the views follow the objects of the world: moved ones slide, changed ones are built anew.
+func _sync_objects() -> void:
+	for object in world.objects:
+		var view: ObjectView = _views[object.id]
+		if view.is_current(object) or view.follow(object):
+			continue
+		if view.shadow:
+			view.shadow.queue_free()
+		view.queue_free()
+		_add_object(object)
+
+
+## Starts the change from the mood on show to the mood the world has now.
+func _change_mood(instant := false) -> void:
+	_mood_from = Mood.blend(_mood_from, _mood_to, mood_progress)
+	_mood_to = session.mood()
+	if _mood_change:
+		_mood_change.kill()
+	if instant:
+		mood_progress = 1.0
+		return
+	mood_progress = 0.0
+	_mood_change = create_tween()
+	_mood_change.tween_property(self, "mood_progress", 1.0, MOOD_CHANGE_DURATION).set_trans(Tween.TRANS_SINE)
 
 
 func _apply_mood() -> void:
-	var m := Mood.blend(world.mood, world.mood_wrong, wrongness)
+	var m := Mood.blend(_mood_from, _mood_to, mood_progress)
 	RenderingServer.global_shader_parameter_set(&"wind", m.wind)
 	RenderingServer.global_shader_parameter_set(&"water", m.water)
 	RenderingServer.global_shader_parameter_set(&"shadow", m.shadow)
 	ObjectView.light = m.light
 	ObjectView.shadow_cast = m.shadow
-	if _grading:
-		_grading.set_shader_parameter("saturation", m.saturation)
-		_grading.set_shader_parameter("tint", Vector3(m.tint.r, m.tint.g, m.tint.b))
-		_grading.set_shader_parameter("fog", m.fog)
-	if _music:
-		_music.pitch_scale = m.pitch
-		# From open (20 kHz) to heavily muffled (800 Hz), spread evenly by ear.
-		_muffler.cutoff_hz = 20000.0 * pow(0.04, m.muffle)
+	_grading.set_shader_parameter("saturation", m.saturation)
+	_grading.set_shader_parameter("tint", Vector3(m.tint.r, m.tint.g, m.tint.b))
+	_grading.set_shader_parameter("fog", m.fog)
+	_music.pitch_scale = m.pitch
+	# From open (20 kHz) to heavily muffled (800 Hz), spread evenly by ear.
+	_muffler.cutoff_hz = 20000.0 * pow(0.04, m.muffle)
 
 
 func _camera_target() -> Vector2:
@@ -165,14 +293,14 @@ func _build_ground() -> void:
 	if path.is_empty() or not ResourceLoader.exists(path):
 		var placeholder := GroundView.new()
 		placeholder.world = world
-		add_child(placeholder)
+		_stage.add_child(placeholder)
 		return
 	var image := Sprite2D.new()
 	image.texture = load(path)
 	image.centered = false
 	image.position = Vector2(world.ground_image.origin[0], world.ground_image.origin[1])
 	image.scale = Vector2.ONE / world.ground_image.scale
-	add_child(image)
+	_stage.add_child(image)
 
 
 func _build_sky() -> void:
@@ -212,14 +340,8 @@ func _build_grading() -> void:
 	add_child(canvas)
 
 
+## A bus of its own for the music, so the muffling does not hit any other sounds.
 func _build_music() -> void:
-	if world.music.is_empty() or not ResourceLoader.exists(world.music):
-		return
-	var track: AudioStream = load(world.music)
-	if track is AudioStreamMP3:
-		track.loop = true
-
-	# A bus of its own for the music, so the muffling does not hit any other sounds.
 	var bus := AudioServer.bus_count
 	AudioServer.add_bus(bus)
 	AudioServer.set_bus_name(bus, "Music")
@@ -227,9 +349,22 @@ func _build_music() -> void:
 	AudioServer.add_bus_effect(bus, _muffler)
 
 	_music = AudioStreamPlayer.new()
-	_music.stream = track
 	_music.bus = "Music"
-	_music.volume_db = -40.0
 	add_child(_music)
+
+
+## Fades in the track of a world. A track that is already playing just keeps playing.
+func _play_music(path: String) -> void:
+	if _music.stream and _music.stream.resource_path == path:
+		return
+	_music.stop()
+	_music.stream = null
+	if path.is_empty() or not ResourceLoader.exists(path):
+		return
+	var track: AudioStream = load(path)
+	if track is AudioStreamMP3:
+		track.loop = true
+	_music.stream = track
+	_music.volume_db = -40.0
 	_music.play()
 	create_tween().tween_property(_music, "volume_db", MUSIC_VOLUME, 3.0)

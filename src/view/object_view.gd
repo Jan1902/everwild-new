@@ -23,6 +23,10 @@ const IMAGES := {
 	"bridge": {"width": 180.0, "foot": Vector2(0.5, 0.45)},
 }
 const LIGHT_COLOR := Color(1.0, 0.78, 0.42)
+## Colour laid over a lantern that is out.
+const UNLIT := Color(0.62, 0.66, 0.78)
+## Seconds an object takes to slide to another cell.
+const MOVE_DURATION := 0.45
 
 ## Brightness of all lights, set from the mood of the world.
 static var light := 1.0
@@ -33,10 +37,15 @@ static var _wind_material: ShaderMaterial
 static var _shadow_material: ShaderMaterial
 static var _light_blob: GradientTexture2D
 static var _base_blob: GradientTexture2D
+## Kind -> which pixels of its image are painted, for telling what a tap hits.
+static var _masks := {}
 
 var kind := ""
 var size := Vector2i.ONE
+## Shadow of the object for the shadow layer, made by build_shadow(). Null if it casts none.
+var shadow: Node2D
 
+var _shown := {}
 var _image: Sprite2D
 var _glow: Sprite2D
 var _flicker := 0.0
@@ -45,21 +54,26 @@ var _flicker := 0.0
 ## Sets the object up. The node sits at the centre of its footprint so that depth sorting by y
 ## works.
 func setup(object: Dictionary) -> void:
+	_shown = object.duplicate()
 	kind = object.kind
 	size = object.size
-	position = Iso.to_point(Vector2(object.cell) + Vector2(size - Vector2i.ONE) * 0.5)
+	position = _point(object.cell)
+	visible = not object.hidden
 
 	var path := IMAGE_DIR + kind + ".png"
 	if not IMAGES.has(kind) or not ResourceLoader.exists(path):
 		return
 	var layout: Dictionary = IMAGES[kind]
 	var mirrored: bool = object.mirrored
+	var lit: bool = object.state != "out"
 	_image = _build_image(load(path), layout, mirrored)
 	if layout.get("wind", false):
 		_image.material = _get_wind_material()
+	if not lit:
+		_image.modulate = UNLIT
 	add_child(_image)
 
-	if layout.has("light"):
+	if layout.has("light") and lit:
 		var spot: Vector2 = layout.light
 		_glow = Sprite2D.new()
 		_glow.texture = _get_light_blob()
@@ -71,12 +85,46 @@ func setup(object: Dictionary) -> void:
 		add_child(_glow)
 
 
-## Shadow of the object as a separate node for the shadow layer. Null if it casts none.
+## Whether the view shows the object as it is now.
+func is_current(object: Dictionary) -> bool:
+	return _shown == object
+
+
+## Slides to the object's cell if that is all that changed. Returns false if the view has to be
+## built anew instead.
+func follow(object: Dictionary) -> bool:
+	var moved := _shown.duplicate()
+	moved.cell = object.cell
+	if moved != object:
+		return false
+	_shown = moved
+	var target := _point(object.cell)
+	var slide := create_tween().set_parallel().set_trans(Tween.TRANS_SINE)
+	slide.tween_property(self, "position", target, MOVE_DURATION)
+	if shadow:
+		slide.tween_property(shadow, "position", shadow.position + target - position, MOVE_DURATION)
+	return true
+
+
+## Whether the image of the object is under this point of the world.
+func covers(point: Vector2) -> bool:
+	if _image == null or not visible:
+		return false
+	var pixel := Vector2i((point - position - _image.position) / _image.scale - _image.offset)
+	var mask := _get_mask(kind, _image.texture)
+	if not Rect2i(Vector2i.ZERO, mask.get_size()).has_point(pixel):
+		return false
+	if _image.flip_h:
+		pixel.x = mask.get_size().x - 1 - pixel.x
+	return mask.get_bitv(pixel)
+
+
+## Builds the shadow of the object as a separate node for the shadow layer. Null if it casts none.
 func build_shadow() -> Node2D:
-	if _image == null or kind in World.FLAT_KINDS:
+	if _image == null or kind in World.FLAT_KINDS or not visible:
 		return null
 	var layout: Dictionary = IMAGES[kind]
-	var shadow := Node2D.new()
+	shadow = Node2D.new()
 
 	if layout.has("box"):
 		shadow.position = position
@@ -109,6 +157,11 @@ func _process(delta: float) -> void:
 	var jitter := 0.88 + 0.08 * sin(_flicker * 9.0) + 0.04 * sin(_flicker * 23.0)
 	_glow.modulate = Color(LIGHT_COLOR, 0.45 * light * jitter)
 	_glow.scale = Vector2.ONE * (1.0 + 0.06 * sin(_flicker * 6.0))
+
+
+## Centre of the footprint of an object standing on this cell.
+func _point(cell: Vector2i) -> Vector2:
+	return Iso.to_point(Vector2(cell) + Vector2(size - Vector2i.ONE) * 0.5)
 
 
 func _draw() -> void:
@@ -144,6 +197,7 @@ static func cleanup() -> void:
 	_shadow_material = null
 	_light_blob = null
 	_base_blob = null
+	_masks.clear()
 
 
 static func _get_wind_material() -> ShaderMaterial:
@@ -158,6 +212,14 @@ static func _get_shadow_material() -> ShaderMaterial:
 		_shadow_material = ShaderMaterial.new()
 		_shadow_material.shader = preload("res://src/view/shaders/shadow.gdshader")
 	return _shadow_material
+
+
+static func _get_mask(image_kind: String, texture: Texture2D) -> BitMap:
+	if not _masks.has(image_kind):
+		var mask := BitMap.new()
+		mask.create_from_image_alpha(texture.get_image())
+		_masks[image_kind] = mask
+	return _masks[image_kind]
 
 
 static func _get_light_blob() -> GradientTexture2D:

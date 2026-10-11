@@ -50,16 +50,73 @@
 		{"kind": "tree", "cell": [4, 3]},
 		{"kind": "tree", "cell": [10, 2]},
 		{"kind": "tree", "cell": [16, 5]},
-		{"kind": "tree", "cell": [11, 7], "mirrored": true},
+		{"kind": "tree", "cell": [11, 7]},
 		{"kind": "tree", "cell": [17, 8]},
-		{"kind": "tree", "cell": [3, 12], "mirrored": true},
+		{"kind": "tree", "cell": [3, 12]},
 		{"kind": "tree", "cell": [9, 13]},
-		{"kind": "tree", "cell": [15, 15]},
+		{"id": "tree_south", "kind": "tree", "cell": [15, 15]},
 		{"kind": "tree", "cell": [8, 16]},
 		{"kind": "rock", "cell": [5, 2]},
-		{"kind": "rock", "cell": [7, 10]},
-		{"kind": "rock", "cell": [14, 14]},
-		{"kind": "lantern", "cell": [7, 8]},
-		{"kind": "lantern", "cell": [12, 10]}
+		{"id": "rock_bridge", "kind": "rock", "cell": [11, 8]},
+		{"id": "rock_east", "kind": "rock", "cell": [14, 14]},
+		{"id": "lantern_west", "kind": "lantern", "cell": [7, 8], "state": "lit"},
+		{"id": "lantern_bridge", "kind": "lantern", "cell": [12, 10], "state": "lit"},
+		{"id": "lantern_east", "kind": "lantern", "cell": [15, 10], "state": "lit"}
+	],
+	"broken": {
+		"rock_bridge": {"cell": [12, 9]},
+		"rock_east": {"cell": [15, 13]},
+		"tree_south": {"mirrored": true},
+		"lantern_west": {"state": "out"},
+		"lantern_bridge": {"state": "out"},
+		"lantern_east": {"state": "out"}
+	},
+	"faults": [
+		{
+			"id": "brook",
+			"fixed_if": [{"object": "rock_bridge", "cell": [11, 8]}],
+			"restores": ["water"]
+		},
+		{
+			"id": "wind",
+			"fixed_if": [{"object": "tree_south", "mirrored": false}],
+			"restores": ["wind"]
+		},
+		{
+			"id": "lanterns",
+			"fixed_if": [
+				{"object": "lantern_west", "state": "lit"},
+				{"object": "lantern_bridge", "state": "lit"},
+				{"object": "lantern_east", "state": "lit"}
+			],
+			"restores": ["light"]
+		}
+	],
+	"rules": [
+		{
+			"on": "interact", "object": "rock_bridge",
+			"if": [{"object": "rock_bridge", "cell": [12, 9]}],
+			"do": [{"change": "rock_bridge", "cell": [11, 8]}]
+		},
+		{
+			"on": "interact", "object": "rock_east",
+			"if": [{"object": "rock_east", "cell": [15, 13]}],
+			"do": [{"change": "rock_east", "cell": [14, 14]}, {"change": "tree_south", "mirrored": false}]
+		},
+		{
+			"on": "interact", "object": "lantern_west",
+			"if": [{"object": "lantern_west", "state": "out"}],
+			"do": [{"change": "lantern_west", "state": "lit"}]
+		},
+		{
+			"on": "interact", "object": "lantern_bridge",
+			"if": [{"object": "lantern_bridge", "state": "out"}],
+			"do": [{"change": "lantern_bridge", "state": "lit"}]
+		},
+		{
+			"on": "interact", "object": "lantern_east",
+			"if": [{"object": "lantern_east", "state": "out"}],
+			"do": [{"change": "lantern_east", "state": "lit"}]
+		}
 	]
 }

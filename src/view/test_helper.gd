@@ -8,8 +8,9 @@ extends Node
 ##                    seconds in between)
 ## --wait=s           waiting time after each tap, default 1
 ## --screenshot=path  saves a screenshot at the end
-## --wrong            switches to the wrong mood of the world immediately
-## Afterwards the character's cell and the music position are printed and the game quits.
+## --intact           starts in the intact version of the world
+## Afterwards the character's cell, the open faults and the music position are printed and the
+## game quits.
 
 
 func _ready() -> void:
@@ -26,8 +27,8 @@ func _ready() -> void:
 			screenshot = argument.trim_prefix("--screenshot=")
 
 	var game := get_parent()
-	if "--wrong" in OS.get_cmdline_user_args():
-		game.set_wrong(true, true)
+	if "--intact" in OS.get_cmdline_user_args():
+		game.set_broken(false, true)
 	await get_tree().create_timer(0.5).timeout
 	for cell in taps:
 		_tap(game, cell)
@@ -38,7 +39,9 @@ func _ready() -> void:
 	if not screenshot.is_empty():
 		await RenderingServer.frame_post_draw
 		get_viewport().get_texture().get_image().save_png(screenshot)
-	print("player=%d,%d music=%.1f" % [game.player.cell.x, game.player.cell.y, game.music_position()])
+	print("player=%d,%d open_faults=%s music=%.1f" % [
+		game.player.cell.x, game.player.cell.y, ",".join(game.session.open_faults()), game.music_position(),
+	])
 	# The music has to have died away before Godot closes, otherwise it reports a leak.
 	game.stop_music()
 	await get_tree().create_timer(0.2).timeout

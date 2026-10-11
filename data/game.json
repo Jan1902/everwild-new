@@ -1,0 +1,7 @@
+{
+	"start": "village",
+	"worlds": ["village"],
+	"on_start": [
+		{"break": "village"}
+	]
+}

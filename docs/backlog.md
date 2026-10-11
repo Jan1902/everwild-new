@@ -8,12 +8,8 @@ Die Reihenfolge innerhalb eines Abschnitts ist die vorgeschlagene Reihenfolge de
 
 Diese Punkte bauen aufeinander auf, fast alles Weitere hängt an ihnen.
 
-1. **Zentraler Spielspeicher.** Ein Objekt mit allen Zuständen des Spiels: aktuelle Welt und Position, Zustand jeder Welt (welche Fehler behoben sind, verschobene Objekte, umgelegte Schalter), Inventar, Notizbuch, Fortschritt der Dialoge. Reine Logik, deterministisch, als Daten serialisierbar. Die Ansicht liest nur daraus.
-2. **Logik je Welt.** Triggerzonen, Interaktionen mit Objekten (ansehen, aufheben, verschieben, umlegen), Bedingungen und Folgen als Daten in der Welt-Datei. Die Folgen ändern den Spielspeicher, auch den anderer Welten.
-3. **Stimmung aus dem Zustand.** Wie falsch eine Welt wirkt, ergibt sich aus der Zahl ihrer behobenen Fehler statt aus der Taste F. Jeder behobene Fehler stellt einen Teil wieder her (Wind, Farbe, Musik).
-4. **Lösbarkeitsprüfung.** Ein Test spielt jede Welt automatisch durch und stellt sicher, dass aus jedem erreichbaren Zustand eine Lösung existiert.
-5. **Persistierung lokal.** Spielspeicher bei jeder Änderung auf das Gerät schreiben, beim Start laden, mit Versionsnummer für spätere Änderungen am Format.
-6. **Speicherung in Google Play.** Spielstand über Google Play Games (Saved Games) sichern und zwischen Geräten abgleichen, mit Regel für Konflikte zwischen lokalem und entferntem Stand.
+1. **Persistierung lokal.** Spielspeicher bei jeder Änderung auf das Gerät schreiben, beim Start laden, mit Versionsnummer für spätere Änderungen am Format.
+2. **Speicherung in Google Play.** Spielstand über Google Play Games (Saved Games) sichern und zwischen Geräten abgleichen, mit Regel für Konflikte zwischen lokalem und entferntem Stand.
 
 ## Spielinhalt
 
@@ -24,7 +20,8 @@ Diese Punkte bauen aufeinander auf, fast alles Weitere hängt an ihnen.
 5. **Notizbuch.** Sammelt Erinnerungen, Weltstücke und Hinweise und zeigt die abstrakten Beziehungen zwischen ihnen (was gehört zu welcher Welt, was hängt womit zusammen). Ersetzt eine Questliste.
 6. **Erinnerung gegen Jetzt.** Die Kernmechanik: die heile Fassung einer Welt als Erinnerung ansehen und mit dem Jetzt vergleichen.
 7. **Verweilen.** Stehen bleiben und beobachten deckt Dinge auf, die man im Gehen nicht sieht.
-8. **Tutorial-Dorf als fertiger Abschnitt.** Heile Fassung mit den Aufgaben für den alten Mann, der Bruch, das Aufwachen, die kaputte Fassung mit vier bis sechs Fehlern.
+8. **Tutorial-Dorf als fertiger Abschnitt.** Heile Fassung mit den Aufgaben für den alten Mann, der Bruch, das Aufwachen, die kaputte Fassung mit vier bis sechs Fehlern. Die drei Fehler, die das Dorf jetzt hat (Stein vor der Brücke, Stein im Osten mit gespiegeltem Baum, dunkle Laternen), sind nur ein Probelauf für die Mechanik, und das Spiel beginnt vorläufig direkt im kaputten Dorf.
+9. **Rückmeldung bei Interaktionen.** Man sieht bisher nicht, was sich benutzen lässt und ob ein Tipp etwas bewirkt hat. Offen ist, wie deutlich das sein darf, ohne das Entdecken zu verderben.
 
 ## Rahmen
 

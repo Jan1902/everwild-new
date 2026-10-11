@@ -2,6 +2,9 @@ class_name Mood
 extends RefCounted
 ## All the dials that make a world feel right or wrong. Pure data.
 
+## Names of all dials, as used in world files.
+const DIALS := ["wind", "water", "shadow", "saturation", "tint", "fog", "light", "pitch", "muffle"]
+
 ## Wind direction and strength. Positive blows to the right, negative to the left.
 var wind := 1.0
 ## Flow direction and speed of the water. Negative flows backwards.
@@ -42,14 +45,13 @@ static func from_data(data: Dictionary, base: Mood = null) -> Mood:
 
 ## State between two moods: weight 0 gives a, weight 1 gives b.
 static func blend(a: Mood, b: Mood, weight: float) -> Mood:
+	return blend_dials(a, b, {}, weight)
+
+
+## Like blend, but with a weight of its own for every dial named in weights. All other dials use
+## the general weight.
+static func blend_dials(a: Mood, b: Mood, weights: Dictionary, general := 0.0) -> Mood:
 	var m := Mood.new()
-	m.wind = lerpf(a.wind, b.wind, weight)
-	m.water = lerpf(a.water, b.water, weight)
-	m.shadow = a.shadow.lerp(b.shadow, weight)
-	m.saturation = lerpf(a.saturation, b.saturation, weight)
-	m.tint = a.tint.lerp(b.tint, weight)
-	m.fog = lerpf(a.fog, b.fog, weight)
-	m.light = lerpf(a.light, b.light, weight)
-	m.pitch = lerpf(a.pitch, b.pitch, weight)
-	m.muffle = lerpf(a.muffle, b.muffle, weight)
+	for dial: String in DIALS:
+		m.set(dial, lerp(a.get(dial), b.get(dial), float(weights.get(dial, general))))
 	return m

@@ -28,8 +28,16 @@ func next_stop() -> Vector2i:
 	return cell if _path.is_empty() else _path[0]
 
 
-## Replaces the current path. The path has to start at next_stop().
+func is_walking() -> bool:
+	return not _path.is_empty()
+
+
+## Replaces the current path. The path has to start at next_stop(). An empty path stops the
+## character on the cell it reaches next.
 func walk(path: Array[Vector2i]) -> void:
+	# A character standing exactly on the first cell has reached it already.
+	if not path.is_empty() and Vector2(path[0]) == _exact:
+		path = path.slice(1)
 	_path = path
 
 

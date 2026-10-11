@@ -11,6 +11,9 @@ func _init() -> void:
 	_test_iso()
 	_test_village()
 	_test_mood()
+	_test_state()
+	_test_rules()
+	_test_village_game()
 	print("%d checks, %d failed" % [_checks, _failures])
 	quit(1 if _failures > 0 else 0)
 
@@ -58,7 +61,7 @@ func _test_village() -> void:
 	var world := World.from_file("res://data/worlds/village.json")
 	_check(world.errors().is_empty(), "Village has data errors: %s" % [world.errors()])
 	_check(world.size == Vector2i(20, 20), "Village is not 20x20")
-	_check(world.player == world.start, "Character does not stand on the start cell")
+	_check(world.id == "village", "Village does not take its id from the file name")
 
 	_check(not world.is_walkable(Vector2i(0, 0)), "Void is walkable")
 	_check(not world.is_walkable(Vector2i(13, 8)), "Water is walkable")
@@ -87,5 +90,171 @@ func _test_village() -> void:
 	_check(world.find_path(world.start, Vector2i(13, 8)).is_empty(), "Found a path into the water")
 	_check(world.find_path(world.start, Vector2i(8, 5)).is_empty(), "Found a path into a house")
 
-	_check(not world.set_player(Vector2i(13, 8)), "Character can be put into the water")
-	_check(world.set_player(target) and world.player == target, "Character cannot be moved")
+
+## A small world for trying out rules: a corridor of five cells with three niches below it.
+##   gate   belongs into the middle niche; in the broken world it blocks the corridor
+##   lamp   is out in the broken world and needs the match found on cell 3,0
+func _tiny_world() -> Dictionary:
+	return {
+		"size": [5, 2],
+		"start": [0, 0],
+		"ground": [".....", ". . ."],
+		"mood_wrong": {"wind": -1.0, "light": 0.0, "fog": 1.0},
+		"objects": [
+			{"id": "gate", "kind": "rock", "cell": [2, 1]},
+			{"id": "lamp", "kind": "lantern", "cell": [4, 1], "state": "lit"},
+		],
+		"broken": {"gate": {"cell": [2, 0]}, "lamp": {"state": "out"}},
+		"faults": [
+			{"id": "gate", "fixed_if": [{"object": "gate", "cell": [2, 1]}], "restores": ["wind"]},
+			{"id": "lamp", "fixed_if": [{"object": "lamp", "state": "lit"}], "restores": ["light"]},
+		],
+		"rules": [
+			{
+				"on": "interact", "object": "gate",
+				"if": [{"object": "gate", "cell": [2, 0]}],
+				"do": [{"change": "gate", "cell": [2, 1]}],
+			},
+			{
+				"on": "enter", "cells": [[3, 0]],
+				"if": [{"fact": "found", "is": false}],
+				"do": [{"set": "found"}, {"give": "match"}, {"note": "match_found"}],
+			},
+			{
+				"on": "interact", "object": "lamp",
+				"if": [{"object": "lamp", "state": "out"}, {"item": "match"}],
+				"do": [{"change": "lamp", "state": "lit"}, {"take": "match"}],
+			},
+			{"on": "interact", "object": "lamp", "do": [{"say": "lamp_is_dark"}]},
+		],
+	}
+
+
+func _tiny_game() -> Dictionary:
+	return {"start": "tiny", "worlds": ["tiny", "cellar"], "on_start": [{"break": "tiny"}]}
+
+
+func _tiny_sources() -> Dictionary:
+	return {"tiny": _tiny_world(), "cellar": {"size": [2, 1], "start": [0, 0], "ground": [".."]}}
+
+
+func _test_state() -> void:
+	var state := GameState.new()
+	state.world = "tiny"
+	state.cell = Vector2i(3, 0)
+	state.facts["found"] = true
+	state.facts["count"] = 2
+	state.change_object("tiny", "gate", {"cell": Vector2i(2, 1)})
+	state.change_object("tiny", "gate", {"mirrored": true})
+	state.give("match")
+	state.give("apple")
+	state.give("match")
+	state.add_note("b")
+	state.add_note("a")
+	_check(state.items == ["apple", "match"], "Items are not a sorted set")
+	_check(state.objects.tiny.gate == {"cell": Vector2i(2, 1), "mirrored": true}, "Object changes are not merged")
+
+	var text := JSON.stringify(state.to_data())
+	var loaded := GameState.from_data(JSON.parse_string(text))
+	_check(loaded != null and loaded.key() == state.key(), "State changes when saved and loaded")
+	_check(loaded != null and loaded.objects.tiny.gate.cell == Vector2i(2, 1), "Cell of an object is not restored")
+	_check(loaded != null and loaded.notes == ["b", "a"], "Notes lose their order")
+	_check(GameState.from_data("nonsense") == null, "Nonsense is accepted as a saved state")
+	_check(GameState.from_data({"version": 999, "world": "tiny", "cell": [0, 0]}) == null, "Unknown version is accepted")
+	_check(GameState.from_data({"version": 1, "world": "tiny"}) == null, "State without a cell is accepted")
+
+
+func _test_rules() -> void:
+	var session := Session.create(_tiny_game(), _tiny_sources())
+	var world := session.world()
+	_check(world.errors().is_empty(), "Tiny world has data errors: %s" % [world.errors()])
+	_check(world.object("gate").cell == Vector2i(2, 0), "Starting the game does not break the world")
+	_check(session.open_faults() == ["gate", "lamp"], "Broken world does not have both faults open")
+	_check(not world.is_walkable(Vector2i(2, 0)) and world.is_walkable(Vector2i(2, 1)), "Moved object blocks the wrong cell")
+	_check(world.find_path(Vector2i(0, 0), Vector2i(4, 0)).is_empty(), "Path leads through the gate")
+	_check(session.is_interactive("gate") and not session.is_interactive("nothing"), "Interactive objects are not recognised")
+
+	var mood := session.mood()
+	_check(mood.wind == -1.0 and mood.light == 0.0 and mood.fog == 1.0, "Broken world does not have the wrong mood")
+
+	_check(session.enter(Vector2i(2, 0)).is_empty() and session.state.cell == Vector2i(0, 0), "Player can walk into an object")
+	_check(session.interact("lamp") == [{"say": "lamp_is_dark"}], "Later rule does not fire when the first one cannot")
+	session.enter(Vector2i(1, 0))
+	_check(session.interact("gate").size() == 1, "Using the gate does nothing")
+	_check(world.object("gate").cell == Vector2i(2, 1), "Gate does not move")
+	_check(session.interact("gate").is_empty(), "Rule fires although its condition does not hold")
+	_check(not world.find_path(Vector2i(0, 0), Vector2i(4, 0)).is_empty(), "Path is still blocked after the gate moved")
+	_check(session.open_faults() == ["lamp"], "Moving the gate does not fix its fault")
+
+	mood = session.mood()
+	_check(mood.wind == 1.0 and mood.light == 0.0, "Fixed fault does not restore its own dial only")
+	_check(is_equal_approx(mood.fog, 0.5), "Dials without a fault do not follow the share of open faults")
+
+	session.enter(Vector2i(2, 0))
+	_check(session.enter(Vector2i(3, 0)).size() == 3, "Entering the cell does not fire its rule")
+	_check(session.state.items == ["match"] and session.state.notes == ["match_found"], "Rule does not give item and note")
+	_check(session.enter(Vector2i(3, 0)).is_empty(), "Rule for entering fires twice")
+	session.enter(Vector2i(4, 0))
+	session.interact("lamp")
+	_check(session.state.items.is_empty() and world.object("lamp").state == "lit", "Lamp is not lit with the match")
+	_check(session.is_complete(), "Game is not complete although all faults are fixed")
+	_check(session.mood().fog == 0.0, "Repaired world does not have the intact mood")
+
+	# An object cannot be moved onto the player.
+	session.apply([{"break": "tiny"}], "tiny")
+	session.state.cell = Vector2i(2, 1)
+	_check(session.interact("gate").is_empty(), "Gate moves onto the player")
+
+	# Saved and continued, the game is in the same condition.
+	var continued := Session.resume(_tiny_game(), JSON.parse_string(JSON.stringify(session.state.to_data())), _tiny_sources())
+	_check(continued != null and continued.state.key() == session.state.key(), "Continued game differs from the saved one")
+	_check(continued != null and continued.world().object("gate").cell == Vector2i(2, 0), "Continued game loses object changes")
+	_check(Session.resume(_tiny_game(), {"version": 1, "world": "nowhere", "cell": [0, 0]}, _tiny_sources()) == null, "Save for an unknown world is accepted")
+
+	# Effects reach into other worlds, and the player can change worlds.
+	session.apply([{"go": "cellar", "cell": [1, 0]}], "tiny")
+	_check(session.state.world == "cellar" and session.world().id == "cellar", "Player does not change worlds")
+	session.apply([{"change": "lamp", "world": "tiny", "state": "out"}], "cellar")
+	_check(session.world("tiny").object("lamp").state == "out", "Effect does not reach another world")
+	_check(session.holds([{"fixed": "lamp", "world": "tiny", "is": false}], "cellar"), "Condition does not see another world")
+	_check(session.holds([{"any": [{"fact": "nope"}, {"not": {"item": "match"}}]}], "cellar"), "'any' and 'not' do not work")
+
+	var result := Solver.check(_tiny_game(), _tiny_sources())
+	_check(result.solvable and result.dead_ends == 0 and result.complete, "Tiny world is not solvable: %s" % [result])
+	_check(result.solution == ["use gate", "step on 3,0", "use lamp"], "Unexpected solution: %s" % [result.solution])
+
+	# A trap has to be found: using the gate a second time makes the dark lamp vanish for good.
+	var trapped := _tiny_sources()
+	trapped.tiny.rules.push_front({
+		"on": "interact", "object": "gate",
+		"if": [{"object": "gate", "cell": [2, 1]}, {"object": "lamp", "state": "out"}],
+		"do": [{"change": "lamp", "hidden": true}],
+	})
+	result = Solver.check(_tiny_game(), trapped)
+	_check(result.solvable and result.dead_ends > 0, "Dead end is not found")
+	_check(result.dead_end == ["use gate", "use gate"], "Way into the dead end is not reported: %s" % [result.dead_end])
+
+	# A game that cannot be completed at all has to be found as well.
+	var hopeless := _tiny_sources()
+	hopeless.tiny.rules.clear()
+	_check(not Solver.check(_tiny_game(), hopeless).solvable, "Unsolvable game is not found")
+
+
+func _test_village_game() -> void:
+	var game: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://data/game.json"))
+	var session := Session.create(game)
+	var world := session.world()
+	_check(world.errors().is_empty(), "Broken village has data errors: %s" % [world.errors()])
+	_check(session.open_faults().size() == world.faults.size(), "Not every fault is open in the broken village")
+	_check(world.find_path(world.start, Vector2i(16, 9)).is_empty(), "Rock does not block the bridge")
+
+	var result := Solver.check(game)
+	print("village: %d states, solution: %s" % [result.states, ", ".join(result.solution)])
+	_check(result.complete, "Search through the game was given up")
+	_check(result.solvable, "Game cannot be completed")
+	_check(result.dead_ends == 0, "Game has %d dead ends, for example: %s" % [result.dead_ends, result.dead_end])
+
+	for world_id: String in game.worlds:
+		var intact := Session.create({"start": world_id, "worlds": game.worlds})
+		_check(intact.world().errors().is_empty(), "World '%s' has data errors: %s" % [world_id, intact.world().errors()])
+		_check(intact.open_faults().is_empty(), "Intact world '%s' has open faults: %s" % [world_id, intact.open_faults()])
