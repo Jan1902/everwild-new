@@ -6,8 +6,8 @@
 	"music": "res://assets/music/room_theme.mp3",
 	"ground_image": {
 		"path": "res://assets/worlds/house_inside_ground.png",
-		"scale": 1.52,
-		"origin": [-505.26, -271.16]
+		"scale": 1.567,
+		"origin": [-490.1, -238.78]
 	},
 	"ground": [
 		"      ",

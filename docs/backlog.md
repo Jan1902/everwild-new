@@ -31,7 +31,7 @@ Spielspeicher, Regeln je Welt, Stimmung aus dem Zustand, Lösbarkeitsprüfung un
 2. **Dialogfeld und Notizbuch.** Beide nutzen die Standardschrift von Godot und schlichte Flächen. Brauchen eine Schrift und Gestaltung, die zum gemalten Stil passen.
 3. **Raum einrichten.** Der Raum hat gemalten Boden und Wände, einen Tisch und einen Schrank. Für Rätsel im Haus fehlen Dinge, mit denen man etwas tun kann.
 4. **Verdeckung durch hohe Objekte.** Häuser und Bäume verdecken die Figur und Wege. Braucht eine Lösung (durchscheinen, Umriss oder Regeln für die Platzierung).
-5. **Brücke.** Das Sprite ist zu lang und zu schmal für den ein Feld breiten Bach. Neu generieren mit Formvorlage.
+5. **Bodenbilder einpassen.** Das Bildmodell hält sich nicht immer genau an den Plan (der Raum kam 3 % größer und etwas höher heraus). Bisher wird die Lage von Hand an den gemalten Ecken ausgerichtet. Bei mehr Welten lohnt ein Schritt im Werkzeug, der das selbst misst.
 6. **Schatten auf Höhenunterschieden.** Der Schatten der Laterne fällt über Brücke und Bach, als wäre alles flach.
 7. **Gespiegelte Objekte.** Das gemalte Licht sitzt nach dem Spiegeln auf der falschen Seite. Für die heile Welt eigene Varianten statt Spiegelung, die Spiegelung bleibt den falschen Welten vorbehalten.
 8. **Geräusche.** Schritte je Untergrund, Wasser, Wind, Interaktionen.

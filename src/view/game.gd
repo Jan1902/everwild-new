@@ -154,9 +154,10 @@ func tap(point: Vector2) -> bool:
 	_idle = 0.0
 	_forget()
 	var object_id := _object_at(point)
-	if not object_id.is_empty():
-		return use(object_id)
-	return walk_to(Iso.to_cell(point))
+	var understood := use(object_id) if not object_id.is_empty() else walk_to(Iso.to_cell(point))
+	if understood:
+		_marker.show_at(point)
+	return understood
 
 
 ## Sends the character to a cell. Returns false if there is no path to it.
@@ -165,7 +166,6 @@ func walk_to(cell: Vector2i) -> bool:
 	if path.is_empty():
 		return false
 	_target_object = ""
-	_marker.show_at(cell)
 	_walk(path)
 	return true
 
@@ -332,19 +332,20 @@ func _travel() -> void:
 	fade.tween_callback(func() -> void: _travelling = false)
 
 
-## The interactive object whose image is under the point, the one furthest in front first.
-## Otherwise the interactive object standing on the tapped cell. Empty if there is none.
+## The object under the point that would react to being used now: the one whose image is there,
+## the one furthest in front first, otherwise the one standing on the tapped cell. Empty if there
+## is none. Objects with nothing to do at the moment let the tap through to the ground.
 func _object_at(point: Vector2) -> String:
 	var found := ""
 	var front := -INF
 	for object_id: String in _views:
 		var view: ObjectView = _views[object_id]
-		if session.is_interactive(object_id) and view.covers(point) and view.position.y > front:
+		if view.covers(point) and view.position.y > front and not session.interact_rule(object_id).is_empty():
 			found = object_id
 			front = view.position.y
 	if found.is_empty():
 		var object := world.object_at(Iso.to_cell(point))
-		if not object.is_empty() and session.is_interactive(object.id):
+		if not object.is_empty() and not session.interact_rule(object.id).is_empty():
 			found = object.id
 	return found
 

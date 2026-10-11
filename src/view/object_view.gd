@@ -20,7 +20,7 @@ const IMAGES := {
 	"tree": {"width": 190.0, "foot": Vector2(0.49, 0.97), "wind": true, "base": 38.0},
 	"rock": {"width": 84.0, "foot": Vector2(0.5, 0.78), "base": 50.0},
 	"lantern": {"width": 85.0, "foot": Vector2(0.19, 0.97), "light": Vector2(48, -70), "base": 18.0},
-	"bridge": {"width": 180.0, "foot": Vector2(0.5, 0.45)},
+	"bridge": {"width": 140.0, "foot": Vector2(0.5, 0.45)},
 	"old_man": {"width": 52.0, "foot": Vector2(0.5, 0.96), "base": 20.0},
 	"woman": {"width": 39.0, "foot": Vector2(0.5, 0.97), "base": 18.0},
 	"table": {"width": 100.0, "foot": Vector2(0.5, 0.78), "base": 44.0},

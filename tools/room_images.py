@@ -7,6 +7,10 @@
     python tools/room_images.py music      generate the music of the room (1 call)
     python tools/room_images.py grid       lay the grid over the painted room as a check (free)
 
+The model painted the floor about 3 % larger and a little higher than the plan. The placement
+in the world file ("ground_image" in house_inside.json) is therefore fitted to the corners of
+the painted floor and differs from plan.json. The grid check uses plan.json.
+
 Each file is generated at most once: existing files are never overwritten and failed calls are
 not repeated.
 """
