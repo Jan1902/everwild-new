@@ -11,6 +11,13 @@ const MUSIC_VOLUME := -6.0
 const MOOD_CHANGE_DURATION := 2.5
 ## Seconds the picture takes to fade to black, and again to come back, when changing worlds.
 const TRAVEL_FADE := 0.35
+## Seconds the player has to stand still before the memory of the intact world shows through,
+## and seconds it stays.
+const LINGER_DELAY := 3.5
+const MEMORY_DURATION := 4.5
+## How far the mood moves towards the remembered one meanwhile.
+const MEMORY_STRENGTH := 0.75
+const GHOST_COLOR := Color(1.15, 1.1, 1.0, 0.6)
 
 var session: Session
 ## The world on show, which is the one the player is in.
@@ -47,6 +54,12 @@ var _notebook: NotebookView
 var _travelling := false
 ## False while the start screen is up. The music waits for it.
 var _started := true
+## Seconds the player has been standing still, and whether this standstill has shown its memory.
+var _idle := 0.0
+var _lingered := false
+## Images of the objects as the player remembers them, while the memory shows through.
+var _ghosts: Array[ObjectView] = []
+var _memory: Tween
 ## File the game is saved to. Empty for a game that is not saved.
 var _save_path := SaveFile.DEFAULT_PATH
 
@@ -104,8 +117,18 @@ func _notification(what: int) -> void:
 		save()
 
 
-func _process(_delta: float) -> void:
+func _process(delta: float) -> void:
 	_camera.position = _camera_target()
+
+	if player.is_walking():
+		_lingered = false
+	if player.is_walking() or _travelling or not _started or _dialogue.is_open() or _notebook.is_open():
+		_idle = 0.0
+	elif not _lingered:
+		_idle += delta
+		if _idle >= LINGER_DELAY:
+			_lingered = true
+			_linger()
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -123,6 +146,8 @@ func _unhandled_input(event: InputEvent) -> void:
 
 ## Reacts to a tap on a point of the world: uses the object there, otherwise walks to the cell.
 func tap(point: Vector2) -> bool:
+	_idle = 0.0
+	_forget()
 	var object_id := _object_at(point)
 	if not object_id.is_empty():
 		return use(object_id)
@@ -229,10 +254,48 @@ func _arrive() -> void:
 		_show(session.interact(object_id))
 
 
+## The player has stood still for a while: rules waiting for that fire, and the memory of the
+## intact world shows through. Everything that is different now appears as it was, and the mood
+## leans towards the remembered one.
+func _linger() -> void:
+	_show(session.linger())
+	if _travelling:
+		return
+	var remembered := world.differences()
+	if remembered.is_empty():
+		return
+	_memory = create_tween().set_parallel()
+	for object in remembered:
+		var ghost := ObjectView.new()
+		ghost.setup(object)
+		ghost.modulate = Color(GHOST_COLOR, 0.0)
+		ghost.z_index = 1
+		_layer.add_child(ghost)
+		_ghosts.append(ghost)
+		_memory.tween_property(ghost, "modulate:a", GHOST_COLOR.a, 1.2).set_trans(Tween.TRANS_SINE)
+	_memory.chain().tween_interval(MEMORY_DURATION)
+	_memory.chain().tween_callback(_forget)
+	_change_mood(false, Mood.blend(session.mood(), session.remembered_mood(), MEMORY_STRENGTH))
+
+
+## Lets the memory fade again.
+func _forget() -> void:
+	if _ghosts.is_empty():
+		return
+	_memory.kill()
+	var fade := create_tween().set_parallel()
+	for ghost in _ghosts:
+		fade.tween_property(ghost, "modulate:a", 0.0, 0.8)
+		fade.tween_callback(ghost.queue_free).set_delay(0.8)
+	_ghosts.clear()
+	_change_mood()
+
+
 ## Brings the view up to date after rules have fired.
 func _show(effects: Array) -> void:
 	if effects.is_empty():
 		return
+	_forget()
 	for effect: Dictionary in effects:
 		if effect.has("note"):
 			_notebook.mark_unread()
@@ -280,6 +343,7 @@ func _build_stage() -> void:
 	if _stage:
 		_stage.queue_free()
 	_views.clear()
+	_ghosts.clear()
 	_target_object = ""
 	world = session.world()
 	_notebook.session = session
@@ -350,10 +414,10 @@ func _sync_objects() -> void:
 		_add_object(object)
 
 
-## Starts the change from the mood on show to the mood the world has now.
-func _change_mood(instant := false) -> void:
+## Starts the change from the mood on show to the mood the world has now, or to the given one.
+func _change_mood(instant := false, target: Mood = null) -> void:
 	_mood_from = Mood.blend(_mood_from, _mood_to, mood_progress)
-	_mood_to = session.mood()
+	_mood_to = target if target else session.mood()
 	if _mood_change:
 		_mood_change.kill()
 	if instant:

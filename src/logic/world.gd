@@ -36,8 +36,9 @@ var start := Vector2i.ZERO
 ## cell beside it).
 var objects: Array[Dictionary] = []
 ## What happens when the player does something, in the order of the world file. Each rule has
-## "on" ("interact" with "object", or "enter" with "cells" or "zone"), "if" (conditions) and
-## "do" (effects). See Session for conditions and effects.
+## "on" ("interact" with "object", "enter" with "cells" or "zone", or "linger", anywhere or
+## limited by "cells" or "zone"), "if" (conditions) and "do" (effects). See Session for
+## conditions and effects.
 var rules: Array[Dictionary] = []
 ## What is wrong with the broken version of this world. Each fault has "id", "fixed_if"
 ## (conditions) and "restores" (the mood dials that return to normal once it is fixed).
@@ -121,6 +122,15 @@ static func read_properties(data: Dictionary) -> Dictionary:
 	return properties
 
 
+## The objects of the intact world that are different at the moment, as they were.
+func differences() -> Array[Dictionary]:
+	var list: Array[Dictionary] = []
+	for object in objects:
+		if object != _intact[object.id]:
+			list.append(_intact[object.id].duplicate())
+	return list
+
+
 ## Puts all objects back to the intact world and lays the given changes over it
 ## (object id -> properties).
 func apply(changes: Dictionary) -> void:
@@ -154,7 +164,7 @@ func errors() -> Array[String]:
 	for rule in rules:
 		if rule.get("on") == "interact" and not _by_id.has(rule.get("object", "")):
 			list.append("Rule names unknown object '%s'" % rule.get("object", ""))
-		elif rule.get("on") not in ["interact", "enter"]:
+		elif rule.get("on") not in ["interact", "enter", "linger"]:
 			list.append("Rule has unknown trigger '%s'" % rule.get("on", ""))
 	for fault in faults:
 		for dial: String in fault.get("restores", []):
@@ -219,7 +229,8 @@ func has_room(object: Dictionary, cell: Vector2i) -> bool:
 	return true
 
 
-## Cells of the enter rule: listed one by one as "cells", or as a rectangle "zone" [x, y, w, h].
+## Whether the cell belongs to the area of a rule: its cells listed one by one as "cells", or a
+## rectangle "zone" [x, y, w, h].
 static func rule_covers(rule: Dictionary, cell: Vector2i) -> bool:
 	for pair: Array in rule.get("cells", []):
 		if _to_cell(pair) == cell:

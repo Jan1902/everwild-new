@@ -1,8 +1,9 @@
 class_name Session
 extends RefCounted
 ## A running game: the game state together with the worlds it plays in.
-## Everything the player does goes through enter() and interact(). Both change the state by the
-## rules of the current world and return the effects that took place, so the view can show them.
+## Everything the player does goes through enter(), interact() and linger(). They change the
+## state by the rules of the current world and return the effects that took place, so the view
+## can show them.
 ##
 ## Conditions (all of a list have to hold; "world" defaults to the world the rule belongs to):
 ##   {"fact": name, "is": value}      a fact has this value (default true; unset facts are false)
@@ -103,6 +104,22 @@ func interact(object_id: String) -> Array:
 	return _fire(interact_rule(object_id))
 
 
+## Fires the rule that waits for the player to stand still where they are. Returns the effects
+## that took place.
+func linger() -> Array:
+	return _fire(linger_rule(state.cell))
+
+
+## The rule that would fire when the player lingers on the cell. Empty if none would.
+func linger_rule(cell: Vector2i) -> Dictionary:
+	for rule in world().rules:
+		if rule.get("on") != "linger" or not _can_fire(rule):
+			continue
+		if World.rule_covers(rule, cell) or not (rule.has("cells") or rule.has("zone")):
+			return rule
+	return {}
+
+
 ## The rule that would fire when the player enters the cell. Empty if none would.
 func enter_rule(cell: Vector2i) -> Dictionary:
 	for rule in world().rules:
@@ -166,6 +183,12 @@ func is_complete() -> bool:
 		if not open_faults(world_id).is_empty():
 			return false
 	return true
+
+
+## Mood of a world as the player remembers it: the intact one.
+func remembered_mood(world_id := "") -> Mood:
+	var here := world(world_id)
+	return world(here.mood_from).mood if not here.mood_from.is_empty() else here.mood
 
 
 ## Mood of a world in its current condition. Every dial follows the faults that restore it. Dials

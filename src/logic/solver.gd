@@ -2,8 +2,9 @@ class_name Solver
 extends RefCounted
 ## Plays a game through in every possible way and checks that it can always be completed.
 ##
-## A move is using an object or stepping onto a cell whose rule fires. Walking around without
-## firing a rule changes nothing, so the player's cell only counts as "which connected area".
+## A move is using an object, stepping onto a cell whose rule fires, or lingering where a rule
+## waits for it. Walking around without firing a rule changes nothing, so the player's cell only
+## counts as "which connected area".
 
 ## Search is given up beyond this many states.
 const LIMIT := 200000
@@ -43,6 +44,9 @@ static func check(game: Dictionary, sources := {}) -> Dictionary:
 				# The cell lies in the area, so walking there fires nothing.
 				session.state.cell = step.cell
 				session.interact(step.object)
+			elif step.has("linger"):
+				session.state.cell = step.cell
+				session.linger()
 			else:
 				session.enter(step.cell)
 			_settle(session)
@@ -89,8 +93,8 @@ static func check(game: Dictionary, sources := {}) -> Dictionary:
 	}
 
 
-## All moves possible in the current state: {"cell"} to step onto, or {"object", "cell"} to use
-## the object from that cell.
+## All moves possible in the current state: {"cell"} to step onto, {"object", "cell"} to use
+## the object from that cell, or {"linger", "cell"} to stand still there.
 static func _moves(session: Session) -> Array[Dictionary]:
 	var moves: Array[Dictionary] = []
 	var world := session.world()
@@ -99,8 +103,15 @@ static func _moves(session: Session) -> Array[Dictionary]:
 		for step in World.NEIGHBOURS:
 			var beside := cell + step
 			if not area.has(beside) and world.is_walkable(beside) and not session.enter_rule(beside).is_empty():
-				if not moves.any(func(m: Dictionary) -> bool: return m.cell == beside and not m.has("object")):
+				if not moves.any(func(m: Dictionary) -> bool: return m.cell == beside):
 					moves.append({"cell": beside})
+	# One move per rule that waits for the player to linger, from any cell of the area it covers.
+	var lingering := []
+	for cell: Vector2i in area:
+		var rule := session.linger_rule(cell)
+		if not rule.is_empty() and not lingering.has(rule):
+			lingering.append(rule)
+			moves.append({"linger": true, "cell": cell})
 	for object in world.objects:
 		if session.interact_rule(object.id).is_empty():
 			continue
@@ -141,6 +152,8 @@ static func _settle(session: Session) -> void:
 static func _describe(step: Dictionary) -> String:
 	if step.has("object"):
 		return "use %s" % step.object
+	if step.has("linger"):
+		return "linger at %d,%d" % [step.cell.x, step.cell.y]
 	return "step on %d,%d" % [step.cell.x, step.cell.y]
 
 

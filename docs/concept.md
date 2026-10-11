@@ -191,6 +191,13 @@ Keys gehören in eine lokale `.env`-Datei, die nicht ins Repository kommt.
 - **Code auf Englisch:** Quellcode, Kommentare, Datei- und Ordnernamen sowie die Schlüssel in Datendateien sind englisch. Dieses Konzept und die Abstimmung mit Jan bleiben deutsch.
 - **Stimmung als Regler:** Jede Welt hat eine heile und eine falsche Stimmung (`mood`, `mood_wrong` in der Weltdatei). Regler sind Windrichtung, Fließrichtung des Wassers, Schattenrichtung, Sättigung, Farbstich, Dunst, Helligkeit der Lichter sowie Tonhöhe und Dämpfung der Musik. Das Spiel blendet stufenlos zwischen beiden über. Die Effekte selbst macht die Engine per Shader, nicht das Bild.
 - **Spiegeln als Daten:** Ein Objekt mit `"mirrored": true` wird gespiegelt gezeigt, ohne neues Bild.
+- **Eine Welt, zwei Fassungen:** Die Weltdatei beschreibt die heile Fassung. Die kaputte Fassung ist eine Liste von Abweichungen an einzelnen Objekten (`broken`). Der Boden ist dadurch immer derselbe.
+- **Fehler bestimmen die Stimmung:** Jede Welt nennt ihre Fehler (`faults`) mit der Bedingung, wann sie behoben sind, und den Reglern, die sie zurückbringen. Regler, die keinem Fehler gehören, folgen dem Anteil der offenen Fehler. Innenräume teilen die Stimmung ihrer Welt.
+- **Regeln als Daten:** Was beim Benutzen eines Objekts, beim Betreten einer Zelle oder beim Verweilen passiert, steht als Regel mit Bedingungen und Folgen in der Weltdatei. Folgen dürfen in andere Welten reichen. Türen und Portale sind Regeln mit einem Ziel.
+- **Ein zentraler Spielspeicher:** Ort der Figur, Fakten, Abweichungen der Objekte je Welt, Gegenstände und Notizen. Er wird nach jeder Änderung lokal gespeichert.
+- **Lösbarkeit wird durchgespielt:** Ein Prüfer geht alle Zustände durch, die das Spiel annehmen kann, und meldet jeden, aus dem es nicht mehr zu Ende gespielt werden kann.
+- **Verweilen zeigt die Erinnerung:** Bleibt die Figur einige Sekunden stehen, erscheint alles, was gerade anders ist, durchscheinend so, wie es einmal war, und Farbe und Musik nähern sich kurz der heilen Welt. Ein Tipp beendet das. So zeigt die Erinnerung, was falsch ist, ohne eigene Schaltfläche.
+- **Texte je Sprache:** Alle sichtbaren Texte stehen in Sprachdateien (Deutsch und Englisch), Regeln nennen nur Schlüssel.
 
 ### Verworfen
 

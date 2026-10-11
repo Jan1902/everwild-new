@@ -236,6 +236,19 @@ func _test_rules() -> void:
 	_check(result.solvable and result.dead_ends > 0, "Dead end is not found")
 	_check(result.dead_end == ["use gate", "use gate"], "Way into the dead end is not reported: %s" % [result.dead_end])
 
+	# Lingering is a move of its own: here the match only shows itself to those who stand still.
+	var patient := _tiny_sources()
+	patient.tiny.rules[1]["on"] = "linger"
+	patient.tiny.rules[1]["zone"] = [3, 0, 2, 1]
+	session = Session.create(_tiny_game(), patient)
+	_check(session.world().errors().is_empty(), "World with a linger rule has data errors")
+	_check(session.linger().is_empty(), "Lingering outside the zone fires the rule")
+	session.interact("gate")
+	session.enter(Vector2i(4, 0))
+	_check(session.linger().size() == 3 and session.state.items == ["match"], "Lingering in the zone does not fire the rule")
+	result = Solver.check(_tiny_game(), patient)
+	_check(result.solution == ["use gate", "linger at 3,0", "use lamp"], "Solver does not linger: %s" % [result.solution])
+
 	# A game that cannot be completed at all has to be found as well.
 	var hopeless := _tiny_sources()
 	hopeless.tiny.rules.clear()
@@ -322,6 +335,10 @@ func _test_village_game() -> void:
 	_check(world.errors().is_empty(), "Broken village has data errors: %s" % [world.errors()])
 	_check(session.open_faults().size() == world.faults.size(), "Not every fault is open in the broken village")
 	_check(world.find_path(world.start, Vector2i(16, 9)).is_empty(), "Rock does not block the bridge")
+	var remembered := world.differences()
+	_check(remembered.size() == world.broken.size(), "Memory does not show every changed object")
+	_check(remembered.any(func(o: Dictionary) -> bool: return o.id == "rock_bridge" and o.cell == Vector2i(11, 8)), "Memory does not show where the rock belongs")
+	_check(session.remembered_mood().wind > 0.0, "Remembered mood is not the intact one")
 
 	var result := Solver.check(game)
 	print("village: %d states, solution: %s" % [result.states, ", ".join(result.solution)])
@@ -352,3 +369,4 @@ func _test_village_game() -> void:
 		var intact := Session.create({"start": world_id, "worlds": game.worlds})
 		_check(intact.world().errors().is_empty(), "World '%s' has data errors: %s" % [world_id, intact.world().errors()])
 		_check(intact.open_faults().is_empty(), "Intact world '%s' has open faults: %s" % [world_id, intact.open_faults()])
+		_check(intact.world().differences().is_empty(), "Intact world '%s' differs from itself" % world_id)
