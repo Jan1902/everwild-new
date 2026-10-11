@@ -28,8 +28,8 @@
 		"Dort auf dem Tisch liegt ein Notizbuch. Es lag schon da, bevor alles zerriss. Meins ist es nicht. Nimm es."
 	],
 	"old_man.hint_wind": [
-		"Drüben im Osten steht ein Baum falsch herum.",
-		"Sieh dir an, was neben ihm liegt."
+		"Der Wind steht falsch. Er kam immer vom Mühlenhügel.",
+		"Der Steinbogen am Ostrand führte früher dorthin. Vielleicht tut er es wieder."
 	],
 	"old_man.whole": [
 		"Jetzt höre ich es wieder. Das Dorf klingt wie früher.",
@@ -46,7 +46,8 @@
 	],
 	"stranger.lanterns_lit": [
 		"Sie brennen. Alle drei.",
-		"Bei dir gehorchen die Dinge wieder. Versuch es an der Tür des Alten. Vielleicht findet auch sie zurück."
+		"Bei dir gehorchen die Dinge wieder. Versuch es an der Tür des Alten. Vielleicht findet auch sie zurück.",
+		"Und sieh nur, der Steinbogen am Rand schimmert wieder. Dahinter lag einmal der Mühlenhügel."
 	],
 	"old_man.take_it": [
 		"Das Notizbuch. Dort auf dem Tisch. Nimm es ruhig."
@@ -54,5 +55,63 @@
 	"notebook.taken": [
 		"Ein kleines Notizbuch. Die ersten Seiten sind schon beschrieben.",
 		"Es ist meine Handschrift."
-	]
+	],
+	"name.miller": "Müller",
+	"world.mill_hill": "Der Mühlenhügel",
+	"world.spring": "Die Quelle",
+	"arch.closed": [
+		"Ein Bogen aus alten Steinen. Dahinter ist nur Himmel."
+	],
+	"old_man.crank": [
+		"Die Kurbel des Müllers? Die habe ich ganz vergessen.",
+		"Sieh im Schrank nach. Nimm sie mit."
+	],
+	"old_man.hint_brook": [
+		"Der Wind weht wieder richtig. Hörst du es?",
+		"Aber der Bach läuft noch bergauf. Seine Quelle liegt hinter der Mühle."
+	],
+	"cupboard.crank": [
+		"Zwischen alten Decken liegt eine schwere eiserne Kurbel."
+	],
+	"miller.crank": [
+		"Seit dem Riss steht sie still. Kein Flügel rührt sich, und der Wind ist fort.",
+		"Die Kurbel fehlt. Ich habe sie dem Alten im Dorf geliehen, lange davor. Sie müsste in seinem Schrank liegen.",
+		"Ich komme hier nicht weg. Die Bögen führen mich immer nur im Kreis."
+	],
+	"miller.have_crank": [
+		"Das ist sie! Setz sie an der Mühle an, gleich neben der Tür."
+	],
+	"miller.turning": [
+		"Hörst du das? Sie mahlt wieder.",
+		"Der Wind geht jetzt bis hinunter ins Dorf. Und an der Quelle treibt er die Dinge zurück an ihren Platz."
+	],
+	"mill.stuck": [
+		"Die Flügel stehen. Wo die Kurbel sitzen sollte, ist nur ein leeres Loch."
+	],
+	"mill.turns": [
+		"Die Kurbel greift. Ein Knarren, dann beginnen die Flügel sich zu drehen.",
+		"Der Wind ist wieder da."
+	],
+	"raft.away": [
+		"Hier führte ein Floß über den Bach. Es liegt jetzt drüben im Teich, am anderen Ufer.",
+		"Der Wind muss es hinübergetrieben haben."
+	],
+	"sluice.opens": [
+		"Das Wehr gibt nach. Das Wasser läuft ab, den Bach hinunter.",
+		"In die richtige Richtung."
+	],
+	"note.mill_hill.title": "Der Mühlenhügel",
+	"note.mill_hill.text": "Ein Hügel mit einer Windmühle. Von hier kam immer der Wind ins Dorf.",
+	"note.spring.title": "Die Quelle",
+	"note.spring.text": "Ein Teich, aus dem der Bach entspringt. Ein Wehr hält das Wasser zurück.",
+	"note.arch_village.title": "Der Bogen im Dorf",
+	"note.arch_village.text": "Der Steinbogen am Ostrand des Dorfs führt zum Mühlenhügel. Er öffnet sich erst, wenn die Laternen brennen.",
+	"note.arch_mill.title": "Die Bögen am Mühlenhügel",
+	"note.arch_mill.text": "Der linke Bogen führt zurück ins Dorf, der rechte zur Quelle.",
+	"note.arch_spring.title": "Der Bogen an der Quelle",
+	"note.arch_spring.text": "Er führte mich nicht zurück zum Mühlenhügel, sondern ins Dorf. Die Wege sind falsch verbunden, solange das Wehr geschlossen ist.",
+	"note.crank.title": "Die Kurbel der Mühle",
+	"note.crank.text": "Ohne Kurbel steht die Mühle still. Der Müller hat sie dem alten Mann geliehen. Sie soll in seinem Schrank liegen.",
+	"note.raft.title": "Das Floß",
+	"note.raft.text": "Das Floß an der Quelle liegt am falschen Ufer. Der Wind hat es dorthin getrieben. Der Wind kommt von der Mühle."
 }

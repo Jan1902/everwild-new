@@ -15,6 +15,10 @@ const MARGIN := 0.12
 ##   base    radius of the soft shadow right at the foot, which anchors the object to the ground
 ##   box     wall and ridge height in world pixels; the shadow is then computed from the
 ##           footprint instead of the silhouette
+##   image   name of the image file if it is not the kind
+##   sails   windmill sails that turn in the plane of the right wall: "hub" is their centre
+##           relative to the foot, "size" their diameter in world pixels
+## An object in a certain state uses the image "<name>_<state>.png" if there is one.
 const IMAGES := {
 	"house": {"width": 298.0, "foot": Vector2(0.51, 0.985), "offset": Vector2(0, 64), "box": Vector2(105, 215)},
 	"tree": {"width": 190.0, "foot": Vector2(0.49, 0.97), "wind": true, "base": 38.0},
@@ -25,7 +29,16 @@ const IMAGES := {
 	"woman": {"width": 39.0, "foot": Vector2(0.5, 0.97), "base": 18.0},
 	"table": {"width": 100.0, "foot": Vector2(0.5, 0.78), "base": 44.0},
 	"cupboard": {"width": 104.0, "foot": Vector2(0.5, 0.85), "base": 46.0},
+	"raft": {"image": "bridge", "width": 127.0, "foot": Vector2(0.499, 0.457)},
+	"mill": {"width": 190.0, "foot": Vector2(0.5, 0.865), "base": 80.0, "sails": {"hub": Vector2(60, -126), "size": 250.0}},
+	"arch": {"width": 120.0, "foot": Vector2(0.5, 0.86), "base": 40.0, "light": Vector2(0, -52)},
+	"sluice": {"width": 90.0, "foot": Vector2(0.5, 0.82), "base": 36.0},
+	"miller": {"width": 60.0, "foot": Vector2(0.5, 0.96), "base": 22.0},
 }
+## States in which an object with a light is dark.
+const UNLIT_STATES := ["out", "closed"]
+## Radians per second of turning windmill sails.
+const SAILS_SPEED := 0.7
 const LIGHT_COLOR := Color(1.0, 0.78, 0.42)
 ## Colour laid over a lantern that is out.
 const UNLIT := Color(0.62, 0.66, 0.78)
@@ -54,6 +67,7 @@ var shadow: Node2D
 var _shown := {}
 var _image: Sprite2D
 var _glow: Sprite2D
+var _sails: Sprite2D
 var _flicker := 0.0
 
 
@@ -66,12 +80,14 @@ func setup(object: Dictionary) -> void:
 	position = _point(object.cell)
 	visible = not object.hidden
 
-	var path := IMAGE_DIR + kind + ".png"
-	if not IMAGES.has(kind) or not ResourceLoader.exists(path):
+	if not IMAGES.has(kind):
 		return
 	var layout: Dictionary = IMAGES[kind]
+	var path := _image_path(layout.get("image", kind), object.state)
+	if path.is_empty():
+		return
 	var mirrored: bool = object.mirrored
-	var lit: bool = object.state != "out"
+	var lit: bool = object.state not in UNLIT_STATES
 	_image = build_image(load(path), layout, mirrored)
 	if layout.get("wind", false):
 		_image.material = _get_wind_material()
@@ -80,6 +96,20 @@ func setup(object: Dictionary) -> void:
 	add_child(_image)
 	if kind == "table" and object.state == "notebook":
 		add_child(_build_notebook())
+	if layout.has("sails") and ResourceLoader.exists(IMAGE_DIR + "sails.png"):
+		# The sails are painted from the front. Laid into the plane of the right wall, they turn
+		# like a wheel seen at an angle.
+		var hub: Vector2 = layout.sails.hub
+		var plane := Node2D.new()
+		plane.transform = Transform2D(
+			Vector2(0.87, -0.435), Vector2(0, 1), _image.position + Vector2(-hub.x if mirrored else hub.x, hub.y)
+		)
+		_sails = Sprite2D.new()
+		_sails.texture = load(IMAGE_DIR + "sails.png")
+		_sails.scale = Vector2.ONE * (layout.sails.size / _sails.texture.get_width())
+		_sails.rotation = position.x * 0.01
+		plane.add_child(_sails)
+		add_child(plane)
 
 	if layout.has("light") and lit:
 		var spot: Vector2 = layout.light
@@ -135,6 +165,14 @@ func follow(object: Dictionary) -> bool:
 	return true
 
 
+## Path of the image for a name in a state. Empty if there is none.
+static func _image_path(image: String, state: String) -> String:
+	for candidate: String in [IMAGE_DIR + image + "_" + state + ".png", IMAGE_DIR + image + ".png"]:
+		if ResourceLoader.exists(candidate):
+			return candidate
+	return ""
+
+
 ## Whether the image of the object is under this point of the world.
 func covers(point: Vector2) -> bool:
 	if not visible:
@@ -143,7 +181,7 @@ func covers(point: Vector2) -> bool:
 		# Placeholders are drawn about one cell wide and a person tall.
 		return Rect2(-40, -84, 80, 96).has_point(point - position)
 	var pixel := Vector2i((point - position - _image.position) / _image.scale - _image.offset)
-	var mask := _get_mask(kind, _image.texture)
+	var mask := _get_mask(_image.texture.resource_path, _image.texture)
 	if not Rect2i(Vector2i.ZERO, mask.get_size()).has_point(pixel):
 		return false
 	if _image.flip_h:
@@ -183,6 +221,8 @@ func build_shadow() -> Node2D:
 
 
 func _process(delta: float) -> void:
+	if _sails and _shown.state == "turning":
+		_sails.rotation += SAILS_SPEED * delta
 	if _glow == null:
 		return
 	_flicker += delta
@@ -206,7 +246,7 @@ func _draw() -> void:
 			_draw_rock()
 		"house":
 			_draw_house()
-		"person", "old_man", "woman":
+		"person", "old_man", "woman", "miller":
 			_draw_person()
 
 

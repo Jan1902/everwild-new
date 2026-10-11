@@ -1,8 +1,10 @@
 {
 	"start": "village",
-	"worlds": ["village", "house_inside"],
+	"worlds": ["village", "house_inside", "mill_hill", "spring"],
 	"on_start": [
 		{"break": "village"},
+		{"break": "mill_hill"},
+		{"break": "spring"},
 		{"note": "village"}
 	]
 }

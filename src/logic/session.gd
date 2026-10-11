@@ -28,8 +28,14 @@ extends RefCounted
 ##
 ## A rule only fires if its conditions hold and its effects are possible. Of several rules for
 ## the same trigger, only the first one that can fire does.
+##
+## Rules with the trigger "always" need no player: after every rule that fired, each of them
+## fires in every world as long as it can. This is how one world reacts to what happened in
+## another. Such a rule has to undo its own condition, or it would fire forever.
 
 const WORLD_DIR := "res://data/worlds/"
+## Rounds after which reactions are given up, in case rules keep triggering each other.
+const REACTION_LIMIT := 20
 
 var state := GameState.new()
 ## The game definition: "start" (world id), "worlds" (all world ids) and "on_start" (effects).
@@ -48,6 +54,7 @@ static func create(game: Dictionary, sources := {}) -> Session:
 	session.state.world = game.get("start", "")
 	session.state.cell = session.world().start
 	session.apply(game.get("on_start", []), session.state.world)
+	session._react()
 	return session
 
 
@@ -215,16 +222,39 @@ func mood(world_id := "") -> Mood:
 
 
 func _fire(rule: Dictionary) -> Array:
-	var effects: Array = rule.get("do", [])
+	var effects: Array = rule.get("do", []).duplicate()
+	if effects.is_empty():
+		return effects
 	apply(effects, state.world)
+	effects.append_array(_react())
 	return effects
 
 
-func _can_fire(rule: Dictionary) -> bool:
-	if not holds(rule.get("if", []), state.world):
+## Lets all worlds react to the current state. Returns the effects that took place.
+func _react() -> Array:
+	var effects := []
+	for round in REACTION_LIMIT:
+		var fired := false
+		for world_id: String in world_ids():
+			for rule in world(world_id).rules:
+				if rule.get("on") == "always" and _can_fire(rule, world_id):
+					apply(rule.get("do", []), world_id)
+					effects.append_array(rule.get("do", []))
+					fired = true
+		if not fired:
+			return effects
+	push_error("Reactions do not come to rest")
+	return effects
+
+
+## Whether the rule of a world could fire now. Without a world, the one the player is in.
+func _can_fire(rule: Dictionary, home := "") -> bool:
+	if home.is_empty():
+		home = state.world
+	if not holds(rule.get("if", []), home):
 		return false
 	for effect: Dictionary in rule.get("do", []):
-		if not _is_possible(effect, state.world):
+		if not _is_possible(effect, home):
 			return false
 	return true
 

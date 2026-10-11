@@ -63,6 +63,18 @@ Der Spieler soll ohne Erklärtexte merken, was er tun kann. Die Hinweise kommen 
 
 Die Figuren nennen das große Ereignis **„der Riss“** (englisch „the Rift“). Der Name ist vorläufig.
 
+### Die ersten drei Weltstücke (Stand der ersten Fassung)
+
+Das Dorf wird erst heil, wenn auch die anderen Stücke stimmen: Sein Wind kommt vom Mühlenhügel, sein Bach von der Quelle. Die Stücke sind durch Steinbögen verbunden.
+
+- **Dorf:** Laternen (im Dorf lösbar), Wind (hängt an der Mühle), Bach (hängt am Wehr der Quelle). Der Steinbogen am Ostrand öffnet sich, wenn die Laternen brennen, und führt zum Mühlenhügel.
+- **Mühlenhügel:** Die Mühle steht still, weil die Kurbel fehlt. Der Müller hat sie dem alten Mann geliehen, sie liegt in dessen Schrank im Dorf. Ein Bogen führt zurück ins Dorf, einer zur Quelle.
+- **Quelle:** Das Floß über den Bach hat der falsche Wind ans andere Ufer getrieben, das Wehr dahinter ist unerreichbar. Der Bogen führt nicht zurück zum Mühlenhügel, sondern ins Dorf, solange das Wehr geschlossen ist.
+
+Der gedachte Weg: Dorf → Mühlenhügel (Müller erzählt von der Kurbel) → Quelle (Floß fehlt) → über den falsch verbundenen Bogen ins Dorf → Kurbel aus dem Schrank → Mühlenhügel, Mühle dreht sich → dadurch weht der Wind im Dorf richtig und das Floß treibt zurück → Quelle, Wehr öffnen → der Bach im Dorf fließt richtig, der Bogen führt wieder zurück.
+
+Das Notizbuch hält die Bögen und die Zusammenhänge fest (Kurbel, Floß, wohin welcher Bogen führt).
+
 ## 4. Spieldesign
 
 ### Entschieden
@@ -209,6 +221,8 @@ Keys gehören in eine lokale `.env`-Datei, die nicht ins Repository kommt.
 - **Lösbarkeit wird durchgespielt:** Ein Prüfer geht alle Zustände durch, die das Spiel annehmen kann, und meldet jeden, aus dem es nicht mehr zu Ende gespielt werden kann.
 - **Verweilen zeigt die Erinnerung:** Bleibt die Figur einige Sekunden stehen, erscheint alles, was gerade anders ist, durchscheinend so, wie es einmal war, und Farbe und Musik nähern sich kurz der heilen Welt. Ein Tipp beendet das. So zeigt die Erinnerung, was falsch ist, ohne eigene Schaltfläche.
 - **Figuren aus Bildbögen:** Ein Bildmodell liefert zu einem Standbild einen Bogen mit vier Schritt-Bildern derselben Figur, wenn es das Standbild als Vorlage bekommt. Ein Skript schneidet den Bogen und richtet die Bilder an Kopf und Füßen aus. Zwei Ansichten (vorn, hinten) reichen, gespiegelt ergeben sie alle vier Laufrichtungen.
+- **Welten reagieren aufeinander:** Regeln mit dem Auslöser `always` feuern von selbst, sobald ihre Bedingungen gelten, auch wenn die Ursache in einer anderen Welt liegt (die Mühle dreht sich, also treibt das Floß an der Quelle zurück).
+- **Bewegte Teile aus zwei Bildern:** Die Mühlenflügel sind ein eigenes, von vorn gemaltes Bild, das die Engine in die Wandebene legt und dreht.
 - **Texte je Sprache:** Alle sichtbaren Texte stehen in Sprachdateien (Deutsch und Englisch), Regeln nennen nur Schlüssel.
 
 ### Verworfen

@@ -14,6 +14,7 @@ func _init() -> void:
 	_test_state()
 	_test_rules()
 	_test_village_game()
+	_test_story()
 	_test_save_file()
 	_test_texts()
 	print("%d checks, %d failed" % [_checks, _failures])
@@ -285,7 +286,7 @@ func _test_texts() -> void:
 	var found: Array[String] = ["old_man", "nonsense", "village"]
 	var entries := Notebook.entries(notes, found)
 	_check(entries.size() == 2 and entries[0].id == "old_man", "Notebook does not list the found notes in order")
-	_check(entries[0].links == [{"id": "village", "known": true}, {"id": "evening_walks", "known": false}], "Links do not tell known from unknown notes")
+	_check(entries[0].links.slice(0, 2) == [{"id": "village", "known": true}, {"id": "evening_walks", "known": false}], "Links do not tell known from unknown notes")
 
 	var reference := Texts.read(Texts.LANGUAGES[0]).keys()
 	reference.sort()
@@ -303,6 +304,56 @@ func _test_texts() -> void:
 	_check(Texts.language == "en", "Unknown language does not fall back to English")
 	_check(Texts.lines("old_man.first").size() == 4, "Lines of a dialogue are not read")
 	_check(Texts.text("no.such.text") == "no.such.text", "Missing text does not show as its key")
+
+
+## Plays the story across the worlds the way it is meant to go, and checks that every step has
+## its effect in the other worlds.
+func _test_story() -> void:
+	var game: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://data/game.json"))
+	var session := Session.create(game)
+	var use := func(cell: Vector2i, object_id: String) -> Array:
+		session.state.cell = cell
+		return session.interact(object_id)
+
+	_check(use.call(Vector2i(16, 13), "arch")[0].get("say") == "arch.closed", "Arch is open before the lanterns burn")
+	use.call(Vector2i(11, 9), "rock_bridge")
+	for lantern: String in ["lantern_west", "lantern_bridge", "lantern_east"]:
+		use.call(session.world().cells_beside(session.world().object(lantern))[0], lantern)
+	_check(session.world().object("arch").state == "open", "Arch does not open when the lanterns burn")
+	_check(session.open_faults("village") == ["brook", "wind"], "Village faults do not depend on the other worlds")
+
+	use.call(Vector2i(16, 13), "arch")
+	_check(session.state.world == "mill_hill", "Arch of the village does not lead to the mill hill")
+	_check(session.mood().wind == 0.0, "There is wind on the mill hill although the mill stands still")
+	_check(use.call(Vector2i(8, 5), "mill")[0].get("say") == "mill.stuck", "Mill turns without its crank")
+	use.call(Vector2i(10, 6), "miller")
+	_check(session.state.facts.get("crank_known", false), "Miller does not tell about the crank")
+
+	use.call(Vector2i(11, 12), "arch_spring")
+	_check(session.state.world == "spring", "Arch of the mill hill does not lead to the spring")
+	_check(not session.world().is_walkable(Vector2i(7, 7)), "Brook can be crossed without the raft")
+	_check(session.enter(Vector2i(6, 7)).size() >= 3, "Missing raft is not noticed")
+	use.call(Vector2i(3, 7), "arch_back")
+	_check(session.state.world == "village", "Wrongly joined arch of the spring does not lead to the village")
+
+	session.state.world = "house_inside"
+	_check(use.call(Vector2i(2, 2), "cupboard").size() >= 3 and "crank" in session.state.items, "Crank is not in the cupboard")
+	_check(use.call(Vector2i(2, 2), "cupboard").is_empty(), "Crank can be taken twice")
+
+	session.state.world = "mill_hill"
+	use.call(Vector2i(8, 5), "mill")
+	_check(session.open_faults("mill_hill") == ["lantern"], "Mill does not turn with the crank")
+	_check(session.open_faults("village") == ["brook"], "Turning mill does not bring the wind back to the village")
+	_check(session.world("spring").object("raft").cell == Vector2i(7, 7), "Turning mill does not drive the raft back")
+	use.call(Vector2i(5, 6), "mill_lantern")
+
+	session.state.world = "spring"
+	_check(not session.world().find_path(Vector2i(4, 7), Vector2i(9, 5)).is_empty(), "Raft does not carry across the brook")
+	use.call(Vector2i(9, 5), "sluice")
+	_check(session.open_faults("village").is_empty(), "Open sluice does not let the village brook run right")
+	use.call(Vector2i(3, 7), "arch_back")
+	_check(session.state.world == "mill_hill", "Arch of the spring is still wrongly joined")
+	_check(session.is_complete(), "Story ends with open faults")
 
 
 func _test_save_file() -> void:
@@ -356,7 +407,8 @@ func _test_village_game() -> void:
 	_check(session.state.world == "village" and session.state.cell == Vector2i(10, 6), "Wrong door does not lead to the other house")
 	session.interact("house_mid")
 	_check(session.state.cell == Vector2i(4, 7), "Wrong door of the other house does not lead back")
-	session.apply([{"restore": "village"}], "village")
+	for world_id: String in ["village", "mill_hill", "spring"]:
+		session.apply([{"restore": world_id}], world_id)
 	session.interact("house_west")
 	_check(session.state.world == "house_inside", "Door of the repaired village does not lead inside")
 	_check(session.world().errors().is_empty(), "Room has data errors: %s" % [session.world().errors()])
@@ -370,7 +422,8 @@ func _test_village_game() -> void:
 	_check(session.interact("table").is_empty(), "Notebook can be taken twice")
 	_check(session.world().differences().is_empty(), "Taking the notebook counts as something the break changed")
 	_check(session.interact("old_man")[0].get("say") == "old_man.whole", "Old man does not notice the repaired village")
-	session.apply([{"break": "village"}], "village")
+	for world_id: String in ["village", "mill_hill", "spring"]:
+		session.apply([{"break": world_id}], world_id)
 	_check(session.interact("old_man")[0].get("say") == "old_man.hint_wind", "Old man gives no hint about the wind")
 	_check(session.mood().wind < 0.0, "Room does not share the mood of the village")
 	session.enter(Vector2i(2, 5))

@@ -1,6 +1,13 @@
 {
-	"village": {"kind": "piece", "world": "village", "links": ["stone_at_bridge", "old_man"]},
+	"village": {"kind": "piece", "world": "village", "links": ["stone_at_bridge", "old_man", "arch_village"]},
 	"stone_at_bridge": {"kind": "memory", "world": "village", "links": ["village", "evening_walks"]},
-	"old_man": {"kind": "memory", "world": "village", "links": ["village", "evening_walks"]},
-	"evening_walks": {"kind": "memory", "world": "village", "links": ["stone_at_bridge", "old_man"]}
+	"old_man": {"kind": "memory", "world": "village", "links": ["village", "evening_walks", "crank"]},
+	"evening_walks": {"kind": "memory", "world": "village", "links": ["stone_at_bridge", "old_man"]},
+	"arch_village": {"kind": "hint", "world": "village", "links": ["village", "mill_hill"]},
+	"mill_hill": {"kind": "piece", "world": "mill_hill", "links": ["arch_village", "arch_mill", "crank", "raft"]},
+	"arch_mill": {"kind": "hint", "world": "mill_hill", "links": ["mill_hill", "spring"]},
+	"crank": {"kind": "hint", "world": "mill_hill", "links": ["mill_hill", "old_man"]},
+	"spring": {"kind": "piece", "world": "spring", "links": ["arch_mill", "arch_spring", "raft"]},
+	"arch_spring": {"kind": "hint", "world": "spring", "links": ["spring"]},
+	"raft": {"kind": "hint", "world": "spring", "links": ["spring", "mill_hill"]}
 }

@@ -1,0 +1,96 @@
+{
+	"title": "Spring",
+	"size": [16, 16],
+	"start": [4, 7],
+	"ground": [
+		"                ",
+		"     .~~~..     ",
+		"   ...~~~~...   ",
+		"  ....~~~#....  ",
+		"  .....~~.....  ",
+		" ......~....... ",
+		" ......~....... ",
+		" ..====#====... ",
+		" ......~....... ",
+		" ......~....... ",
+		"  .....~......  ",
+		"  .....~......  ",
+		"   ....~.....   ",
+		"    ...~....    ",
+		"      .~..      ",
+		"                "
+	],
+	"ground_image": {
+		"path": "res://assets/worlds/spring_ground.png",
+		"scale": 1.607,
+		"origin": [-764.52, 83.2]
+	},
+	"music": "res://assets/music/spring_theme.mp3",
+	"mood": {},
+	"mood_wrong": {
+		"wind": -1.2,
+		"water": -1.0,
+		"shadow": [-0.45, 0.3],
+		"saturation": 0.55,
+		"tint": [0.88, 1.0, 0.93],
+		"fog": 0.22,
+		"pitch": 0.92,
+		"muffle": 0.6
+	},
+	"objects": [
+		{"id": "raft", "kind": "raft", "cell": [7, 7]},
+		{"id": "sluice", "kind": "sluice", "cell": [9, 4], "access": [[9, 5]], "state": "open"},
+		{"id": "arch_back", "kind": "arch", "cell": [2, 7], "access": [[3, 7]], "state": "open"},
+		{"kind": "tree", "cell": [3, 3]},
+		{"kind": "tree", "cell": [2, 5]},
+		{"kind": "tree", "cell": [4, 10]},
+		{"kind": "tree", "cell": [11, 2]},
+		{"kind": "tree", "cell": [12, 9]},
+		{"kind": "tree", "cell": [10, 12]},
+		{"kind": "rock", "cell": [5, 12]},
+		{"kind": "rock", "cell": [13, 6]},
+		{"kind": "rock", "cell": [11, 5]}
+	],
+	"broken": {
+		"raft": {"cell": [9, 3]},
+		"sluice": {"state": "closed"}
+	},
+	"faults": [
+		{
+			"id": "raft",
+			"fixed_if": [{"object": "raft", "cell": [7, 7]}],
+			"restores": ["wind"]
+		},
+		{
+			"id": "sluice",
+			"fixed_if": [{"object": "sluice", "state": "open"}],
+			"restores": ["water"]
+		}
+	],
+	"rules": [
+		{
+			"on": "always",
+			"if": [{"object": "mill", "world": "mill_hill", "state": "turning"}, {"object": "raft", "cell": [9, 3]}],
+			"do": [{"change": "raft", "cell": [7, 7]}]
+		},
+		{
+			"on": "enter", "cells": [[6, 7]],
+			"if": [{"object": "raft", "cell": [9, 3]}, {"fact": "raft_seen", "is": false}],
+			"do": [{"say": "raft.away"}, {"set": "raft_seen"}, {"note": "raft"}]
+		},
+		{
+			"on": "interact", "object": "sluice",
+			"if": [{"object": "sluice", "state": "closed"}],
+			"do": [{"change": "sluice", "state": "open"}, {"say": "sluice.opens"}]
+		},
+		{
+			"on": "interact", "object": "arch_back",
+			"if": [{"fixed": "sluice"}],
+			"do": [{"go": "mill_hill", "cell": [11, 11]}]
+		},
+		{
+			"on": "interact", "object": "arch_back",
+			"do": [{"go": "village", "cell": [16, 12]}, {"note": "arch_spring"}]
+		}
+	]
+}

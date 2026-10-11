@@ -21,7 +21,7 @@ const WALKABLE := [Ground.GRASS, Ground.PATH, Ground.BRIDGE, Ground.FLOOR]
 ## Ground that objects can stand on.
 const FIRM := [Ground.GRASS, Ground.PATH, Ground.FLOOR]
 ## Object kinds that lie flat on the ground: they block nothing and the character walks over them.
-const FLAT_KINDS := ["bridge"]
+const FLAT_KINDS := ["bridge", "raft"]
 ## Properties of an object that can change during the game.
 const CHANGEABLE := ["cell", "mirrored", "hidden", "state"]
 const NEIGHBOURS: Array[Vector2i] = [Vector2i(0, -1), Vector2i(1, 0), Vector2i(0, 1), Vector2i(-1, 0)]
@@ -36,9 +36,9 @@ var start := Vector2i.ZERO
 ## cell beside it).
 var objects: Array[Dictionary] = []
 ## What happens when the player does something, in the order of the world file. Each rule has
-## "on" ("interact" with "object", "enter" with "cells" or "zone", or "linger", anywhere or
-## limited by "cells" or "zone"), "if" (conditions) and "do" (effects). See Session for
-## conditions and effects.
+## "on" ("interact" with "object", "enter" with "cells" or "zone", "linger", anywhere or
+## limited by "cells" or "zone", or "always" for something that happens by itself as soon as its
+## conditions hold), "if" (conditions) and "do" (effects). See Session for conditions and effects.
 var rules: Array[Dictionary] = []
 ## What is wrong with the broken version of this world. Each fault has "id", "fixed_if"
 ## (conditions) and "restores" (the mood dials that return to normal once it is fixed).
@@ -61,6 +61,7 @@ var _ground := PackedInt32Array()
 var _intact := {}
 var _by_id := {}
 var _occupied := {}
+var _bridged := {}
 var _paths := AStarGrid2D.new()
 var _paths_outdated := true
 var _errors: Array[String] = []
@@ -166,7 +167,7 @@ func errors() -> Array[String]:
 	for rule in rules:
 		if rule.get("on") == "interact" and not _by_id.has(rule.get("object", "")):
 			list.append("Rule names unknown object '%s'" % rule.get("object", ""))
-		elif rule.get("on") not in ["interact", "enter", "linger"]:
+		elif rule.get("on") not in ["interact", "enter", "linger", "always"]:
 			list.append("Rule has unknown trigger '%s'" % rule.get("on", ""))
 	for fault in faults:
 		for dial: String in fault.get("restores", []):
@@ -181,8 +182,13 @@ func ground(cell: Vector2i) -> Ground:
 	return _ground[cell.y * size.x + cell.x] as Ground
 
 
+## A cell can be walked on if its ground allows it and nothing stands there. Water marked for a
+## crossing only carries while a bridge or raft lies on it.
 func is_walkable(cell: Vector2i) -> bool:
-	return ground(cell) in WALKABLE and not _occupied.has(cell)
+	var kind := ground(cell)
+	if kind == Ground.BRIDGE:
+		return _bridged.has(cell)
+	return kind in WALKABLE and not _occupied.has(cell)
 
 
 ## The object with this id. Empty if there is none.
@@ -267,11 +273,15 @@ func _read_ground(rows: Array) -> void:
 
 func _update_occupied() -> void:
 	_occupied.clear()
+	_bridged.clear()
 	for object in objects:
-		if object.kind in FLAT_KINDS or object.hidden:
+		if object.hidden:
 			continue
 		for cell in occupied_cells(object):
-			_occupied[cell] = object.id
+			if object.kind in FLAT_KINDS:
+				_bridged[cell] = object.id
+			else:
+				_occupied[cell] = object.id
 	_paths_outdated = true
 
 

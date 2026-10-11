@@ -28,8 +28,8 @@
 		"There is a notebook on the table over there. It lay there before everything tore apart. It is not mine. Take it."
 	],
 	"old_man.hint_wind": [
-		"Over in the east a tree is standing the wrong way round.",
-		"Look at what lies next to it."
+		"The wind stands wrong. It always came from the mill hill.",
+		"The stone arch at the eastern edge used to lead there. Perhaps it does again."
 	],
 	"old_man.whole": [
 		"Now I can hear it again. The village sounds the way it did.",
@@ -46,7 +46,8 @@
 	],
 	"stranger.lanterns_lit": [
 		"They are burning. All three.",
-		"Things listen to you again. Try the old man's door. Perhaps it will find its way back as well."
+		"Things listen to you again. Try the old man's door. Perhaps it will find its way back as well.",
+		"And look, the stone arch at the edge is shimmering again. The mill hill used to lie beyond it."
 	],
 	"old_man.take_it": [
 		"The notebook. On the table over there. Go on, take it."
@@ -54,5 +55,63 @@
 	"notebook.taken": [
 		"A small notebook. The first pages are already written on.",
 		"It is my handwriting."
-	]
+	],
+	"name.miller": "Miller",
+	"world.mill_hill": "The mill hill",
+	"world.spring": "The spring",
+	"arch.closed": [
+		"An arch of old stones. Beyond it there is only sky."
+	],
+	"old_man.crank": [
+		"The miller's crank? I had forgotten all about it.",
+		"Look in the cupboard. Take it with you."
+	],
+	"old_man.hint_brook": [
+		"The wind is blowing the right way again. Can you hear it?",
+		"But the brook still runs uphill. Its spring lies beyond the mill."
+	],
+	"cupboard.crank": [
+		"Between old blankets lies a heavy iron crank."
+	],
+	"miller.crank": [
+		"She has stood still since the Rift. Not a sail moves, and the wind is gone.",
+		"The crank is missing. I lent it to the old man in the village, long before. It should be in his cupboard.",
+		"I cannot get away from here. The arches only ever lead me in circles."
+	],
+	"miller.have_crank": [
+		"That is it! Set it on the mill, right beside the door."
+	],
+	"miller.turning": [
+		"Do you hear that? She is grinding again.",
+		"The wind reaches all the way down to the village now. And at the spring it drives things back to where they belong."
+	],
+	"mill.stuck": [
+		"The sails stand still. Where the crank should sit there is only an empty hole."
+	],
+	"mill.turns": [
+		"The crank catches. A creak, then the sails begin to turn.",
+		"The wind is back."
+	],
+	"raft.away": [
+		"A raft used to cross the brook here. Now it lies over in the pond, on the far bank.",
+		"The wind must have driven it across."
+	],
+	"sluice.opens": [
+		"The sluice gives way. The water runs off, down the brook.",
+		"The right way."
+	],
+	"note.mill_hill.title": "The mill hill",
+	"note.mill_hill.text": "A hill with a windmill. The wind always came to the village from here.",
+	"note.spring.title": "The spring",
+	"note.spring.text": "A pond where the brook rises. A sluice holds the water back.",
+	"note.arch_village.title": "The arch in the village",
+	"note.arch_village.text": "The stone arch at the eastern edge of the village leads to the mill hill. It only opens once the lanterns burn.",
+	"note.arch_mill.title": "The arches on the mill hill",
+	"note.arch_mill.text": "The left arch leads back to the village, the right one to the spring.",
+	"note.arch_spring.title": "The arch at the spring",
+	"note.arch_spring.text": "It did not take me back to the mill hill but to the village. The ways are wrongly joined as long as the sluice is closed.",
+	"note.crank.title": "The crank of the mill",
+	"note.crank.text": "Without its crank the mill stands still. The miller lent it to the old man. It should be in his cupboard.",
+	"note.raft.title": "The raft",
+	"note.raft.text": "The raft at the spring lies on the wrong bank. The wind drove it there. The wind comes from the mill."
 }

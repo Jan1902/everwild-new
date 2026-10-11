@@ -1,0 +1,110 @@
+{
+	"title": "Mill hill",
+	"size": [16, 16],
+	"start": [4, 11],
+	"ground": [
+		"                ",
+		"     ......     ",
+		"   ..........   ",
+		"  ............  ",
+		"  ............  ",
+		" .............. ",
+		" ...=========.. ",
+		" ...=......=... ",
+		" ...=......=... ",
+		" ...=......=... ",
+		"  ..=......=..  ",
+		"  ..=......=..  ",
+		"   .=......=.   ",
+		"    ........    ",
+		"      ....      ",
+		"                "
+	],
+	"ground_image": {
+		"path": "res://assets/worlds/mill_hill_ground.png",
+		"scale": 1.607,
+		"origin": [-764.52, 83.2]
+	},
+	"music": "res://assets/music/mill_theme.mp3",
+	"mood": {},
+	"mood_wrong": {
+		"wind": 0.0,
+		"shadow": [-0.5, 0.25],
+		"saturation": 0.6,
+		"tint": [0.92, 0.9, 1.0],
+		"fog": 0.16,
+		"light": 0.35,
+		"pitch": 0.95,
+		"muffle": 0.5
+	},
+	"objects": [
+		{"id": "mill", "kind": "mill", "cell": [7, 3], "size": [2, 2], "access": [[8, 5]], "state": "turning"},
+		{"id": "arch_village", "kind": "arch", "cell": [3, 12], "access": [[4, 12]], "state": "open"},
+		{"id": "arch_spring", "kind": "arch", "cell": [12, 12], "access": [[11, 12]], "state": "open"},
+		{"id": "miller", "kind": "miller", "cell": [10, 5]},
+		{"id": "mill_lantern", "kind": "lantern", "cell": [5, 5], "state": "lit"},
+		{"kind": "tree", "cell": [3, 3]},
+		{"kind": "tree", "cell": [11, 2]},
+		{"kind": "tree", "cell": [13, 8]},
+		{"kind": "tree", "cell": [2, 8]},
+		{"kind": "tree", "cell": [7, 10]},
+		{"kind": "tree", "cell": [9, 13]},
+		{"kind": "rock", "cell": [6, 8]},
+		{"kind": "rock", "cell": [12, 4]}
+	],
+	"broken": {
+		"mill": {"state": "still"},
+		"mill_lantern": {"state": "out"}
+	},
+	"faults": [
+		{
+			"id": "sails",
+			"fixed_if": [{"object": "mill", "state": "turning"}],
+			"restores": ["wind", "pitch"]
+		},
+		{
+			"id": "lantern",
+			"fixed_if": [{"object": "mill_lantern", "state": "lit"}],
+			"restores": ["light"]
+		}
+	],
+	"rules": [
+		{
+			"on": "interact", "object": "arch_village",
+			"do": [{"go": "village", "cell": [16, 12]}]
+		},
+		{
+			"on": "interact", "object": "arch_spring",
+			"do": [{"go": "spring", "cell": [4, 7]}, {"note": "arch_mill"}, {"note": "spring"}]
+		},
+		{
+			"on": "interact", "object": "mill_lantern",
+			"if": [{"object": "mill_lantern", "state": "out"}],
+			"do": [{"change": "mill_lantern", "state": "lit"}]
+		},
+		{
+			"on": "interact", "object": "mill",
+			"if": [{"object": "mill", "state": "still"}, {"item": "crank"}],
+			"do": [{"change": "mill", "state": "turning"}, {"take": "crank"}, {"say": "mill.turns"}]
+		},
+		{
+			"on": "interact", "object": "mill",
+			"if": [{"object": "mill", "state": "still"}],
+			"do": [{"say": "mill.stuck"}]
+		},
+		{
+			"on": "interact", "object": "miller",
+			"if": [{"object": "mill", "state": "turning"}],
+			"do": [{"say": "miller.turning", "who": "miller"}]
+		},
+		{
+			"on": "interact", "object": "miller",
+			"if": [{"item": "crank"}],
+			"do": [{"say": "miller.have_crank", "who": "miller"}]
+		},
+		{
+			"on": "interact", "object": "miller",
+			"do": [{"say": "miller.crank", "who": "miller"}, {"set": "crank_known"}, {"note": "crank"}]
+		}
+	]
+}

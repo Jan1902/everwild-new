@@ -62,11 +62,12 @@
 		{"id": "lantern_west", "kind": "lantern", "cell": [7, 8], "state": "lit"},
 		{"id": "lantern_bridge", "kind": "lantern", "cell": [12, 8], "state": "lit"},
 		{"id": "lantern_east", "kind": "lantern", "cell": [15, 8], "state": "lit"},
-		{"id": "stranger", "kind": "woman", "cell": [16, 11]}
+		{"id": "stranger", "kind": "woman", "cell": [16, 11]},
+		{"id": "arch", "kind": "arch", "cell": [17, 13], "access": [[16, 13]], "state": "open"}
 	],
 	"broken": {
 		"rock_bridge": {"cell": [12, 9]},
-		"rock_east": {"cell": [15, 13]},
+		"arch": {"state": "closed"},
 		"tree_south": {"mirrored": true},
 		"lantern_west": {"state": "out"},
 		"lantern_bridge": {"state": "out"},
@@ -75,7 +76,7 @@
 	"faults": [
 		{
 			"id": "brook",
-			"fixed_if": [{"object": "rock_bridge", "cell": [11, 8]}],
+			"fixed_if": [{"object": "sluice", "world": "spring", "state": "open"}],
 			"restores": ["water"]
 		},
 		{
@@ -128,9 +129,23 @@
 			"do": [{"change": "rock_bridge", "cell": [11, 8]}, {"note": "stone_at_bridge"}]
 		},
 		{
-			"on": "interact", "object": "rock_east",
-			"if": [{"object": "rock_east", "cell": [15, 13]}],
-			"do": [{"change": "rock_east", "cell": [14, 14]}, {"change": "tree_south", "mirrored": false}]
+			"on": "always",
+			"if": [{"fixed": "lanterns"}, {"object": "arch", "state": "closed"}],
+			"do": [{"change": "arch", "state": "open"}]
+		},
+		{
+			"on": "always",
+			"if": [{"object": "mill", "world": "mill_hill", "state": "turning"}, {"object": "tree_south", "mirrored": true}],
+			"do": [{"change": "tree_south", "mirrored": false}]
+		},
+		{
+			"on": "interact", "object": "arch",
+			"if": [{"object": "arch", "state": "open"}],
+			"do": [{"go": "mill_hill", "cell": [4, 11]}, {"note": "arch_village"}, {"note": "mill_hill"}]
+		},
+		{
+			"on": "interact", "object": "arch",
+			"do": [{"say": "arch.closed"}]
 		},
 		{
 			"on": "interact", "object": "lantern_west",

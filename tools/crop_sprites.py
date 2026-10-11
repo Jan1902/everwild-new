@@ -16,6 +16,7 @@ from env import PROJECT
 
 VILLAGE = PROJECT / "styletest" / "village"
 ROOM = PROJECT / "styletest" / "room"
+FRAGMENTS = PROJECT / "styletest" / "fragments"
 OBJECTS = PROJECT / "assets" / "objects"
 WORLDS = PROJECT / "assets" / "worlds"
 MUSIC = PROJECT / "assets" / "music"
@@ -24,7 +25,15 @@ SOURCES = {
     "house": VILLAGE, "tree": VILLAGE, "rock": VILLAGE, "lantern": VILLAGE, "bridge": VILLAGE,
     "player_front": ROOM, "player_back": ROOM, "old_man": ROOM, "woman": ROOM,
     "table": ROOM, "cupboard": ROOM,
+    "mill": FRAGMENTS, "sails": FRAGMENTS, "arch": FRAGMENTS, "miller": FRAGMENTS,
+    "sluice": FRAGMENTS, "sluice_open": FRAGMENTS,
 }
+# Images of the same object in different states are cut to the same frame, so the object does
+# not jump when its state changes.
+SAME_FRAME = [("sluice", "sluice_open")]
+# Worlds whose ground image and music are taken over as they are.
+GROUNDS = {"village": VILLAGE, "house_inside": ROOM, "mill_hill": PROJECT / "styletest" / "mill_hill", "spring": PROJECT / "styletest" / "spring"}
+TRACKS = {"room_theme": ROOM, "mill_theme": FRAGMENTS, "spring_theme": FRAGMENTS}
 # Below this opacity a pixel counts as empty. Hides faint haze around the object.
 THRESHOLD = 24
 # Margin per side as a fraction of the content width. Has to match MARGIN in src/view/object_view.gd.
@@ -38,6 +47,14 @@ RAW_NAMES = {"bridge": "bridge_flat"}
 BRIDGE_CENTRE = (515, 525)
 BRIDGE_SCALE = 6.25
 
+def _shared_box(names):
+    boxes = []
+    for name in names:
+        alpha = Image.open(SOURCES[name] / f"{name}.png").convert("RGBA").getchannel("A")
+        boxes.append(alpha.point(lambda a: 255 if a >= THRESHOLD else 0).getbbox())
+    return (min(b[0] for b in boxes), min(b[1] for b in boxes), max(b[2] for b in boxes), max(b[3] for b in boxes))
+
+
 def crop(name):
     image = Image.open(SOURCES[name] / f"{RAW_NAMES.get(name, name)}.png").convert("RGBA")
     alpha = image.getchannel("A")
@@ -46,6 +63,9 @@ def crop(name):
     alpha = alpha.point(lambda a: 0 if a < THRESHOLD else min(255, round(a * 255 / peak)))
     image.putalpha(alpha)
     box = alpha.getbbox()
+    for group in SAME_FRAME:
+        if name in group:
+            box = _shared_box(group)
     image = image.crop(box)
     if name == "bridge":
         # Values for ObjectView.IMAGES.
@@ -76,9 +96,10 @@ def main():
         print(name, image.size)
 
     WORLDS.mkdir(parents=True, exist_ok=True)
-    shutil.copyfile(VILLAGE / "ground.png", WORLDS / "village_ground.png")
-    shutil.copyfile(ROOM / "ground.png", WORLDS / "house_inside_ground.png")
-    shutil.copyfile(ROOM / "room_theme.mp3", MUSIC / "room_theme.mp3")
+    for world, folder in GROUNDS.items():
+        shutil.copyfile(folder / "ground.png", WORLDS / f"{world}_ground.png")
+    for track, folder in TRACKS.items():
+        shutil.copyfile(folder / f"{track}.mp3", MUSIC / f"{track}.mp3")
 
     if len(sys.argv) > 1:
         height = 600
