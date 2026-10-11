@@ -97,7 +97,7 @@
 		{
 			"on": "interact", "object": "stranger",
 			"if": [{"fixed": "brook"}, {"fixed": "wind"}, {"fixed": "lanterns"}],
-			"do": [{"say": "stranger.remembers", "who": "stranger"}, {"set": "stranger_remembers"}]
+			"do": [{"say": "stranger.remembers", "who": "stranger"}, {"note": "evening_walks"}]
 		},
 		{
 			"on": "interact", "object": "stranger",
@@ -120,7 +120,7 @@
 		{
 			"on": "interact", "object": "rock_bridge",
 			"if": [{"object": "rock_bridge", "cell": [12, 9]}],
-			"do": [{"change": "rock_bridge", "cell": [11, 8]}]
+			"do": [{"change": "rock_bridge", "cell": [11, 8]}, {"note": "stone_at_bridge"}]
 		},
 		{
 			"on": "interact", "object": "rock_east",

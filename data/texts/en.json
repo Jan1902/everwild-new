@@ -1,4 +1,23 @@
 {
+	"notebook.title": "Notebook",
+	"notebook.empty": "Nothing written down yet.",
+	"notebook.links": "Belongs with",
+	"notebook.unknown": "something I do not know yet",
+	"kind.memory": "Memory",
+	"kind.piece": "Piece of the world",
+	"kind.hint": "Hint",
+	"world.village": "The village",
+	"world.house_inside": "The house",
+
+	"note.village.title": "The village",
+	"note.village.text": "A piece of land hanging in the void. I know its paths before I walk them.",
+	"note.stone_at_bridge.title": "The stone by the bridge",
+	"note.stone_at_bridge.text": "It lay beside the tree, not on the path. Once it was back there, the brook ran the right way again.",
+	"note.old_man.title": "The old man",
+	"note.old_man.text": "He knows the way I walk, but not my name. He says the village once sounded different.",
+	"note.evening_walks.title": "Across the bridge at dusk",
+	"note.evening_walks.text": "A woman by the brook used to see me cross it every evening. Where I went, I no longer know.",
+
 	"name.old_man": "Old man",
 	"name.stranger": "Woman by the brook",
 

@@ -2,6 +2,7 @@
 	"start": "village",
 	"worlds": ["village", "house_inside"],
 	"on_start": [
-		{"break": "village"}
+		{"break": "village"},
+		{"note": "village"}
 	]
 }

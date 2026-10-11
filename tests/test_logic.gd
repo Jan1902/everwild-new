@@ -254,6 +254,21 @@ func _test_texts() -> void:
 					needed[effect["say"]] = true
 				if effect.has("who"):
 					needed["name." + effect["who"]] = true
+				if effect.has("note"):
+					_check(Notebook.read().has(effect["note"]), "Rule gives unknown note '%s'" % effect["note"])
+		needed["world." + world_id] = true
+	var notes := Notebook.read()
+	_check(Notebook.errors(notes).is_empty(), "Notes have errors: %s" % [Notebook.errors(notes)])
+	for note: String in notes:
+		needed["note.%s.title" % note] = true
+		needed["note.%s.text" % note] = true
+		needed["kind." + notes[note].kind] = true
+		needed["world." + notes[note].world] = true
+	var found: Array[String] = ["old_man", "nonsense", "village"]
+	var entries := Notebook.entries(notes, found)
+	_check(entries.size() == 2 and entries[0].id == "old_man", "Notebook does not list the found notes in order")
+	_check(entries[0].links == [{"id": "village", "known": true}, {"id": "evening_walks", "known": false}], "Links do not tell known from unknown notes")
+
 	var reference := Texts.read(Texts.LANGUAGES[0]).keys()
 	reference.sort()
 	_check(not reference.is_empty(), "No texts found")

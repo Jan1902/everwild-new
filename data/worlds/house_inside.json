@@ -20,7 +20,7 @@
 		{
 			"on": "interact", "object": "old_man",
 			"if": [{"fact": "met_old_man", "is": false}],
-			"do": [{"say": "old_man.first", "who": "old_man"}, {"set": "met_old_man"}]
+			"do": [{"say": "old_man.first", "who": "old_man"}, {"set": "met_old_man"}, {"note": "old_man"}]
 		},
 		{
 			"on": "interact", "object": "old_man",

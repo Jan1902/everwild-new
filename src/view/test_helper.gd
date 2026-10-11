@@ -11,6 +11,7 @@ extends Node
 ## --intact           starts in the intact version of the world
 ## --save=path        loads the game from this file and saves it there (without it, runs with
 ##                    arguments neither load nor save)
+## --notebook[=note]  opens the notebook at the end, on this note if one is given
 ## --language=code    shows the texts in this language instead of the one of the device
 ## Afterwards the character's cell, the open faults, whether a dialogue is open and the music
 ## position are printed and the game quits.
@@ -39,6 +40,10 @@ func _ready() -> void:
 	if taps.is_empty():
 		await get_tree().create_timer(wait).timeout
 
+	for argument in OS.get_cmdline_user_args():
+		if argument.begins_with("--notebook"):
+			game.open_notebook(argument.trim_prefix("--notebook").trim_prefix("="))
+			await get_tree().create_timer(0.3).timeout
 	if not screenshot.is_empty():
 		await RenderingServer.frame_post_draw
 		get_viewport().get_texture().get_image().save_png(screenshot)

@@ -1,4 +1,23 @@
 {
+	"notebook.title": "Notizbuch",
+	"notebook.empty": "Noch nichts aufgeschrieben.",
+	"notebook.links": "Gehört zu",
+	"notebook.unknown": "etwas, das ich noch nicht kenne",
+	"kind.memory": "Erinnerung",
+	"kind.piece": "Weltstück",
+	"kind.hint": "Hinweis",
+	"world.village": "Das Dorf",
+	"world.house_inside": "Das Haus",
+
+	"note.village.title": "Das Dorf",
+	"note.village.text": "Ein Stück Land, das im Leeren hängt. Ich kenne seine Wege, bevor ich sie gehe.",
+	"note.stone_at_bridge.title": "Der Stein an der Brücke",
+	"note.stone_at_bridge.text": "Er lag neben dem Baum, nicht auf dem Weg. Als er wieder dort lag, floss der Bach wieder richtig herum.",
+	"note.old_man.title": "Der alte Mann",
+	"note.old_man.text": "Er kennt meinen Gang, aber nicht meinen Namen. Er sagt, das Dorf habe einmal anders geklungen.",
+	"note.evening_walks.title": "Abends über die Brücke",
+	"note.evening_walks.text": "Eine Frau am Bach hat mich früher jeden Abend hinübergehen sehen. Wohin ich ging, weiß ich nicht mehr.",
+
 	"name.old_man": "Alter Mann",
 	"name.stranger": "Frau am Bach",
 

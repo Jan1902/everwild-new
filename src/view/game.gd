@@ -43,6 +43,7 @@ var _game := {}
 ## Black cover for the change between worlds. While it is up, taps are ignored.
 var _curtain: ColorRect
 var _dialogue: DialogueBox
+var _notebook: NotebookView
 var _travelling := false
 ## File the game is saved to. Empty for a game that is not saved.
 var _save_path := SaveFile.DEFAULT_PATH
@@ -71,6 +72,8 @@ func _ready() -> void:
 	_build_grading()
 	_build_curtain()
 	_build_music()
+	_notebook = NotebookView.new()
+	add_child(_notebook)
 	_dialogue = DialogueBox.new()
 	add_child(_dialogue)
 	_camera = Camera2D.new()
@@ -169,6 +172,11 @@ func is_talking() -> bool:
 	return _dialogue.is_open()
 
 
+## Opens the notebook, on a certain note if one is given.
+func open_notebook(note := "") -> void:
+	_notebook.open(note)
+
+
 ## Seconds the music track has been playing. -1 without music.
 func music_position() -> float:
 	return _music.get_playback_position() if _music.playing else -1.0
@@ -213,6 +221,8 @@ func _show(effects: Array) -> void:
 	if effects.is_empty():
 		return
 	for effect: Dictionary in effects:
+		if effect.has("note"):
+			_notebook.mark_unread()
 		if effect.has("say"):
 			var who: String = effect.get("who", "")
 			_dialogue.say("" if who.is_empty() else Texts.text("name." + who), Texts.lines(effect["say"]))
@@ -259,6 +269,7 @@ func _build_stage() -> void:
 	_views.clear()
 	_target_object = ""
 	world = session.world()
+	_notebook.session = session
 	for message in world.errors():
 		push_error(message)
 

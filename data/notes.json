@@ -1,0 +1,6 @@
+{
+	"village": {"kind": "piece", "world": "village", "links": ["stone_at_bridge", "old_man"]},
+	"stone_at_bridge": {"kind": "memory", "world": "village", "links": ["village", "evening_walks"]},
+	"old_man": {"kind": "memory", "world": "village", "links": ["village", "evening_walks"]},
+	"evening_walks": {"kind": "memory", "world": "village", "links": ["stone_at_bridge", "old_man"]}
+}
