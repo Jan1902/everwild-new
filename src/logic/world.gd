@@ -122,11 +122,13 @@ static func read_properties(data: Dictionary) -> Dictionary:
 	return properties
 
 
-## The objects of the intact world that are different at the moment, as they were.
+## What the break changed and has not been put right yet: the objects of the broken version that
+## still differ from the intact world, as they were. Things the player has changed otherwise,
+## such as something taken along, are not part of it.
 func differences() -> Array[Dictionary]:
 	var list: Array[Dictionary] = []
 	for object in objects:
-		if object != _intact[object.id]:
+		if broken.has(object.id) and object != _intact[object.id]:
 			list.append(_intact[object.id].duplicate())
 	return list
 

@@ -1,7 +1,6 @@
 {
 	"start.advice": "This game lives from its mood.\nIt is at its best with headphones, or somewhere quiet.",
 	"start.begin": "Tap to begin",
-
 	"notebook.title": "Notebook",
 	"notebook.empty": "Nothing written down yet.",
 	"notebook.links": "Belongs with",
@@ -11,26 +10,21 @@
 	"kind.hint": "Hint",
 	"world.village": "The village",
 	"world.house_inside": "The house",
-
 	"note.village.title": "The village",
 	"note.village.text": "A piece of land hanging in the void. I know its paths before I walk them.",
 	"note.stone_at_bridge.title": "The stone by the bridge",
 	"note.stone_at_bridge.text": "It lay beside the tree, not on the path. Once it was back there, the brook ran the right way again.",
 	"note.old_man.title": "The old man",
-	"note.old_man.text": "He knows the way I walk, but not my name. He says the village once sounded different.",
+	"note.old_man.text": "He knows the way I walk, but not my name. The notebook lay on his table before the Rift. It is written in my handwriting.",
 	"note.evening_walks.title": "Across the bridge at dusk",
 	"note.evening_walks.text": "A woman by the brook used to see me cross it every evening. Where I went, I no longer know.",
-
 	"name.old_man": "Old man",
 	"name.stranger": "Woman by the brook",
-
 	"old_man.first": [
 		"... You. I know the way you walk.",
 		"The lanterns are burning again. Was that you?",
-		"So much is wrong here now. The brook, the wind. I just cannot recall how it used to be."
-	],
-	"old_man.hint_brook": [
-		"That stone by the bridge. It never lay there. I am almost sure."
+		"So much has been wrong here since the Rift. The wind. The trees. I just cannot recall how it used to be.",
+		"There is a notebook on the table over there. It lay there before everything tore apart. It is not mine. Take it."
 	],
 	"old_man.hint_wind": [
 		"Over in the east a tree is standing the wrong way round.",
@@ -40,13 +34,24 @@
 		"Now I can hear it again. The village sounds the way it did.",
 		"I remember your name. Give me a moment and I will find it."
 	],
-
-	"stranger.unsure": [
-		"Do we know each other?",
-		"No. And yet."
-	],
 	"stranger.remembers": [
 		"You used to cross this bridge every evening.",
 		"I never asked where you were going."
+	],
+	"stranger.lanterns": [
+		"You came across the bridge. Nobody has done that in a long time.",
+		"Do you see the lanterns? Not one has burned since the Rift. We tried everything. For us they stay dark.",
+		"The old man in the house up the path might know what to do. But since the Rift his door leads everywhere except inside."
+	],
+	"stranger.lanterns_lit": [
+		"They are burning. All three.",
+		"Things listen to you again. Try the old man's door. Perhaps it will find its way back as well."
+	],
+	"old_man.take_it": [
+		"The notebook. On the table over there. Go on, take it."
+	],
+	"notebook.taken": [
+		"A small notebook. The first pages are already written on.",
+		"It is my handwriting."
 	]
 }

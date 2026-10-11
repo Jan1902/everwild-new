@@ -101,7 +101,12 @@
 		},
 		{
 			"on": "interact", "object": "stranger",
-			"do": [{"say": "stranger.unsure", "who": "stranger"}]
+			"if": [{"fixed": "lanterns"}],
+			"do": [{"say": "stranger.lanterns_lit", "who": "stranger"}]
+		},
+		{
+			"on": "interact", "object": "stranger",
+			"do": [{"say": "stranger.lanterns", "who": "stranger"}]
 		},
 		{
 			"on": "interact", "object": "house_west",

@@ -1,7 +1,6 @@
 {
 	"start.advice": "Dieses Spiel lebt von seiner Stimmung.\nAm schönsten ist es mit Kopfhörern oder an einem ruhigen Ort.",
 	"start.begin": "Tippen, um zu beginnen",
-
 	"notebook.title": "Notizbuch",
 	"notebook.empty": "Noch nichts aufgeschrieben.",
 	"notebook.links": "Gehört zu",
@@ -11,26 +10,21 @@
 	"kind.hint": "Hinweis",
 	"world.village": "Das Dorf",
 	"world.house_inside": "Das Haus",
-
 	"note.village.title": "Das Dorf",
 	"note.village.text": "Ein Stück Land, das im Leeren hängt. Ich kenne seine Wege, bevor ich sie gehe.",
 	"note.stone_at_bridge.title": "Der Stein an der Brücke",
 	"note.stone_at_bridge.text": "Er lag neben dem Baum, nicht auf dem Weg. Als er wieder dort lag, floss der Bach wieder richtig herum.",
 	"note.old_man.title": "Der alte Mann",
-	"note.old_man.text": "Er kennt meinen Gang, aber nicht meinen Namen. Er sagt, das Dorf habe einmal anders geklungen.",
+	"note.old_man.text": "Er kennt meinen Gang, aber nicht meinen Namen. Das Notizbuch lag schon vor dem Riss auf seinem Tisch. Es ist in meiner Handschrift geschrieben.",
 	"note.evening_walks.title": "Abends über die Brücke",
 	"note.evening_walks.text": "Eine Frau am Bach hat mich früher jeden Abend hinübergehen sehen. Wohin ich ging, weiß ich nicht mehr.",
-
 	"name.old_man": "Alter Mann",
 	"name.stranger": "Frau am Bach",
-
 	"old_man.first": [
 		"… Du. Ich kenne deinen Gang.",
 		"Die Laternen brennen wieder. Warst du das?",
-		"Hier stimmt so vieles nicht mehr. Der Bach, der Wind. Ich weiß nur nicht mehr, wie es einmal war."
-	],
-	"old_man.hint_brook": [
-		"Der Stein an der Brücke. Der lag nie dort. Da bin ich mir fast sicher."
+		"Seit dem Riss stimmt hier so vieles nicht mehr. Der Wind. Die Bäume. Ich weiß nur nicht mehr, wie es einmal war.",
+		"Dort auf dem Tisch liegt ein Notizbuch. Es lag schon da, bevor alles zerriss. Meins ist es nicht. Nimm es."
 	],
 	"old_man.hint_wind": [
 		"Drüben im Osten steht ein Baum falsch herum.",
@@ -40,13 +34,24 @@
 		"Jetzt höre ich es wieder. Das Dorf klingt wie früher.",
 		"Ich erinnere mich an deinen Namen. Lass mir einen Moment, dann finde ich ihn."
 	],
-
-	"stranger.unsure": [
-		"Kennen wir uns?",
-		"Nein. Und doch."
-	],
 	"stranger.remembers": [
 		"Du bist früher jeden Abend über diese Brücke gegangen.",
 		"Ich habe nie gefragt, wohin."
+	],
+	"stranger.lanterns": [
+		"Du kommst über die Brücke. Das hat lange niemand mehr getan.",
+		"Siehst du die Laternen? Seit dem Riss brennt keine mehr. Wir haben alles versucht. Bei uns bleiben sie dunkel.",
+		"Der Alte im Haus oben am Weg wüsste vielleicht Rat. Aber seine Tür führt seit dem Riss überallhin, nur nicht hinein."
+	],
+	"stranger.lanterns_lit": [
+		"Sie brennen. Alle drei.",
+		"Bei dir gehorchen die Dinge wieder. Versuch es an der Tür des Alten. Vielleicht findet auch sie zurück."
+	],
+	"old_man.take_it": [
+		"Das Notizbuch. Dort auf dem Tisch. Nimm es ruhig."
+	],
+	"notebook.taken": [
+		"Ein kleines Notizbuch. Die ersten Seiten sind schon beschrieben.",
+		"Es ist meine Handschrift."
 	]
 }

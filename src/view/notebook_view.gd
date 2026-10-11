@@ -1,13 +1,16 @@
 class_name NotebookView
 extends CanvasLayer
 ## The notebook: a small button in the corner that opens a page with everything the player has
-## found. While the page is open it takes all taps.
+## found. The button only shows once the player carries the notebook. While the page is open it
+## takes all taps.
 
 const PAPER := Color(0.93, 0.89, 0.8)
 const INK := Color(0.2, 0.17, 0.15)
 const FAINT := Color(0.2, 0.17, 0.15, 0.55)
 const MARK := Color(0.72, 0.36, 0.24)
 const BUTTON_SIZE := 92.0
+## Item the player has to carry for the notebook to be there.
+const ITEM := "notebook"
 
 var session: Session
 
@@ -76,6 +79,11 @@ func is_open() -> bool:
 	return _page.visible
 
 
+## Shows or hides the button, depending on whether the player carries the notebook.
+func refresh() -> void:
+	_button.visible = ITEM in session.state.items
+
+
 func open(note := "") -> void:
 	_entries = Notebook.entries(_notes, session.state.notes)
 	var known := _entries.map(func(entry: Dictionary) -> String: return entry.id)
@@ -103,7 +111,7 @@ func _input(event: InputEvent) -> void:
 	var touch := event as InputEventScreenTouch
 	if touch == null:
 		return
-	var on_button := _button.get_global_rect().has_point(touch.position)
+	var on_button := _button.visible and _button.get_global_rect().has_point(touch.position)
 	if not is_open():
 		if on_button:
 			get_viewport().set_input_as_handled()

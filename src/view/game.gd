@@ -306,6 +306,7 @@ func _show(effects: Array) -> void:
 	if effects.is_empty():
 		return
 	_forget()
+	_notebook.refresh()
 	for effect: Dictionary in effects:
 		if effect.has("note"):
 			_notebook.mark_unread()
@@ -358,6 +359,7 @@ func _build_stage() -> void:
 	_target_object = ""
 	world = session.world()
 	_notebook.session = session
+	_notebook.refresh()
 	for message in world.errors():
 		push_error(message)
 

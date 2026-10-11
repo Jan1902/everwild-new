@@ -52,6 +52,17 @@ Leitgefühl: Alles war einmal eins und ist jetzt getrennt. Der Spieler bewegt si
 - **Erinnerung der NPCs als Fortschrittsanzeige:** Je weiter ein Bruchstück repariert ist, desto mehr erinnern sich seine Bewohner. Ihre Dialoge ändern sich mit dem Zustand der Welt.
 - **Das Tutorial legt Musik und Farben als Referenz fest:** Leitmotiv und Farbpalette der heilen Welt sind das, was in den Bruchstücken zerbrochen ist und sich beim Reparieren wieder zusammensetzt.
 
+### Ablauf im kaputten Dorf (Jan, Stand der ersten Fassung)
+
+Der Spieler soll ohne Erklärtexte merken, was er tun kann. Die Hinweise kommen von den Figuren:
+
+1. Der Stein versperrt die Brücke, dahinter steht die Frau am Bach. Wer mit ihr sprechen will, räumt den Stein weg und lernt so das Verrücken.
+2. Die Frau erzählt, dass die Laternen seit dem großen Ereignis nicht mehr brennen und niemand etwas dagegen tun konnte. Sie verweist auf den Alten im Haus, dessen Tür nirgends mehr hinführt, wo sie soll.
+3. Brennen die Laternen, führt die Tür ins Haus. Der alte Mann bietet ein Notizbuch an, das schon vor dem Ereignis auf seinem Tisch lag.
+4. Der Spieler nimmt es vom Tisch. Erst damit gibt es das Notizbuch im Spiel. Es ist in seiner eigenen Handschrift beschrieben.
+
+Die Figuren nennen das große Ereignis **„der Riss“** (englisch „the Rift“). Der Name ist vorläufig.
+
 ## 4. Spieldesign
 
 ### Entschieden

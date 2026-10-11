@@ -29,6 +29,8 @@ const IMAGES := {
 const LIGHT_COLOR := Color(1.0, 0.78, 0.42)
 ## Colour laid over a lantern that is out.
 const UNLIT := Color(0.62, 0.66, 0.78)
+## Where the notebook lies on the table, relative to the table's foot.
+const NOTEBOOK_SPOT := Vector2(-12, -38)
 ## Seconds an object takes to slide to another cell.
 const MOVE_DURATION := 0.45
 
@@ -76,6 +78,8 @@ func setup(object: Dictionary) -> void:
 	if not lit:
 		_image.modulate = UNLIT
 	add_child(_image)
+	if kind == "table" and object.state == "notebook":
+		add_child(_build_notebook())
 
 	if layout.has("light") and lit:
 		var spot: Vector2 = layout.light
@@ -87,6 +91,27 @@ func setup(object: Dictionary) -> void:
 		_glow.material = add_material
 		_flicker = position.x * 0.05
 		add_child(_glow)
+
+
+## A small closed book lying on the table, drawn from a few flat areas like the painted images.
+func _build_notebook() -> Node2D:
+	var book := Node2D.new()
+	book.position = _image.position + NOTEBOOK_SPOT
+	var along := Vector2(10, 5)
+	var across := Vector2(-7, 3.5)
+	var thick := Vector2(0, 3)
+	var top := PackedVector2Array([-along - across, along - across, along + across, -along + across])
+	var parts := [
+		[PackedVector2Array([top[3], top[2], top[2] + thick, top[3] + thick]), Color("efe6d0")],
+		[PackedVector2Array([top[2], top[1], top[1] + thick, top[2] + thick]), Color("d9cdb2")],
+		[top, Color("8c3b2e")],
+	]
+	for part: Array in parts:
+		var area := Polygon2D.new()
+		area.polygon = part[0]
+		area.color = part[1]
+		book.add_child(area)
+	return book
 
 
 ## Whether the view shows the object as it is now.
