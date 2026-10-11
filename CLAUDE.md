@@ -25,7 +25,7 @@ Was noch zu bauen ist, steht in `docs/backlog.md`. Erledigtes dort löschen, Neu
 - `data/notes.json`: alle Einträge des Notizbuchs mit Art, Welt und Verknüpfungen (immer in beide Richtungen).
 - `data/texts/`: alle sichtbaren Texte je Sprache (`en.json`, `de.json`), mit denselben Schlüsseln in jeder Datei. Regeln nennen nur Schlüssel.
 - `assets/`: Bilder und Musik, die das Spiel lädt (`objects/`, `worlds/`, `music/`).
-- `tools/`: Python-Skripte für Bild- und Musikgenerierung, eigene Umgebung in `tools/.venv`. Die Stilvorgabe für alle Bild-Prompts steht in `tools/style.py`. `village_images.py`, `room_images.py` und `walk_images.py` erzeugen die Rohbilder (jede Datei höchstens einmal), `crop_sprites.py` schneidet sie zu und legt sie nach `assets/`. Wie ein Bild in der Welt sitzt (Breite, Fußpunkt), steht in `ObjectView.IMAGES`.
+- `tools/`: Python-Skripte für Bild- und Musikgenerierung, eigene Umgebung in `tools/.venv`. Die Stilvorgabe für alle Bild-Prompts steht in `tools/style.py`. `village_images.py`, `bridge_image.py`, `room_images.py` und `walk_images.py` erzeugen die Rohbilder (jede Datei höchstens einmal), `crop_sprites.py` schneidet sie zu und legt sie nach `assets/`. Wie ein Bild in der Welt sitzt (Breite, Fußpunkt), steht in `ObjectView.IMAGES`.
 - `styletest/`: generierte Rohbilder und Testmusik, von Godot ignoriert.
 
 ## Befehle

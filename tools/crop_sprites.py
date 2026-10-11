@@ -31,46 +31,36 @@ THRESHOLD = 24
 MARGIN = 0.12
 
 
-# The generated bridge is six planks long, which is more than the one cell the brook is wide.
-# Its first and last plank are cut off along the gaps between the planks. Given in pixels of the
-# cropped image at half resolution: centre of the deck, half the deck along its length, and the
-# direction of the gaps. KEEP is the stretch that stays, in half lengths from the centre: from
-# the first gap to the last one, which leaves the four planks in the middle.
-BRIDGE_CENTRE = (254, 145)
-BRIDGE_ALONG = (165, 100)
-BRIDGE_GAP = (86, -56)
-BRIDGE_KEEP = (-0.845, 0.775)
-
-
-def shorten_bridge(image):
-    (cx, cy), (ux, uy), (gx, gy) = BRIDGE_CENTRE, BRIDGE_ALONG, BRIDGE_GAP
-    det = ux * gy - uy * gx
-    pixels = image.load()
-    for y in range(image.height):
-        for x in range(image.width):
-            # Position along the deck, measured parallel to the gaps.
-            along = ((x - cx) * gy - (y - cy) * gx) / det
-            if not BRIDGE_KEEP[0] <= along <= BRIDGE_KEEP[1]:
-                pixels[x, y] = (0, 0, 0, 0)
-    box = image.getchannel("A").getbbox()
-    middle = sum(BRIDGE_KEEP) / 2
-    print("bridge: deck centre in the cut image", cx + middle * ux - box[0], cy + middle * uy - box[1])
-    return image.crop(box)
-
+# The bridge comes from a shape template (bridge_image.py), but the model painted it larger than
+# the template. Measured in the raw image: the centre of the deck's top face, and how many raw
+# pixels one world pixel is, taken from the length of the deck (560 pixels for 1.4 cells).
+RAW_NAMES = {"bridge": "bridge_flat"}
+BRIDGE_CENTRE = (515, 525)
+BRIDGE_SCALE = 6.25
 
 def crop(name):
-    image = Image.open(SOURCES[name] / f"{name}.png").convert("RGBA")
+    image = Image.open(SOURCES[name] / f"{RAW_NAMES.get(name, name)}.png").convert("RGBA")
     alpha = image.getchannel("A")
     # The model does not deliver full opacity even inside the object. Stretch to the full range.
     peak = alpha.getextrema()[1]
     alpha = alpha.point(lambda a: 0 if a < THRESHOLD else min(255, round(a * 255 / peak)))
     image.putalpha(alpha)
-    image = image.crop(alpha.getbbox())
+    box = alpha.getbbox()
+    image = image.crop(box)
+    if name == "bridge":
+        # Values for ObjectView.IMAGES.
+        print(
+            "bridge: width %.1f, foot (%.3f, %.3f)"
+            % (
+                (box[2] - box[0]) / BRIDGE_SCALE,
+                (BRIDGE_CENTRE[0] - box[0]) / (box[2] - box[0]),
+                (BRIDGE_CENTRE[1] - box[1]) / (box[3] - box[1]),
+            )
+        )
     # In the game objects are at most about 300 world pixels wide. Half the resolution is enough
     # for that and avoids shimmering when scaling down a lot.
     image = image.resize((image.width // 2, image.height // 2), Image.LANCZOS)
-    if name == "bridge":
-        image = shorten_bridge(image)
+
     # Transparent margin on the left and right so the object can lean in the wind.
     margin = round(image.width * MARGIN)
     padded = Image.new("RGBA", (image.width + 2 * margin, image.height), (0, 0, 0, 0))
