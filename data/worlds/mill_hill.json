@@ -39,8 +39,8 @@
 	},
 	"objects": [
 		{"id": "mill", "kind": "mill", "cell": [7, 3], "size": [2, 2], "access": [[8, 5]], "state": "turning"},
-		{"id": "arch_village", "kind": "arch", "cell": [3, 12], "access": [[4, 12]], "state": "open"},
-		{"id": "arch_spring", "kind": "arch", "cell": [12, 12], "access": [[11, 12]], "state": "open"},
+		{"id": "arch_village", "kind": "arch", "cell": [4, 13], "access": [[4, 12]], "state": "open"},
+		{"id": "arch_spring", "kind": "arch", "cell": [11, 13], "access": [[11, 12]], "state": "open"},
 		{"id": "miller", "kind": "miller", "cell": [10, 5]},
 		{"id": "mill_lantern", "kind": "lantern", "cell": [5, 5], "state": "lit"},
 		{"kind": "tree", "cell": [3, 3]},

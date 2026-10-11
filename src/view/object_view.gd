@@ -31,7 +31,7 @@ const IMAGES := {
 	"cupboard": {"width": 104.0, "foot": Vector2(0.5, 0.85), "base": 46.0},
 	"raft": {"image": "bridge", "width": 127.0, "foot": Vector2(0.499, 0.457)},
 	"mill": {"width": 190.0, "foot": Vector2(0.5, 0.865), "base": 80.0, "sails": {"hub": Vector2(60, -126), "size": 250.0}},
-	"arch": {"width": 120.0, "foot": Vector2(0.5, 0.86), "base": 40.0, "light": Vector2(0, -52)},
+	"arch": {"width": 104.0, "foot": Vector2(0.516, 0.827), "light": Vector2(0, -36)},
 	"sluice": {"width": 90.0, "foot": Vector2(0.5, 0.82), "base": 36.0},
 	"miller": {"width": 60.0, "foot": Vector2(0.5, 0.96), "base": 22.0},
 }
@@ -207,11 +207,13 @@ func build_shadow() -> Node2D:
 
 	shadow.position = position + _image.position
 	# Soft blob right at the foot. Without it the object looks as if it hovers above the ground.
-	var base := Sprite2D.new()
-	base.texture = base_blob()
-	base.modulate = BoxShadow.COLOR
-	base.scale = Vector2(1.0, 0.5) * (layout.base * 2.0 / base.texture.get_width())
-	shadow.add_child(base)
+	# Objects that stand on two legs with air in between, like an arch, have none.
+	if layout.has("base"):
+		var base := Sprite2D.new()
+		base.texture = base_blob()
+		base.modulate = BoxShadow.COLOR
+		base.scale = Vector2(1.0, 0.5) * (layout.base * 2.0 / base.texture.get_width())
+		shadow.add_child(base)
 
 	var cast := _image.duplicate() as Sprite2D
 	cast.position = Vector2.ZERO

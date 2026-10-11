@@ -40,7 +40,7 @@
 	"objects": [
 		{"id": "raft", "kind": "raft", "cell": [7, 7]},
 		{"id": "sluice", "kind": "sluice", "cell": [9, 4], "access": [[9, 5]], "state": "open"},
-		{"id": "arch_back", "kind": "arch", "cell": [2, 7], "access": [[3, 7]], "state": "open"},
+		{"id": "arch_back", "kind": "arch", "cell": [2, 7], "access": [[3, 7]], "state": "open", "mirrored": true},
 		{"kind": "tree", "cell": [3, 3]},
 		{"kind": "tree", "cell": [2, 5]},
 		{"kind": "tree", "cell": [4, 10]},
