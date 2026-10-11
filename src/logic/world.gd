@@ -6,7 +6,7 @@ extends RefCounted
 ## The world file describes the intact world. What differs from it at the moment (moved objects
 ## and the like) comes from the game state and is laid over it with apply().
 
-enum Ground { VOID, GRASS, PATH, WATER, BRIDGE }
+enum Ground { VOID, GRASS, PATH, WATER, BRIDGE, FLOOR }
 
 ## Characters used to write the ground in world files.
 const SYMBOLS := {
@@ -15,8 +15,11 @@ const SYMBOLS := {
 	"=": Ground.PATH,
 	"~": Ground.WATER,
 	"#": Ground.BRIDGE,
+	"_": Ground.FLOOR,
 }
-const WALKABLE := [Ground.GRASS, Ground.PATH, Ground.BRIDGE]
+const WALKABLE := [Ground.GRASS, Ground.PATH, Ground.BRIDGE, Ground.FLOOR]
+## Ground that objects can stand on.
+const FIRM := [Ground.GRASS, Ground.PATH, Ground.FLOOR]
 ## Object kinds that lie flat on the ground: they block nothing and the character walks over them.
 const FLAT_KINDS := ["bridge"]
 ## Properties of an object that can change during the game.
@@ -28,7 +31,9 @@ var title := ""
 var size := Vector2i.ZERO
 var start := Vector2i.ZERO
 ## Entries with "id" and "kind" (String), "cell" (Vector2i, rear corner), "size" (Vector2i),
-## "mirrored" and "hidden" (bool) and "state" (String, meaning depends on the kind).
+## "mirrored" and "hidden" (bool), "state" (String, meaning depends on the kind) and "access"
+## (cells the object can be used from, such as the one in front of a door; empty means every
+## cell beside it).
 var objects: Array[Dictionary] = []
 ## What happens when the player does something, in the order of the world file. Each rule has
 ## "on" ("interact" with "object", or "enter" with "cells" or "zone"), "if" (conditions) and
@@ -44,6 +49,9 @@ var music := ""
 ## Mood of the intact world and of its wrong version.
 var mood := Mood.new()
 var mood_wrong := Mood.new()
+## Id of the world whose mood this one shares, for example the village around a room. Empty if
+## it has its own.
+var mood_from := ""
 ## Painted ground image with "path", "scale" (image pixels per world pixel) and "origin"
 ## (world point of the image's top left corner). Empty while the world has none.
 var ground_image := {}
@@ -76,6 +84,7 @@ static func from_data(data: Dictionary, world_id := "") -> World:
 	world.music = data.get("music", "")
 	world.mood = Mood.from_data(data.get("mood", {}))
 	world.mood_wrong = Mood.from_data(data.get("mood_wrong", {}), world.mood)
+	world.mood_from = data.get("mood_from", "")
 	world._read_ground(data.get("ground", []))
 	for entry: Dictionary in data.get("objects", []):
 		var cell := _to_cell(entry.get("cell", [0, 0]))
@@ -87,6 +96,7 @@ static func from_data(data: Dictionary, world_id := "") -> World:
 			"mirrored": entry.get("mirrored", false),
 			"hidden": entry.get("hidden", false),
 			"state": entry.get("state", ""),
+			"access": entry.get("access", []).map(_to_cell),
 		}
 		if world._by_id.has(object.id):
 			world._errors.append("Object id '%s' is used twice" % object.id)
@@ -131,7 +141,7 @@ func errors() -> Array[String]:
 			continue
 		var flat: bool = object.kind in FLAT_KINDS
 		for cell in occupied_cells(object):
-			var fits := ground(cell) == Ground.BRIDGE if flat else ground(cell) in [Ground.GRASS, Ground.PATH]
+			var fits := ground(cell) == Ground.BRIDGE if flat else ground(cell) in FIRM
 			if not fits:
 				list.append("Object '%s' at %s stands on the wrong ground" % [object.id, cell])
 			if not flat and seen.has(cell):
@@ -181,9 +191,15 @@ func occupied_cells(object: Dictionary) -> Array[Vector2i]:
 	return cells
 
 
-## Walkable cells right next to the object, from where the player can reach it.
+## Walkable cells from where the player can use the object: its access cells if it has any,
+## otherwise all cells right next to it.
 func cells_beside(object: Dictionary) -> Array[Vector2i]:
 	var cells: Array[Vector2i] = []
+	if not object.access.is_empty():
+		for cell: Vector2i in object.access:
+			if is_walkable(cell):
+				cells.append(cell)
+		return cells
 	for cell in occupied_cells(object):
 		for step in NEIGHBOURS:
 			if is_walkable(cell + step) and cell + step not in cells:
@@ -196,7 +212,7 @@ func has_room(object: Dictionary, cell: Vector2i) -> bool:
 	for y in object.size.y:
 		for x in object.size.x:
 			var spot := cell + Vector2i(x, y)
-			if ground(spot) not in [Ground.GRASS, Ground.PATH]:
+			if ground(spot) not in FIRM:
 				return false
 			if _occupied.get(spot, object.id) != object.id:
 				return false

@@ -171,6 +171,8 @@ func is_complete() -> bool:
 ## no fault restores follow the share of open faults.
 func mood(world_id := "") -> Mood:
 	var here := world(world_id)
+	if not here.mood_from.is_empty():
+		return mood(here.mood_from)
 	var open := open_faults(here.id)
 	var general := 0.0 if here.faults.is_empty() else float(open.size()) / here.faults.size()
 	var weights := {}

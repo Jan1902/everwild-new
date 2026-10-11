@@ -44,8 +44,8 @@
 	},
 	"objects": [
 		{"kind": "bridge", "cell": [13, 9]},
-		{"kind": "house", "cell": [8, 5], "size": [2, 2]},
-		{"kind": "house", "cell": [2, 6], "size": [2, 2]},
+		{"id": "house_mid", "kind": "house", "cell": [8, 5], "size": [2, 2], "access": [[10, 6]]},
+		{"id": "house_west", "kind": "house", "cell": [2, 6], "size": [2, 2], "access": [[4, 7]]},
 		{"kind": "house", "cell": [16, 6], "size": [2, 2]},
 		{"kind": "tree", "cell": [4, 3]},
 		{"kind": "tree", "cell": [10, 2]},
@@ -93,6 +93,20 @@
 		}
 	],
 	"rules": [
+		{
+			"on": "interact", "object": "house_mid",
+			"if": [{"fixed": "lanterns"}],
+			"do": [{"go": "house_inside", "cell": [2, 4]}]
+		},
+		{
+			"on": "interact", "object": "house_mid",
+			"do": [{"go": "village", "cell": [4, 7]}]
+		},
+		{
+			"on": "interact", "object": "house_west",
+			"if": [{"fixed": "lanterns", "is": false}],
+			"do": [{"go": "village", "cell": [10, 6]}]
+		},
 		{
 			"on": "interact", "object": "rock_bridge",
 			"if": [{"object": "rock_bridge", "cell": [12, 9]}],

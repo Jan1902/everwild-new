@@ -281,6 +281,21 @@ func _test_village_game() -> void:
 	_check(result.solvable, "Game cannot be completed")
 	_check(result.dead_ends == 0, "Game has %d dead ends, for example: %s" % [result.dead_ends, result.dead_end])
 
+	# Doors: the wrong village swaps them, the repaired one leads inside.
+	session.state.cell = Vector2i(10, 6)
+	session.interact("house_mid")
+	_check(session.state.world == "village" and session.state.cell == Vector2i(4, 7), "Wrong door does not lead to the other house")
+	session.apply([{"restore": "village"}], "village")
+	session.state.cell = Vector2i(10, 6)
+	session.interact("house_mid")
+	_check(session.state.world == "house_inside", "Door of the repaired village does not lead inside")
+	_check(session.world().errors().is_empty(), "Room has data errors: %s" % [session.world().errors()])
+	session.apply([{"break": "village"}], "village")
+	_check(session.mood().wind < 0.0, "Room does not share the mood of the village")
+	session.enter(Vector2i(2, 5))
+	_check(session.state.world == "village" and session.state.cell == Vector2i(10, 6), "Leaving the room does not lead back in front of the door")
+	_check(world.cells_beside(world.object("house_mid")) == [Vector2i(10, 6)], "House can be used from a cell other than its door")
+
 	for world_id: String in game.worlds:
 		var intact := Session.create({"start": world_id, "worlds": game.worlds})
 		_check(intact.world().errors().is_empty(), "World '%s' has data errors: %s" % [world_id, intact.world().errors()])

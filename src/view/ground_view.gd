@@ -9,6 +9,7 @@ const COLORS := {
 	World.Ground.PATH: Color("d8c394"),
 	World.Ground.WATER: Color("74b6cc"),
 	World.Ground.BRIDGE: Color("a97c52"),
+	World.Ground.FLOOR: Color("b89468"),
 }
 const EARTH_LIGHT := Color("8a6a4f")
 const EARTH_DARK := Color("6e533f")

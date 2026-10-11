@@ -1,6 +1,6 @@
 {
 	"start": "village",
-	"worlds": ["village"],
+	"worlds": ["village", "house_inside"],
 	"on_start": [
 		{"break": "village"}
 	]

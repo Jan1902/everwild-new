@@ -9,6 +9,8 @@ const SHADOW_OPACITY := 0.3
 const MUSIC_VOLUME := -6.0
 ## Seconds the mood takes to follow a change of the world.
 const MOOD_CHANGE_DURATION := 2.5
+## Seconds the picture takes to fade to black, and again to come back, when changing worlds.
+const TRAVEL_FADE := 0.35
 
 var session: Session
 ## The world on show, which is the one the player is in.
@@ -38,6 +40,9 @@ var _mood_change: Tween
 var _destination := Vector2i.ZERO
 var _target_object := ""
 var _game := {}
+## Black cover for the change between worlds. While it is up, taps are ignored.
+var _curtain: ColorRect
+var _travelling := false
 ## File the game is saved to. Empty for a game that is not saved.
 var _save_path := SaveFile.DEFAULT_PATH
 
@@ -59,6 +64,7 @@ func _ready() -> void:
 
 	_build_sky()
 	_build_grading()
+	_build_curtain()
 	_build_music()
 	_camera = Camera2D.new()
 	_camera.zoom = Vector2.ONE * ZOOM
@@ -86,7 +92,7 @@ func _process(_delta: float) -> void:
 
 func _unhandled_input(event: InputEvent) -> void:
 	var touch := event as InputEventScreenTouch
-	if touch and touch.pressed:
+	if touch and touch.pressed and not _travelling:
 		tap(get_canvas_transform().affine_inverse() * touch.position)
 	# Temporary, for trying things out: F switches between the intact and the broken world.
 	var key := event as InputEventKey
@@ -173,7 +179,7 @@ func _on_cell_reached(cell: Vector2i) -> void:
 	var effects := session.enter(cell)
 	if not effects.is_empty():
 		_show(effects)
-		if session.state.world != world.id:
+		if _travelling:
 			return
 		# The rule may have changed what is in the way, so the rest of the path is found anew.
 		player.walk(world.find_path(cell, _destination))
@@ -195,12 +201,24 @@ func _arrive() -> void:
 func _show(effects: Array) -> void:
 	if effects.is_empty():
 		return
-	if session.state.world != world.id:
-		_build_stage()
+	if effects.any(func(effect: Dictionary) -> bool: return effect.has("go")):
+		_travel()
 	else:
 		_sync_objects()
 		_change_mood()
 	save()
+
+
+## Shows the place the player has been moved to, with a short fade to black in between.
+func _travel() -> void:
+	_travelling = true
+	_target_object = ""
+	player.walk([] as Array[Vector2i])
+	var fade := create_tween()
+	fade.tween_property(_curtain, "color:a", 1.0, TRAVEL_FADE)
+	fade.tween_callback(_build_stage)
+	fade.tween_property(_curtain, "color:a", 0.0, TRAVEL_FADE)
+	fade.tween_callback(func() -> void: _travelling = false)
 
 
 ## The interactive object whose image is under the point, the one furthest in front first.
@@ -376,6 +394,18 @@ func _build_grading() -> void:
 	var canvas := CanvasLayer.new()
 	canvas.layer = 10
 	canvas.add_child(rect)
+	add_child(canvas)
+
+
+func _build_curtain() -> void:
+	_curtain = ColorRect.new()
+	_curtain.color = Color(0, 0, 0, 0)
+	_curtain.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_curtain.set_anchors_preset(Control.PRESET_FULL_RECT)
+
+	var canvas := CanvasLayer.new()
+	canvas.layer = 30
+	canvas.add_child(_curtain)
 	add_child(canvas)
 
 

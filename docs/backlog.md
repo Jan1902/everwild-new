@@ -15,7 +15,7 @@ Spielspeicher, Regeln je Welt, Stimmung aus dem Zustand, Lösbarkeitsprüfung un
 1. **Richtige Spielfigur.** Sprite statt Platzhalter, Laufanimation in den nötigen Richtungen, passender Schatten. Offen ist der Weg dorthin (siehe `concept.md`, Offene Punkte). Braucht Bildgenerierung.
 2. **NPCs.** Figuren als Objekte der Welt mit Sprite, Standort und Zustand. Wenige, dafür mit Gewicht. Sie erinnern sich je nach Spielstand gar nicht, in Fetzen oder ganz.
 3. **Dialoge mit den NPCs.** Dialoge als Daten mit Bedingungen auf den Spielspeicher und Folgen (Hinweis ins Notizbuch, Gegenstand, Zustandsänderung). Anzeige mit wenig UI.
-4. **Mehrere Welten und Portale.** Laden und Wechseln von Welten, Türen und Portale als dieselbe Mechanik: ein Ziel, das vom Zustand abhängt (die Haustür führt erst nach der Reparatur ins Haus). Übergang mit Blende und Musikwechsel.
+4. **Weitere Welten.** Der Wechsel zwischen Welten steht (Türen und Portale sind Regeln mit einem Ziel, das vom Zustand abhängt, dazwischen eine Blende). Es gibt bisher nur das Dorf und einen leeren Raum als Platzhalter. Es fehlen echte weitere Welten und ein weicher Wechsel der Musik zwischen verschiedenen Stücken.
 5. **Notizbuch.** Sammelt Erinnerungen, Weltstücke und Hinweise und zeigt die abstrakten Beziehungen zwischen ihnen (was gehört zu welcher Welt, was hängt womit zusammen). Ersetzt eine Questliste.
 6. **Erinnerung gegen Jetzt.** Die Kernmechanik: die heile Fassung einer Welt als Erinnerung ansehen und mit dem Jetzt vergleichen.
 7. **Verweilen.** Stehen bleiben und beobachten deckt Dinge auf, die man im Gehen nicht sieht.
@@ -31,6 +31,7 @@ Spielspeicher, Regeln je Welt, Stimmung aus dem Zustand, Lösbarkeitsprüfung un
 
 ## Grafik und Ton
 
+0. **Innenräume.** Der Raum im Haus ist eine gezeichnete Platzhalter-Fläche ohne Wände und Möbel. Braucht ein Bodenbild und Objekte aus der Bildgenerierung.
 1. **Verdeckung durch hohe Objekte.** Häuser und Bäume verdecken die Figur und Wege. Braucht eine Lösung (durchscheinen, Umriss oder Regeln für die Platzierung).
 2. **Brücke.** Das Sprite ist zu lang und zu schmal für den ein Feld breiten Bach. Neu generieren mit Formvorlage.
 3. **Schatten auf Höhenunterschieden.** Der Schatten der Laterne fällt über Brücke und Bach, als wäre alles flach.

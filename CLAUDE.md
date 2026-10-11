@@ -21,7 +21,7 @@ Was noch zu bauen ist, steht in `docs/backlog.md`. Erledigtes dort löschen, Neu
   - `Mood`, `Iso`: Stimmungsregler und Umrechnung zwischen Zelle und Bildpunkt.
 - `src/view/`: alles Sichtbare, Shader in `src/view/shaders/`. Die Hauptszene `scenes/game.tscn` baut ihre Knoten in `game.gd` per Code auf. Wind, Wasser und Schatten lesen ihre Richtung aus globalen Shader-Werten (`[shader_globals]` in `project.godot`), die `game.gd` aus der Stimmung setzt.
 - `data/game.json`: Startwelt, Liste aller Welten und was beim Start eines neuen Spiels passiert.
-- `data/worlds/`: Welten als JSON. Der Boden ist ein Zeichenraster (` ` Leere, `.` Gras, `=` Weg, `~` Wasser, `#` Brücke). `objects` beschreibt die heile Fassung, `broken` die Abweichungen der kaputten, `faults` die Fehler (jeder stellt bestimmte Stimmungsregler wieder her), `rules` was bei Interaktionen und beim Betreten von Zellen passiert.
+- `data/worlds/`: Welten als JSON. Der Boden ist ein Zeichenraster (` ` Leere, `.` Gras, `=` Weg, `~` Wasser, `#` Brücke, `_` Boden eines Innenraums). `objects` beschreibt die heile Fassung, `broken` die Abweichungen der kaputten, `faults` die Fehler (jeder stellt bestimmte Stimmungsregler wieder her), `rules` was bei Interaktionen und beim Betreten von Zellen passiert.
 - `assets/`: Bilder und Musik, die das Spiel lädt (`objects/`, `worlds/`, `music/`).
 - `tools/`: Python-Skripte für Bild- und Musikgenerierung, eigene Umgebung in `tools/.venv`. Die Stilvorgabe für alle Bild-Prompts steht in `tools/style.py`.
 - `styletest/`: generierte Rohbilder und Testmusik, von Godot ignoriert.

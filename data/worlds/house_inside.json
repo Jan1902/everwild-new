@@ -1,0 +1,23 @@
+{
+	"title": "Inside the house",
+	"size": [6, 7],
+	"start": [2, 4],
+	"mood_from": "village",
+	"music": "res://assets/music/village_theme.mp3",
+	"ground": [
+		"      ",
+		" ____ ",
+		" ____ ",
+		" ____ ",
+		" ____ ",
+		"  _   ",
+		"      "
+	],
+	"objects": [],
+	"rules": [
+		{
+			"on": "enter", "cells": [[2, 5]],
+			"do": [{"go": "village", "cell": [10, 6]}]
+		}
+	]
+}
