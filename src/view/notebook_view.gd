@@ -51,7 +51,7 @@ func _ready() -> void:
 
 	# The paper takes the taps that land on it, so they do not count as beside the page.
 	var paper := PanelContainer.new()
-	paper.theme_type_variation = &"NotebookPaper"
+	paper.theme_type_variation = &"Paper"
 	paper.anchor_left = 0.12
 	paper.anchor_right = 0.88
 	paper.anchor_top = 0.1
@@ -113,6 +113,20 @@ func close() -> void:
 	_page.visible = false
 
 
+## Brings the notebook back to how a new game starts: closed and with nothing unread.
+func reset() -> void:
+	close()
+	_selected = ""
+	_unread = false
+	_button.queue_redraw()
+
+
+## Shows the open page in the language that is in use now.
+func retranslate() -> void:
+	if _open:
+		_fill()
+
+
 ## Marks the button, so the player sees that something new has been written down.
 func mark_unread() -> void:
 	_unread = true
@@ -144,28 +158,28 @@ func _fill() -> void:
 			column.remove_child(child)
 			child.queue_free()
 
-	_list.add_child(_label(Texts.text("notebook.title"), &"NoteHeading"))
+	_list.add_child(_label(Texts.text("notebook.title"), &"PaperHeading"))
 	if _entries.is_empty():
-		_detail.add_child(_label(Texts.text("notebook.empty"), &"NoteFaint"))
+		_detail.add_child(_label(Texts.text("notebook.empty"), &"PaperFaint"))
 		return
 	for entry in _entries:
-		var variation := &"NoteEntrySelected" if entry.id == _selected else &"NoteEntry"
+		var variation := &"PaperEntrySelected" if entry.id == _selected else &"PaperEntry"
 		_list.add_child(_note_button(Texts.text("note.%s.title" % entry.id), variation, entry.id))
 
 	for entry in _entries:
 		if entry.id != _selected:
 			continue
-		_detail.add_child(_label(Texts.text("note.%s.title" % entry.id), &"NoteHeading"))
-		_detail.add_child(_label("%s · %s" % [Texts.text("kind." + entry.kind), Texts.text("world." + entry.world)], &"NoteSmall"))
-		_detail.add_child(_label(Texts.text("note.%s.text" % entry.id), &"NoteText"))
+		_detail.add_child(_label(Texts.text("note.%s.title" % entry.id), &"PaperHeading"))
+		_detail.add_child(_label("%s · %s" % [Texts.text("kind." + entry.kind), Texts.text("world." + entry.world)], &"PaperSmall"))
+		_detail.add_child(_label(Texts.text("note.%s.text" % entry.id), &"PaperText"))
 		if entry.links.is_empty():
 			continue
-		_detail.add_child(_label(Texts.text("notebook.links"), &"NoteSmall"))
+		_detail.add_child(_label(Texts.text("notebook.links"), &"PaperSmall"))
 		for link: Dictionary in entry.links:
 			if link.known:
-				_detail.add_child(_note_button("–  " + Texts.text("note.%s.title" % link.id), &"NoteLink", link.id))
+				_detail.add_child(_note_button("–  " + Texts.text("note.%s.title" % link.id), &"PaperLink", link.id))
 			else:
-				_detail.add_child(_label("–  " + Texts.text("notebook.unknown"), &"NoteMissing"))
+				_detail.add_child(_label("–  " + Texts.text("notebook.unknown"), &"PaperMissing"))
 
 
 func _label(text: String, variation: StringName) -> Label:
@@ -189,7 +203,7 @@ func _note_button(text: String, variation: StringName, note: String) -> Button:
 
 
 func _draw_close() -> void:
-	var color := _theme_color(&"NoteSmall")
+	var color := _theme_color(&"PaperSmall")
 	var inset := CLOSE_SIZE * 0.3
 	var far := CLOSE_SIZE - inset
 	_close.draw_line(Vector2(inset, inset), Vector2(far, far), color, 5.0, true)
@@ -200,7 +214,7 @@ func _draw_close() -> void:
 func _draw_button() -> void:
 	var centre := Vector2.ONE * BUTTON_SIZE * 0.5
 	_button.draw_circle(centre, BUTTON_SIZE * 0.5, BUTTON_COLOR)
-	var paper: StyleBoxFlat = _page.get_theme_stylebox(&"panel", &"NotebookPaper")
+	var paper: StyleBoxFlat = _page.get_theme_stylebox(&"panel", &"Paper")
 	for side: float in [-1.0, 1.0]:
 		_button.draw_colored_polygon(
 			PackedVector2Array([
@@ -210,7 +224,7 @@ func _draw_button() -> void:
 			paper.bg_color
 		)
 	if _unread:
-		_button.draw_circle(Vector2(BUTTON_SIZE - 14, 14), 11.0, _theme_color(&"NoteLink"))
+		_button.draw_circle(Vector2(BUTTON_SIZE - 14, 14), 11.0, _theme_color(&"PaperLink"))
 
 
 ## Font colour of a variation in the theme.

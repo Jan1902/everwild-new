@@ -20,6 +20,8 @@ var _muffler: AudioEffectLowPassFilter
 
 
 func _ready() -> void:
+	# The music plays on while the game is paused.
+	process_mode = Node.PROCESS_MODE_ALWAYS
 	for player: AudioStreamPlayer in [_current, _leaving]:
 		player.bus = BUS
 		add_child(player)
@@ -62,6 +64,13 @@ func stop() -> void:
 ## Seconds the current track has been playing. -1 without music.
 func position() -> float:
 	return _current.get_playback_position() if _current.playing else -1.0
+
+
+## How loud the music is as a whole, from 0 (silent) to 1.
+func set_volume(volume: float) -> void:
+	var bus := AudioServer.get_bus_index(BUS)
+	AudioServer.set_bus_mute(bus, volume <= 0.0)
+	AudioServer.set_bus_volume_db(bus, linear_to_db(maxf(volume, 0.001)))
 
 
 ## Pitch (1 is normal) and muffling (0 to 1) from the mood of the world.

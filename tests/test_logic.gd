@@ -18,6 +18,7 @@ func _init() -> void:
 	_test_story()
 	_test_save_file()
 	_test_texts()
+	_test_settings()
 	print("%d checks, %d failed" % [_checks, _failures])
 	quit(1 if _failures > 0 else 0)
 
@@ -344,7 +345,10 @@ func _test_texts() -> void:
 					needed[effect["say"]] = true
 					needed["name." + effect.get("who", "self")] = true
 		needed["world." + world_id] = true
-	for key: String in ["start.advice", "start.begin", "notebook.title", "notebook.empty", "notebook.links", "notebook.unknown"]:
+	for key: String in ["start.advice", "start.begin", "notebook.title", "notebook.empty", "notebook.links", "notebook.unknown",
+		"pause.title", "pause.volume", "pause.language", "pause.new_game", "pause.continue", "pause.confirm",
+		"pause.confirm_yes", "pause.confirm_no",
+	]:
 		needed[key] = true
 	var notes := Notebook.read()
 	_check(Notebook.errors(notes).is_empty(), "Notes have errors: %s" % [Notebook.errors(notes)])
@@ -374,6 +378,26 @@ func _test_texts() -> void:
 	_check(Texts.language == "en", "Unknown language does not fall back to English")
 	_check(Texts.lines("old_man.first").size() == 4, "Lines of a dialogue are not read")
 	_check(Texts.text("no.such.text") == "no.such.text", "Missing text does not show as its key")
+
+
+func _test_settings() -> void:
+	var path := "user://test_settings.json"
+	SaveFile.delete(path)
+	var settings := Settings.read(path)
+	_check(settings.music_volume == 1.0 and settings.language.is_empty(), "Settings do not start with their normal values")
+	settings.music_volume = 0.25
+	settings.language = "de"
+	settings.write()
+	var loaded := Settings.read(path)
+	_check(loaded.music_volume == 0.25 and loaded.language == "de", "Settings are not kept")
+	SaveFile.write(path, {"music_volume": "loud", "language": 7})
+	loaded = Settings.read(path)
+	_check(loaded.music_volume == 1.0 and loaded.language.is_empty(), "Spoilt settings are taken over")
+	SaveFile.write(path, {"music_volume": 5.0})
+	_check(Settings.read(path).music_volume == 1.0, "Volume beyond the range is not limited")
+	SaveFile.delete(path)
+	# Without a file nothing is written.
+	Settings.read("").write()
 
 
 ## Plays the story across the worlds the way it is meant to go, and checks that every step has

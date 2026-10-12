@@ -40,8 +40,8 @@ Insgesamt ist der Ablauf zu schnell, zu simpel und zu vorhersehbar. Im Einzelnen
 
 ## Rahmen
 
-1. **Titel, Pause und Einstellungen.** Der Startbildschirm mit dem Hinweis auf Kopfhörer steht und erscheint nur beim allerersten Start. Es fehlen Titel, Fortsetzen, neu beginnen (vorläufig Taste N) und Lautstärke. So wenig wie möglich.
-2. **Sprache wählen.** Die Texte liegen auf Deutsch und Englisch vor, gewählt wird nach der Sprache des Geräts. Eine Umstellung im Spiel fehlt.
+1. **Titelbildschirm.** Der Startbildschirm mit dem Hinweis auf Kopfhörer steht und erscheint nur beim allerersten Start; die Pause-Seite mit Lautstärke, Sprache und „Neu beginnen“ steht auch. Es fehlt ein Titel, sobald der Name feststeht.
+2. **Pause-Seite abstimmen.** Auf dem Handy prüfen: Zurück-Geste (öffnet die Seite, die zweite verlässt das Spiel), Schieberegler mit dem Finger, Größe und Lage des Knopfes. Ein Regler für Geräusche kommt dazu, sobald es welche gibt. Wird die Sprache gewechselt, während ein Dialog offen ist, bleiben dessen schon begonnene Zeilen in der alten Sprache.
 3. **Android weiter prüfen.** Offen sind noch das App-Symbol und ein Blick auf Schriftgrößen und Ränder bei anderen Bildschirmformaten. Der Notizbuch-Knopf sitzt fest 36 Pixel vom Rand und beachtet den sicheren Bereich des Bildschirms (Kamera-Aussparung, runde Ecken) nicht. Nach dem Umbau der Oberfläche auf Controls müssen Dialog, Notizbuch und Startbildschirm einmal auf dem Handy durchgetippt werden; geprüft sind sie bisher nur im Fenster mit nachgestellten Fingertipps.
 4. **Renderer vergleichen.** Das Spiel läuft mit „mobile“ (Vulkan). Für reines 2D auf Android ist „compatibility“ üblicher. Einmal auf dem Handy nebeneinander ansehen.
 

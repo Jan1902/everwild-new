@@ -80,6 +80,13 @@ func say(who: String, lines: Array[String]) -> void:
 		_next()
 
 
+## Drops everything that is being said or still to come.
+func clear() -> void:
+	_queue.clear()
+	if is_open():
+		_next()
+
+
 func _process(delta: float) -> void:
 	if not is_open():
 		return

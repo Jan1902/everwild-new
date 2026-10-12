@@ -42,6 +42,8 @@ var _game := {}
 var _curtain: ColorRect
 var _dialogue := DialogueBox.new()
 var _notebook := NotebookView.new()
+var _pause := PauseView.new()
+var _settings: Settings
 var _travelling := false
 ## False while the start screen is up. The music waits for it.
 var _started := true
@@ -57,16 +59,22 @@ var _arguments := OS.get_cmdline_user_args() if OS.is_debug_build() else PackedS
 
 
 func _ready() -> void:
-	# Runs driven by the test helper leave the player's save alone, unless they name a file.
+	# Runs driven by the test helper leave the player's save and settings alone, unless they
+	# name a file.
+	var settings_path := Settings.DEFAULT_PATH
 	if not _arguments.is_empty():
 		_save_path = ""
+		settings_path = ""
 	var language := ""
 	for argument in _arguments:
 		if argument.begins_with("--save="):
 			_save_path = argument.trim_prefix("--save=")
+		elif argument.begins_with("--settings="):
+			settings_path = argument.trim_prefix("--settings=")
 		elif argument.begins_with("--language="):
 			language = argument.trim_prefix("--language=")
-	Texts.use(language)
+	_settings = Settings.read(settings_path)
+	Texts.use(language if not language.is_empty() else _settings.language)
 
 	_game = JSON.parse_string(FileAccess.get_file_as_string(GAME_PATH))
 	if not _save_path.is_empty():
@@ -84,8 +92,15 @@ func _ready() -> void:
 	_build_grading()
 	_build_curtain()
 	add_child(_music)
+	_music.set_volume(_settings.music_volume)
 	add_child(_notebook)
 	add_child(_dialogue)
+	_pause.set_volume(_settings.music_volume)
+	_pause.volume_changed.connect(_on_volume_changed)
+	_pause.language_changed.connect(_on_language_changed)
+	_pause.new_game_requested.connect(new_game)
+	_pause.closed.connect(_settings.write)
+	add_child(_pause)
 	_camera = Camera2D.new()
 	_camera.zoom = Vector2.ONE * ZOOM
 	_camera.position_smoothing_enabled = true
@@ -107,6 +122,14 @@ func _notification(what: int) -> void:
 	# The last chance to save before the app goes to the background or closes.
 	if what in [NOTIFICATION_APPLICATION_PAUSED, NOTIFICATION_WM_CLOSE_REQUEST, NOTIFICATION_WM_GO_BACK_REQUEST]:
 		save()
+		if _settings:
+			_settings.write()
+	# The back gesture of the phone pauses the game. Only a second one leaves it.
+	if what == NOTIFICATION_WM_GO_BACK_REQUEST and is_node_ready():
+		if _started and not _pause.is_open():
+			_pause.open()
+		else:
+			_quit()
 
 
 func _process(delta: float) -> void:
@@ -191,6 +214,8 @@ func new_game() -> void:
 	var seen := session.state.start_screen_seen
 	session = Session.create(_game)
 	session.state.start_screen_seen = seen
+	_dialogue.clear()
+	_notebook.reset()
 	_build_stage()
 	save()
 
@@ -201,8 +226,20 @@ func save() -> void:
 		push_warning("The game could not be saved to " + _save_path)
 
 
+## Leaves the game. The music has to have died away before Godot closes, otherwise it reports
+## a leak.
+func _quit() -> void:
+	_music.stop()
+	await get_tree().create_timer(0.2).timeout
+	get_tree().quit()
+
+
 func is_talking() -> bool:
 	return _dialogue.is_open()
+
+
+func is_paused() -> bool:
+	return _pause.is_open()
 
 
 ## Opens the notebook, on a certain note if one is given.
@@ -217,6 +254,18 @@ func music_position() -> float:
 
 func stop_music() -> void:
 	_music.stop()
+
+
+func _on_volume_changed(volume: float) -> void:
+	_settings.music_volume = volume
+	_music.set_volume(volume)
+
+
+func _on_language_changed(language: String) -> void:
+	_settings.language = language
+	_settings.write()
+	Texts.use(language)
+	_notebook.retranslate()
 
 
 func _on_start_dismissed() -> void:

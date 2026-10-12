@@ -23,17 +23,18 @@ func _init() -> void:
 	_label(theme, &"DialogueText", 40, PALE)
 	_panel(theme, &"DialoguePanel", Color(NIGHT, 0.84), 18, 36)
 
-	_label(theme, &"NoteHeading", 44, INK)
-	_label(theme, &"NoteText", 34, INK)
-	_label(theme, &"NoteSmall", 28, FAINT)
-	_label(theme, &"NoteFaint", 34, FAINT)
-	_label(theme, &"NoteMissing", 32, FAINT)
-	_panel(theme, &"NotebookPaper", PAPER, 14, 56)
-	_text_button(theme, &"NoteEntry", 34, INK)
-	_text_button(theme, &"NoteEntrySelected", 34, MARK)
-	_text_button(theme, &"NoteLink", 32, MARK)
+	_label(theme, &"PaperHeading", 44, INK)
+	_label(theme, &"PaperText", 34, INK)
+	_label(theme, &"PaperSmall", 28, FAINT)
+	_label(theme, &"PaperFaint", 34, FAINT)
+	_label(theme, &"PaperMissing", 32, FAINT)
+	_panel(theme, &"Paper", PAPER, 14, 56)
+	_text_button(theme, &"PaperEntry", 34, INK)
+	_text_button(theme, &"PaperEntrySelected", 34, MARK)
+	_text_button(theme, &"PaperLink", 32, MARK)
 	# Buttons that draw their own picture.
 	_text_button(theme, &"IconButton", 34, INK)
+	_slider(theme)
 
 	_label(theme, &"StartAdvice", 44, CREAM)
 	_label(theme, &"StartHint", 30, Color(CREAM, 0.55))
@@ -57,6 +58,32 @@ func _panel(theme: Theme, variation: StringName, color: Color, corner: int, marg
 	style.set_content_margin_all(margin)
 	theme.set_type_variation(variation, &"PanelContainer")
 	theme.set_stylebox(&"panel", variation, style)
+
+
+## A slider with a bar thick enough to see and a knob large enough for a finger.
+func _slider(theme: Theme) -> void:
+	var bar := StyleBoxFlat.new()
+	bar.bg_color = Color(INK, 0.2)
+	bar.set_corner_radius_all(5)
+	bar.content_margin_top = 5
+	bar.content_margin_bottom = 5
+	var filled: StyleBoxFlat = bar.duplicate()
+	filled.bg_color = MARK
+	theme.set_stylebox(&"slider", &"HSlider", bar)
+	theme.set_stylebox(&"grabber_area", &"HSlider", filled)
+	theme.set_stylebox(&"grabber_area_highlight", &"HSlider", filled)
+
+	var size := 48
+	var image := Image.create(size, size, false, Image.FORMAT_RGBA8)
+	var centre := Vector2.ONE * (size - 1) * 0.5
+	for y in size:
+		for x in size:
+			# One pixel of soft edge.
+			var opacity := clampf(size * 0.5 - 1.0 - Vector2(x, y).distance_to(centre), 0.0, 1.0)
+			image.set_pixel(x, y, Color(MARK, opacity))
+	var knob := ImageTexture.create_from_image(image)
+	for state: StringName in [&"grabber", &"grabber_highlight", &"grabber_disabled"]:
+		theme.set_icon(state, &"HSlider", knob)
 
 
 ## A button that is nothing but its text, in the same colour whatever is done to it.

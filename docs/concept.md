@@ -229,6 +229,7 @@ Keys gehören in eine lokale `.env`-Datei, die nicht ins Repository kommt.
 - **Bildmaße als Daten:** Wie ein Bild in der Welt sitzt, steht in einer Datendatei, die das Spiel und die Bildwerkzeuge gemeinsam lesen.
 - **Oberfläche mit Godots eigenen Mitteln:** Dialog, Notizbuch und Startbildschirm bestehen aus Controls mit einem gemeinsamen Theme. Was offen ist, fängt alle Tipps ab, damit keiner zusätzlich in der Welt ankommt. Nur der erste Finger zählt.
 - **Ein unlesbarer Spielstand wird aufgehoben:** Kann das Spiel einen Stand nicht lesen, legt es ihn beiseite und beginnt neu, statt ihn zu überschreiben. Änderungen an Welten oder Objekten, die es nicht mehr gibt, fallen beim Laden weg.
+- **Eine Pause-Seite, sonst nichts:** Ein kleiner Knopf oben links hält das Spiel an und öffnet eine Seite mit Lautstärke der Musik, Sprache, „Neu beginnen“ (mit Rückfrage) und „Weiter“. Die Zurück-Geste des Handys öffnet dieselbe Seite, eine zweite verlässt das Spiel. Es gibt bewusst keinen Knopf „Spiel verlassen“ (auf dem Handy verlässt man eine App über das System) und nur einen einzigen, automatisch gespeicherten Spielstand: In einem Spiel ohne Sackgassen braucht es keine Stände zum Zurückspringen, und der spätere Abgleich mit Google Play bleibt einfach. Lautstärke und Sprache liegen in einer eigenen Datei und überdauern ein neues Spiel.
 - **Test-Hilfen nur in Debug-Bauten:** Kommandozeilen-Argumente und die Tasten zum Ausprobieren wirken in einem Release-Bau nicht.
 
 ### Verworfen
