@@ -1,6 +1,6 @@
 # Everwild – Konzept und Entscheidungen
 
-Stand: 2026-10-11. „Everwild“ ist ein Arbeitstitel (siehe Offene Punkte).
+Stand: 2026-10-12. „Everwild“ ist ein Arbeitstitel (siehe Offene Punkte).
 
 Dieses Dokument hält fest, was entschieden ist, was noch offen ist und wie die Arbeit aufgeteilt wird. Es wird bei jeder neuen Entscheidung aktualisiert.
 
@@ -224,6 +224,12 @@ Keys gehören in eine lokale `.env`-Datei, die nicht ins Repository kommt.
 - **Welten reagieren aufeinander:** Regeln mit dem Auslöser `always` feuern von selbst, sobald ihre Bedingungen gelten, auch wenn die Ursache in einer anderen Welt liegt (die Mühle dreht sich, also treibt das Floß an der Quelle zurück).
 - **Bewegte Teile aus zwei Bildern:** Die Mühlenflügel sind ein eigenes, von vorn gemaltes Bild, das die Engine in die Wandebene legt und dreht.
 - **Texte je Sprache:** Alle sichtbaren Texte stehen in Sprachdateien (Deutsch und Englisch), Regeln nennen nur Schlüssel.
+- **Regeln werden geprüft, bevor sie laufen:** Ein Prüfer liest alle Regeln, Fehler und Startfolgen und meldet jeden Schlüssel und jeden Namen, den das Spiel nicht kennt. Ohne ihn wirkt ein Tippfehler still: Eine falsch geschriebene Bedingung gilt nie, eine falsch geschriebene Folge tut nichts. Die Prüfung läuft im Test und beim Start eines Debug-Baus.
+- **Erreichbarkeit gehört zur Logik:** Ein Objekt lässt sich nur von einer Zelle aus benutzen, von der es erreichbar ist. Das entscheidet die Spiellogik, nicht die Ansicht.
+- **Bildmaße als Daten:** Wie ein Bild in der Welt sitzt, steht in einer Datendatei, die das Spiel und die Bildwerkzeuge gemeinsam lesen.
+- **Oberfläche mit Godots eigenen Mitteln:** Dialog, Notizbuch und Startbildschirm bestehen aus Controls mit einem gemeinsamen Theme. Was offen ist, fängt alle Tipps ab, damit keiner zusätzlich in der Welt ankommt. Nur der erste Finger zählt.
+- **Ein unlesbarer Spielstand wird aufgehoben:** Kann das Spiel einen Stand nicht lesen, legt es ihn beiseite und beginnt neu, statt ihn zu überschreiben. Änderungen an Welten oder Objekten, die es nicht mehr gibt, fallen beim Laden weg.
+- **Test-Hilfen nur in Debug-Bauten:** Kommandozeilen-Argumente und die Tasten zum Ausprobieren wirken in einem Release-Bau nicht.
 
 ### Verworfen
 

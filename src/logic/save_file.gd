@@ -3,6 +3,8 @@ extends RefCounted
 ## Writes the game state to a file on the device and reads it back.
 
 const DEFAULT_PATH := "user://save.json"
+## Ending of a save that was set aside.
+const UNUSABLE := ".unusable"
 
 
 ## Writes saved data. The file is written under another name first and then swapped in, so a
@@ -25,6 +27,13 @@ static func read(path: String) -> Variant:
 	if json.parse(FileAccess.get_file_as_string(path)) != OK:
 		return null
 	return json.data
+
+
+## Moves a save the game cannot use out of the way, to "<path>.unusable", so the next save does
+## not overwrite it. An earlier file set aside is replaced. Does nothing if there is no file.
+static func set_aside(path: String) -> void:
+	if FileAccess.file_exists(path):
+		DirAccess.rename_absolute(path, path + UNUSABLE)
 
 
 static func delete(path: String) -> void:

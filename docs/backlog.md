@@ -9,6 +9,10 @@ Die Reihenfolge innerhalb eines Abschnitts ist die vorgeschlagene Reihenfolge de
 Spielspeicher, Regeln je Welt, Stimmung aus dem Zustand, Lösbarkeitsprüfung und lokale Speicherung stehen. Es fehlt:
 
 1. **Speicherung in Google Play.** Spielstand über Google Play Games (Saved Games) sichern und zwischen Geräten abgleichen, mit Regel für Konflikte zwischen lokalem und entferntem Stand.
+2. **Alte Spielstände nach Änderungen am Inhalt.** Ein Stand mit anderer Formatversion wird beiseitegelegt und das Spiel beginnt neu; eine Umwandlung alter Stände gibt es noch nicht. Ändert sich eine Welt, liegen alte Abweichungen ungeprüft über der neuen Fassung (nur verschwundene Welten und Objekte fallen weg). Braucht vor dem ersten Bau für andere Spieler eine Inhaltsversion und eine Regel, was mit einem Stand aus einer älteren Fassung geschieht.
+3. **Strengere Prüfung des Codes.** Regeln, Folgen und Bedingungen sind weiterhin untypisierte Dictionaries (geprüft von `RuleCheck`). Offen sind strengere GDScript-Warnungen in `project.godot`, ein Formatierer oder Linter (gdtoolkit) und ein Testlauf, der vor jedem Commit von selbst startet.
+4. **Sonderfälle je Objektart in der Ansicht.** Das Notizbuch auf dem Tisch und die Platzhalter-Zeichnungen stehen noch als Sonderfälle in `ObjectView`.
+5. **Tests der Geschichte.** `_test_story` und `_test_village_game` hängen an festen Zellen und Textschlüsseln und müssen mit der Überarbeitung der Geschichte neu geschrieben werden.
 
 ## Spielinhalt
 
@@ -38,7 +42,8 @@ Insgesamt ist der Ablauf zu schnell, zu simpel und zu vorhersehbar. Im Einzelnen
 
 1. **Titel, Pause und Einstellungen.** Der Startbildschirm mit dem Hinweis auf Kopfhörer steht und erscheint nur beim allerersten Start. Es fehlen Titel, Fortsetzen, neu beginnen (vorläufig Taste N) und Lautstärke. So wenig wie möglich.
 2. **Sprache wählen.** Die Texte liegen auf Deutsch und Englisch vor, gewählt wird nach der Sprache des Geräts. Eine Umstellung im Spiel fehlt.
-3. **Android weiter prüfen.** Der Testbau läuft auf Jans Handy einwandfrei. Offen sind noch das App-Symbol und ein Blick auf Schriftgrößen und Ränder bei anderen Bildschirmformaten.
+3. **Android weiter prüfen.** Offen sind noch das App-Symbol und ein Blick auf Schriftgrößen und Ränder bei anderen Bildschirmformaten. Der Notizbuch-Knopf sitzt fest 36 Pixel vom Rand und beachtet den sicheren Bereich des Bildschirms (Kamera-Aussparung, runde Ecken) nicht. Nach dem Umbau der Oberfläche auf Controls müssen Dialog, Notizbuch und Startbildschirm einmal auf dem Handy durchgetippt werden; geprüft sind sie bisher nur im Fenster mit nachgestellten Fingertipps.
+4. **Renderer vergleichen.** Das Spiel läuft mit „mobile“ (Vulkan). Für reines 2D auf Android ist „compatibility“ üblicher. Einmal auf dem Handy nebeneinander ansehen.
 
 ## Grafik und Ton
 
@@ -55,4 +60,5 @@ Insgesamt ist der Ablauf zu schnell, zu simpel und zu vorhersehbar. Im Einzelnen
 
 - Name: „Everwild“ ist durch Rare belegt und bleibt Arbeitstitel. Ein eigener Name muss stehen, bevor der Eintrag im Play Store angelegt wird (die Paket-ID lässt sich danach nicht mehr ändern).
 - Bleibt `.vscode/settings.json` im Repository?
+- Soll die Figur stehen bleiben, wenn beim Betreten einer Zelle ein Dialog aufgeht? Bisher läuft sie weiter zum Ziel, während der Text erscheint.
 - Umfang der ersten Fassung: wie viele Welten.

@@ -2,17 +2,14 @@ class_name NotebookView
 extends CanvasLayer
 ## The notebook: a small button in the corner that opens a page with everything the player has
 ## found. The button only shows once the player carries the notebook. While the page is open it
-## takes all taps. It closes with the cross in its corner, the button, or a tap beside the page.
+## takes all taps. It closes with the cross in its corner or a tap beside the page.
 
-const PAPER := Color(0.93, 0.89, 0.8)
-const INK := Color(0.2, 0.17, 0.15)
-const FAINT := Color(0.2, 0.17, 0.15, 0.55)
-const MARK := Color(0.72, 0.36, 0.24)
 const BUTTON_SIZE := 92.0
 ## Size of the area that reacts to a tap on the cross. Larger than the cross itself, for fingers.
 const CLOSE_SIZE := 76.0
 ## Item the player has to carry for the notebook to be there.
 const ITEM := "notebook"
+const BUTTON_COLOR := Color(0.09, 0.1, 0.14, 0.6)
 
 var session: Session
 
@@ -20,53 +17,51 @@ var _notes := {}
 var _entries: Array[Dictionary] = []
 var _selected := ""
 var _unread := false
-var _button: Control
-var _page: Control
-var _close: Control
-var _list: VBoxContainer
-var _detail: VBoxContainer
-## Controls that react to a tap, each with the id of the note they show.
-var _targets: Array[Dictionary] = []
+var _open := false
+var _button := Button.new()
+## Dims the world behind the page and catches every tap beside it.
+var _page := ColorRect.new()
+var _close := Button.new()
+var _list := VBoxContainer.new()
+var _detail := VBoxContainer.new()
 
 
 func _ready() -> void:
 	layer = 15
 	_notes = Notebook.read()
 
-	_button = Control.new()
+	_button.theme_type_variation = &"IconButton"
+	_button.focus_mode = Control.FOCUS_NONE
 	_button.anchor_left = 1.0
 	_button.anchor_right = 1.0
 	_button.offset_left = -BUTTON_SIZE - 36.0
 	_button.offset_right = -36.0
 	_button.offset_top = 36.0
 	_button.offset_bottom = 36.0 + BUTTON_SIZE
-	_button.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_button.draw.connect(_draw_button)
+	_button.pressed.connect(open)
 	add_child(_button)
 
-	_page = ColorRect.new()
 	_page.color = Color(0, 0, 0, 0.55)
 	_page.set_anchors_preset(Control.PRESET_FULL_RECT)
-	_page.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_page.mouse_filter = Control.MOUSE_FILTER_STOP
+	_page.gui_input.connect(_on_page_input)
 	_page.visible = false
 	add_child(_page)
 
-	var style := StyleBoxFlat.new()
-	style.bg_color = PAPER
-	style.set_corner_radius_all(14)
-	style.set_content_margin_all(56)
+	# The paper takes the taps that land on it, so they do not count as beside the page.
 	var paper := PanelContainer.new()
-	paper.name = "Paper"
-	paper.add_theme_stylebox_override("panel", style)
+	paper.theme_type_variation = &"NotebookPaper"
 	paper.anchor_left = 0.12
 	paper.anchor_right = 0.88
 	paper.anchor_top = 0.1
 	paper.anchor_bottom = 0.9
-	paper.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	paper.mouse_filter = Control.MOUSE_FILTER_STOP
 	_page.add_child(paper)
 
 	# The cross in the upper right corner of the paper.
-	_close = Control.new()
+	_close.theme_type_variation = &"IconButton"
+	_close.focus_mode = Control.FOCUS_NONE
 	_close.anchor_left = paper.anchor_right
 	_close.anchor_right = paper.anchor_right
 	_close.anchor_top = paper.anchor_top
@@ -75,25 +70,23 @@ func _ready() -> void:
 	_close.offset_right = -16.0
 	_close.offset_top = 16.0
 	_close.offset_bottom = 16.0 + CLOSE_SIZE
-	_close.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_close.draw.connect(_draw_close)
+	_close.pressed.connect(close)
 	_page.add_child(_close)
 
 	var columns := HBoxContainer.new()
 	columns.add_theme_constant_override("separation", 64)
 	paper.add_child(columns)
-	_list = VBoxContainer.new()
 	_list.custom_minimum_size.x = 460.0
 	_list.add_theme_constant_override("separation", 18)
 	columns.add_child(_list)
-	_detail = VBoxContainer.new()
 	_detail.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_detail.add_theme_constant_override("separation", 20)
 	columns.add_child(_detail)
 
 
 func is_open() -> bool:
-	return _page.visible
+	return _open
 
 
 ## Shows or hides the button, depending on whether the player carries the notebook.
@@ -109,12 +102,14 @@ func open(note := "") -> void:
 	elif _selected not in known:
 		_selected = "" if known.is_empty() else known[-1]
 	_unread = false
+	_open = true
 	_page.visible = true
 	_fill()
 	_button.queue_redraw()
 
 
 func close() -> void:
+	_open = false
 	_page.visible = false
 
 
@@ -124,93 +119,100 @@ func mark_unread() -> void:
 	_button.queue_redraw()
 
 
-func _input(event: InputEvent) -> void:
+func _on_page_input(event: InputEvent) -> void:
+	# A tap arrives as a touch and as a mouse click. Only the touch of the first finger counts.
 	var touch := event as InputEventScreenTouch
-	if touch == null:
-		return
-	var on_button := _button.visible and _button.get_global_rect().has_point(touch.position)
-	if not is_open():
-		if on_button:
-			get_viewport().set_input_as_handled()
-			if touch.pressed:
-				open()
-		return
-	get_viewport().set_input_as_handled()
-	if not touch.pressed:
-		return
-	if _close.get_global_rect().has_point(touch.position):
-		close()
-		return
-	for target in _targets:
-		if target.control.get_global_rect().has_point(touch.position):
-			_selected = target.id
-			_fill()
-			return
-	if on_button or not _page.get_node("Paper").get_global_rect().has_point(touch.position):
-		close()
+	if touch and touch.pressed and touch.index == 0 and _open:
+		_open = false
+		# The page stays until the tap has passed, so it does not reach the world as well.
+		_hide_page.call_deferred()
+
+
+func _hide_page() -> void:
+	_page.visible = _open
+
+
+func _select(note: String) -> void:
+	_selected = note
+	# The button that was pressed is one of those the page is built from anew.
+	_fill.call_deferred()
 
 
 func _fill() -> void:
-	_targets.clear()
 	for column: Node in [_list, _detail]:
 		for child in column.get_children():
 			column.remove_child(child)
 			child.queue_free()
 
-	_list.add_child(_label(Texts.text("notebook.title"), 44, INK))
+	_list.add_child(_label(Texts.text("notebook.title"), &"NoteHeading"))
 	if _entries.is_empty():
-		_detail.add_child(_label(Texts.text("notebook.empty"), 34, FAINT))
+		_detail.add_child(_label(Texts.text("notebook.empty"), &"NoteFaint"))
 		return
 	for entry in _entries:
-		var title := _label(Texts.text("note.%s.title" % entry.id), 34, MARK if entry.id == _selected else INK)
-		_list.add_child(title)
-		_targets.append({"control": title, "id": entry.id})
+		var variation := &"NoteEntrySelected" if entry.id == _selected else &"NoteEntry"
+		_list.add_child(_note_button(Texts.text("note.%s.title" % entry.id), variation, entry.id))
 
 	for entry in _entries:
 		if entry.id != _selected:
 			continue
-		_detail.add_child(_label(Texts.text("note.%s.title" % entry.id), 44, INK))
-		_detail.add_child(_label("%s · %s" % [Texts.text("kind." + entry.kind), Texts.text("world." + entry.world)], 28, FAINT))
-		_detail.add_child(_label(Texts.text("note.%s.text" % entry.id), 34, INK))
+		_detail.add_child(_label(Texts.text("note.%s.title" % entry.id), &"NoteHeading"))
+		_detail.add_child(_label("%s · %s" % [Texts.text("kind." + entry.kind), Texts.text("world." + entry.world)], &"NoteSmall"))
+		_detail.add_child(_label(Texts.text("note.%s.text" % entry.id), &"NoteText"))
 		if entry.links.is_empty():
 			continue
-		_detail.add_child(_label(Texts.text("notebook.links"), 28, FAINT))
+		_detail.add_child(_label(Texts.text("notebook.links"), &"NoteSmall"))
 		for link: Dictionary in entry.links:
 			if link.known:
-				var related := _label("–  " + Texts.text("note.%s.title" % link.id), 32, MARK)
-				_detail.add_child(related)
-				_targets.append({"control": related, "id": link.id})
+				_detail.add_child(_note_button("–  " + Texts.text("note.%s.title" % link.id), &"NoteLink", link.id))
 			else:
-				_detail.add_child(_label("–  " + Texts.text("notebook.unknown"), 32, FAINT))
+				_detail.add_child(_label("–  " + Texts.text("notebook.unknown"), &"NoteMissing"))
 
 
-func _label(text: String, font_size: int, color: Color) -> Label:
+func _label(text: String, variation: StringName) -> Label:
 	var label := Label.new()
 	label.text = text
+	label.theme_type_variation = variation
 	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	label.add_theme_font_size_override("font_size", font_size)
-	label.add_theme_color_override("font_color", color)
 	return label
 
 
+## A line of text that opens a note when tapped.
+func _note_button(text: String, variation: StringName, note: String) -> Button:
+	var button := Button.new()
+	button.text = text
+	button.theme_type_variation = variation
+	button.focus_mode = Control.FOCUS_NONE
+	button.alignment = HORIZONTAL_ALIGNMENT_LEFT
+	button.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	button.pressed.connect(_select.bind(note))
+	return button
+
+
 func _draw_close() -> void:
+	var color := _theme_color(&"NoteSmall")
 	var inset := CLOSE_SIZE * 0.3
 	var far := CLOSE_SIZE - inset
-	_close.draw_line(Vector2(inset, inset), Vector2(far, far), FAINT, 5.0, true)
-	_close.draw_line(Vector2(far, inset), Vector2(inset, far), FAINT, 5.0, true)
+	_close.draw_line(Vector2(inset, inset), Vector2(far, far), color, 5.0, true)
+	_close.draw_line(Vector2(far, inset), Vector2(inset, far), color, 5.0, true)
 
 
 ## A little book on a dark disc, with a dot while there is something unread.
 func _draw_button() -> void:
 	var centre := Vector2.ONE * BUTTON_SIZE * 0.5
-	_button.draw_circle(centre, BUTTON_SIZE * 0.5, Color(0.09, 0.1, 0.14, 0.6))
+	_button.draw_circle(centre, BUTTON_SIZE * 0.5, BUTTON_COLOR)
+	var paper: StyleBoxFlat = _page.get_theme_stylebox(&"panel", &"NotebookPaper")
 	for side: float in [-1.0, 1.0]:
 		_button.draw_colored_polygon(
 			PackedVector2Array([
 				centre + Vector2(side * 3, -17), centre + Vector2(side * 27, -22),
 				centre + Vector2(side * 27, 16), centre + Vector2(side * 3, 21),
 			]),
-			PAPER
+			paper.bg_color
 		)
 	if _unread:
-		_button.draw_circle(Vector2(BUTTON_SIZE - 14, 14), 11.0, MARK)
+		_button.draw_circle(Vector2(BUTTON_SIZE - 14, 14), 11.0, _theme_color(&"NoteLink"))
+
+
+## Font colour of a variation in the theme.
+func _theme_color(variation: StringName) -> Color:
+	return _page.get_theme_color(&"font_color", variation)

@@ -12,7 +12,8 @@ const LIMIT := 200000
 
 ## Returns
 ##   "states"     number of different states the game can be in
-##   "complete"   false if the search was given up
+##   "complete"   false if the search was given up. States it did not get to then count as
+##                fine: every dead end reported is a real one, but there may be more
 ##   "solution"   shortest list of moves from the start to the completed game, as texts
 ##   "solvable"   whether there is a solution
 ##   "dead_ends"  number of reachable states from which the game can no longer be completed
@@ -72,6 +73,11 @@ static func check(game: Dictionary, sources := {}) -> Dictionary:
 	var queue := goals.duplicate()
 	for goal in goals:
 		good[goal] = true
+	# Nothing is known about states the search did not get to.
+	for unexplored in range(next, saved.size()):
+		if not good.has(unexplored):
+			good[unexplored] = true
+			queue.append(unexplored)
 	while not queue.is_empty():
 		var current: int = queue.pop_back()
 		for leader: int in leaders[current]:
@@ -112,12 +118,12 @@ static func _moves(session: Session) -> Array[Dictionary]:
 		if not rule.is_empty() and not lingering.has(rule):
 			lingering.append(rule)
 			moves.append({"linger": true, "cell": cell})
-	for object in world.objects:
-		if session.interact_rule(object.id).is_empty():
+	for thing in world.objects:
+		if session.interact_rule(thing.id).is_empty():
 			continue
-		for cell in world.cells_beside(object):
+		for cell in world.cells_beside(thing):
 			if area.has(cell):
-				moves.append({"object": object.id, "cell": cell})
+				moves.append({"object": thing.id, "cell": cell})
 				break
 	return moves
 

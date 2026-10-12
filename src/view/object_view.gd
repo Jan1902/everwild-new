@@ -2,41 +2,6 @@ class_name ObjectView
 extends Node2D
 ## Shows an object of the world: as a painted image if there is one, otherwise as a drawn placeholder.
 
-const IMAGE_DIR := "res://assets/objects/"
-## Transparent margin on the left and right as a fraction of the content width. Has to match
-## tools/crop_sprites.py. The wind shader needs it as room to sway.
-const MARGIN := 0.12
-## How the images sit in the world:
-##   width   width of the image content in world pixels
-##   foot    spot in the image content (fraction of width and height) that stands on the ground
-##   offset  position of that spot relative to the centre of the footprint
-##   wind    sways in the wind
-##   light   spot of a light source, in world pixels relative to the foot
-##   base    radius of the soft shadow right at the foot, which anchors the object to the ground
-##   box     wall and ridge height in world pixels; the shadow is then computed from the
-##           footprint instead of the silhouette
-##   wall    the object is flat and upright and stands along a ground axis, like an arch or a
-##           gate; its shadow is cast from that plane instead of from a flat silhouette
-##   image   name of the image file if it is not the kind
-##   sails   windmill sails that turn in the plane of the right wall: "hub" is their centre
-##           relative to the foot, "size" their diameter in world pixels
-## An object in a certain state uses the image "<name>_<state>.png" if there is one.
-const IMAGES := {
-	"house": {"width": 298.0, "foot": Vector2(0.51, 0.985), "offset": Vector2(0, 64), "box": Vector2(105, 215)},
-	"tree": {"width": 190.0, "foot": Vector2(0.49, 0.97), "wind": true, "base": 38.0},
-	"rock": {"width": 84.0, "foot": Vector2(0.5, 0.78), "base": 50.0},
-	"lantern": {"width": 85.0, "foot": Vector2(0.19, 0.97), "light": Vector2(48, -70), "base": 18.0},
-	"bridge": {"width": 127.0, "foot": Vector2(0.499, 0.457)},
-	"old_man": {"width": 52.0, "foot": Vector2(0.5, 0.96), "base": 20.0},
-	"woman": {"width": 39.0, "foot": Vector2(0.5, 0.97), "base": 18.0},
-	"table": {"width": 100.0, "foot": Vector2(0.5, 0.78), "base": 44.0},
-	"cupboard": {"width": 104.0, "foot": Vector2(0.5, 0.85), "base": 46.0},
-	"raft": {"image": "bridge", "width": 127.0, "foot": Vector2(0.499, 0.457)},
-	"mill": {"width": 190.0, "foot": Vector2(0.5, 0.865), "base": 80.0, "sails": {"hub": Vector2(60, -126), "size": 250.0}},
-	"arch": {"width": 104.0, "foot": Vector2(0.516, 0.827), "wall": true, "light": Vector2(0, -36)},
-	"sluice": {"width": 90.0, "foot": Vector2(0.5, 0.82), "wall": true},
-	"miller": {"width": 60.0, "foot": Vector2(0.5, 0.96), "base": 22.0},
-}
 ## States in which an object with a light is dark.
 const UNLIT_STATES := ["out", "closed"]
 ## Radians per second of turning windmill sails.
@@ -49,27 +14,18 @@ const NOTEBOOK_SPOT := Vector2(-12, -38)
 ## Seconds an object takes to slide to another cell.
 const MOVE_DURATION := 0.45
 
-## Brightness of all lights, set from the mood of the world.
-static var light := 1.0
-## Shadow cast in the ground plane, set from the mood of the world.
-static var shadow_cast := Vector2(0.5, 0.2)
-
-static var _wind_material: ShaderMaterial
-static var _shadow_material: ShaderMaterial
-## Shadow materials for upright flat objects, one per direction they can stand in.
-static var _wall_shadow_materials := {}
-static var _light_blob: GradientTexture2D
-static var _base_blob: GradientTexture2D
-## Kind -> which pixels of its image are painted, for telling what a tap hits.
-static var _masks := {}
-
 var kind := ""
 var size := Vector2i.ONE
 ## Shadow of the object for the shadow layer, made by build_shadow(). Null if it casts none.
 var shadow: Node2D
+## Brightness of the object's light, from the mood of the world.
+var light := 1.0
 
-var _shown := {}
+var _sprites: Sprites
+var _shown: WorldObject
+var _layout := {}
 var _image: Sprite2D
+var _box_shadow: BoxShadow
 var _glow: Sprite2D
 var _sails: Sprite2D
 var _flicker := 0.0
@@ -77,30 +33,34 @@ var _flicker := 0.0
 
 ## Sets the object up. The node sits at the centre of its footprint so that depth sorting by y
 ## works.
-func setup(object: Dictionary) -> void:
-	_shown = object.duplicate()
+func setup(object: WorldObject, sprites: Sprites) -> void:
+	_sprites = sprites
+	_shown = object.copy()
 	kind = object.kind
 	size = object.size
 	position = _point(object.cell)
 	visible = not object.hidden
+	set_process(false)
 
-	if not IMAGES.has(kind):
+	_layout = sprites.layout(kind)
+	if _layout.is_empty():
 		return
-	var layout: Dictionary = IMAGES[kind]
-	var path := _image_path(layout.get("image", kind), object.state)
+	var layout := _layout
+	var path := sprites.image_path(layout.get("image", kind), object.state)
 	if path.is_empty():
 		return
-	var mirrored: bool = object.mirrored
-	var lit: bool = object.state not in UNLIT_STATES
-	_image = build_image(load(path), layout, mirrored)
+	var mirrored := object.mirrored
+	var lit := object.state not in UNLIT_STATES
+	_image = sprites.build_image(load(path), layout, mirrored)
 	if layout.get("wind", false):
-		_image.material = _get_wind_material()
+		_image.material = sprites.wind_material()
 	if not lit:
 		_image.modulate = UNLIT
 	add_child(_image)
 	if kind == "table" and object.state == "notebook":
 		add_child(_build_notebook())
-	if layout.has("sails") and ResourceLoader.exists(IMAGE_DIR + "sails.png"):
+	var sails_path := sprites.image_path("sails")
+	if layout.has("sails") and not sails_path.is_empty():
 		# The sails are painted from the front. Laid into the plane of the right wall, they turn
 		# like a wheel seen at an angle.
 		var hub: Vector2 = layout.sails.hub
@@ -109,22 +69,24 @@ func setup(object: Dictionary) -> void:
 			Vector2(0.87, -0.435), Vector2(0, 1), _image.position + Vector2(-hub.x if mirrored else hub.x, hub.y)
 		)
 		_sails = Sprite2D.new()
-		_sails.texture = load(IMAGE_DIR + "sails.png")
+		_sails.texture = load(sails_path)
 		_sails.scale = Vector2.ONE * (layout.sails.size / _sails.texture.get_width())
 		_sails.rotation = position.x * 0.01
 		plane.add_child(_sails)
 		add_child(plane)
+		set_process(object.state == "turning")
 
 	if layout.has("light") and lit:
 		var spot: Vector2 = layout.light
 		_glow = Sprite2D.new()
-		_glow.texture = _get_light_blob()
+		_glow.texture = sprites.light_blob()
 		_glow.position = _image.position + Vector2(-spot.x if mirrored else spot.x, spot.y)
 		var add_material := CanvasItemMaterial.new()
 		add_material.blend_mode = CanvasItemMaterial.BLEND_MODE_ADD
 		_glow.material = add_material
 		_flicker = position.x * 0.05
 		add_child(_glow)
+		set_process(true)
 
 
 ## A small closed book lying on the table, drawn from a few flat areas like the painted images.
@@ -149,16 +111,16 @@ func _build_notebook() -> Node2D:
 
 
 ## Whether the view shows the object as it is now.
-func is_current(object: Dictionary) -> bool:
-	return _shown == object
+func is_current(object: WorldObject) -> bool:
+	return _shown.matches(object.properties())
 
 
 ## Slides to the object's cell if that is all that changed. Returns false if the view has to be
 ## built anew instead.
-func follow(object: Dictionary) -> bool:
-	var moved := _shown.duplicate()
+func follow(object: WorldObject) -> bool:
+	var moved := _shown.copy()
 	moved.cell = object.cell
-	if moved != object:
+	if not moved.matches(object.properties()):
 		return false
 	_shown = moved
 	var target := _point(object.cell)
@@ -169,14 +131,6 @@ func follow(object: Dictionary) -> bool:
 	return true
 
 
-## Path of the image for a name in a state. Empty if there is none.
-static func _image_path(image: String, state: String) -> String:
-	for candidate: String in [IMAGE_DIR + image + "_" + state + ".png", IMAGE_DIR + image + ".png"]:
-		if ResourceLoader.exists(candidate):
-			return candidate
-	return ""
-
-
 ## Whether the image of the object is under this point of the world.
 func covers(point: Vector2) -> bool:
 	if not visible:
@@ -185,45 +139,48 @@ func covers(point: Vector2) -> bool:
 		# Placeholders are drawn about one cell wide and a person tall.
 		return Rect2(-40, -84, 80, 96).has_point(point - position)
 	var pixel := Vector2i((point - position - _image.position) / _image.scale - _image.offset)
-	var mask := _get_mask(_image.texture.resource_path, _image.texture)
-	if not Rect2i(Vector2i.ZERO, mask.get_size()).has_point(pixel):
-		return false
 	if _image.flip_h:
-		pixel.x = mask.get_size().x - 1 - pixel.x
-	return mask.get_bitv(pixel)
+		pixel.x = _image.texture.get_width() - 1 - pixel.x
+	return _sprites.is_painted(_image.texture, pixel)
 
 
 ## Builds the shadow of the object as a separate node for the shadow layer. Null if it casts none.
 func build_shadow() -> Node2D:
-	if _image == null or kind in World.FLAT_KINDS or not visible:
+	if _image == null or _shown.is_flat() or not visible:
 		return null
-	var layout: Dictionary = IMAGES[kind]
+	var layout := _layout
 	shadow = Node2D.new()
 
 	if layout.has("box"):
 		shadow.position = position
-		var box := BoxShadow.new()
-		box.size = size
-		box.wall_height = layout.box.x
-		box.ridge_height = layout.box.y
-		shadow.add_child(box)
+		_box_shadow = BoxShadow.new()
+		_box_shadow.size = size
+		_box_shadow.wall_height = layout.box.x
+		_box_shadow.ridge_height = layout.box.y
+		shadow.add_child(_box_shadow)
 		return shadow
 
 	shadow.position = position + _image.position
 	# Soft blob right at the foot. Without it the object looks as if it hovers above the ground.
 	# Objects that stand on two legs with air in between, like an arch, have none.
 	if layout.has("base"):
-		var base := Sprite2D.new()
-		base.texture = base_blob()
-		base.modulate = BoxShadow.COLOR
-		base.scale = Vector2(1.0, 0.5) * (layout.base * 2.0 / base.texture.get_width())
-		shadow.add_child(base)
+		shadow.add_child(_sprites.build_base(layout.base))
 
 	var cast := _image.duplicate() as Sprite2D
 	cast.position = Vector2.ZERO
-	cast.material = _wall_shadow_material(_shown.mirrored) if layout.get("wall", false) else shadow_material()
+	if layout.get("wall", false):
+		cast.material = _sprites.wall_shadow_material(_shown.mirrored)
+	else:
+		cast.material = _sprites.shadow_material()
 	shadow.add_child(cast)
 	return shadow
+
+
+## Shadows computed from the footprint follow the shadow cast of the mood. The others get it
+## from the shader.
+func set_shadow_cast(cast: Vector2) -> void:
+	if _box_shadow:
+		_box_shadow.cast = cast
 
 
 func _process(delta: float) -> void:
@@ -254,93 +211,6 @@ func _draw() -> void:
 			_draw_house()
 		"person", "old_man", "woman", "miller":
 			_draw_person()
-
-
-## Image with its foot point at the sprite's origin, so mirroring and shadows can hinge on it.
-static func build_image(texture: Texture2D, layout: Dictionary, mirrored: bool) -> Sprite2D:
-	var content := texture.get_width() / (1.0 + 2.0 * MARGIN)
-	var foot: Vector2 = layout.foot
-	var fraction := 1.0 - foot.x if mirrored else foot.x
-	var image := Sprite2D.new()
-	image.texture = texture
-	image.centered = false
-	image.flip_h = mirrored
-	image.offset = -Vector2((MARGIN + fraction) * content, foot.y * texture.get_height())
-	image.scale = Vector2.ONE * (layout.width / content)
-	image.position = layout.get("offset", Vector2.ZERO)
-	return image
-
-
-## Releases the shared materials. Needed on exit, otherwise Godot reports a leak.
-static func cleanup() -> void:
-	_wind_material = null
-	_shadow_material = null
-	_wall_shadow_materials.clear()
-	_light_blob = null
-	_base_blob = null
-	_masks.clear()
-
-
-static func _get_wind_material() -> ShaderMaterial:
-	if _wind_material == null:
-		_wind_material = ShaderMaterial.new()
-		_wind_material.shader = preload("res://src/view/shaders/wind.gdshader")
-	return _wind_material
-
-
-## Material that lays the silhouette of a sprite flat on the ground as its shadow.
-static func shadow_material() -> ShaderMaterial:
-	if _shadow_material == null:
-		_shadow_material = ShaderMaterial.new()
-		_shadow_material.shader = preload("res://src/view/shaders/shadow.gdshader")
-	return _shadow_material
-
-
-static func _get_mask(image_kind: String, texture: Texture2D) -> BitMap:
-	if not _masks.has(image_kind):
-		var mask := BitMap.new()
-		mask.create_from_image_alpha(texture.get_image())
-		_masks[image_kind] = mask
-	return _masks[image_kind]
-
-
-static func _get_light_blob() -> GradientTexture2D:
-	if _light_blob == null:
-		_light_blob = _build_blob(0.0)
-	return _light_blob
-
-
-static func _wall_shadow_material(mirrored: bool) -> ShaderMaterial:
-	if not _wall_shadow_materials.has(mirrored):
-		var material := ShaderMaterial.new()
-		material.shader = preload("res://src/view/shaders/wall_shadow.gdshader")
-		material.set_shader_parameter("axis", -1.0 if mirrored else 1.0)
-		_wall_shadow_materials[mirrored] = material
-	return _wall_shadow_materials[mirrored]
-
-
-## Soft round blob for the shadow right at the foot of an object.
-static func base_blob() -> GradientTexture2D:
-	if _base_blob == null:
-		_base_blob = _build_blob(0.6)
-	return _base_blob
-
-
-## Round blob that is fully opaque up to the fraction core and fades out towards the rim.
-static func _build_blob(core: float) -> GradientTexture2D:
-	var gradient := Gradient.new()
-	gradient.set_color(0, Color(1, 1, 1, 1))
-	gradient.set_color(1, Color(1, 1, 1, 0))
-	if core > 0.0:
-		gradient.add_point(core, Color(1, 1, 1, 1))
-	var blob := GradientTexture2D.new()
-	blob.gradient = gradient
-	blob.fill = GradientTexture2D.FILL_RADIAL
-	blob.fill_from = Vector2(0.5, 0.5)
-	blob.fill_to = Vector2(1.0, 0.5)
-	blob.width = 160
-	blob.height = 160
-	return blob
 
 
 func _draw_ground_shadow(radius: float) -> void:

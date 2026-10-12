@@ -5,19 +5,11 @@ extends Node2D
 var world: World
 
 
-func _ready() -> void:
-	var noise := FastNoiseLite.new()
-	noise.noise_type = FastNoiseLite.TYPE_SIMPLEX_SMOOTH
-	noise.frequency = 0.02
-	var texture := NoiseTexture2D.new()
-	texture.noise = noise
-	texture.seamless = true
-	texture.width = 256
-	texture.height = 256
-
+func _init(shown: World, sprites: Sprites) -> void:
+	world = shown
 	var shader_material := ShaderMaterial.new()
 	shader_material.shader = preload("res://src/view/shaders/water.gdshader")
-	shader_material.set_shader_parameter("noise", texture)
+	shader_material.set_shader_parameter("noise", sprites.water_noise())
 	material = shader_material
 
 

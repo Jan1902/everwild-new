@@ -3,22 +3,15 @@ extends Node2D
 ## The player character. Walks a path of cells and reports every cell it reaches.
 ##
 ## There are images from the front and from behind, both looking to the right. Mirrored, they
-## cover the other two directions. Each view has a standing image and four frames of a walk cycle.
+## cover the other two directions. Each view has a standing image and the frames of a walk cycle.
 
 signal cell_reached(cell: Vector2i)
 
 ## Cells per second.
 const SPEED := 3.5
-const IMAGE_DIR := "res://assets/objects/"
-## Placement of the images, as in ObjectView.IMAGES.
-const LAYOUT := {"width": 44.0, "foot": Vector2(0.5, 0.96)}
-const BASE_RADIUS := 19.0
-## The frames of the walk cycle are wider than the standing image, to leave room for the stride.
-## Has to match WIDTH_FACTOR in tools/walk_images.py.
-const WALK_WIDTH := 1.4
-const WALK_FRAMES := 4
 ## Frames per second of the walk cycle.
 const WALK_SPEED := 7.0
+const VIEWS := ["front", "back"]
 
 ## Cell reached most recently.
 var cell := Vector2i.ZERO
@@ -27,46 +20,42 @@ var shadow := Node2D.new()
 
 var _exact := Vector2.ZERO
 var _path: Array[Vector2i] = []
-var _stride := 0.0
-var _body := Node2D.new()
-var _front: Sprite2D
-var _back: Sprite2D
-## Sprite and frames of the walk cycle for each view.
-var _walking_front: Sprite2D
-var _walking_back: Sprite2D
-var _frames_front: Array[Texture2D] = []
-var _frames_back: Array[Texture2D] = []
+var _body := AnimatedSprite2D.new()
+## Animation -> where its images have to sit (see Sprites.placement). The frames of the walk
+## cycle are wider than the standing image, to leave room for the stride.
+var _placements := {}
 var _towards_viewer := true
-var _cast_front: Sprite2D
-var _cast_back: Sprite2D
+var _facing_left := false
+## View -> the standing image as the shadow it casts.
+var _casts := {}
 
 
-func _init() -> void:
-	add_child(_body)
-	_front = ObjectView.build_image(load(IMAGE_DIR + "player_front.png"), LAYOUT, false)
-	_back = ObjectView.build_image(load(IMAGE_DIR + "player_back.png"), LAYOUT, false)
-	_body.add_child(_front)
-	_body.add_child(_back)
-	for number in range(1, WALK_FRAMES + 1):
-		_frames_front.append(load(IMAGE_DIR + "player_front_walk_%d.png" % number))
-		_frames_back.append(load(IMAGE_DIR + "player_back_walk_%d.png" % number))
-	var walk_layout := {"width": LAYOUT.width * WALK_WIDTH, "foot": LAYOUT.foot}
-	_walking_front = ObjectView.build_image(_frames_front[0], walk_layout, false)
-	_walking_back = ObjectView.build_image(_frames_back[0], walk_layout, false)
-	_body.add_child(_walking_front)
-	_body.add_child(_walking_back)
+func _init(sprites: Sprites) -> void:
+	var layout := sprites.player
+	var walk_layout := {"width": layout.width * sprites.walk_width, "foot": layout.foot}
+	var frames := SpriteFrames.new()
+	frames.remove_animation(&"default")
+	shadow.add_child(sprites.build_base(layout.base))
+	for view: String in VIEWS:
+		var standing: Texture2D = load(sprites.image_path("player_" + view))
+		frames.add_animation("stand_" + view)
+		frames.add_frame("stand_" + view, standing)
+		_placements["stand_" + view] = sprites.placement(standing, layout)
 
-	var base := Sprite2D.new()
-	base.texture = ObjectView.base_blob()
-	base.modulate = BoxShadow.COLOR
-	base.scale = Vector2(1.0, 0.5) * (BASE_RADIUS * 2.0 / base.texture.get_width())
-	shadow.add_child(base)
-	_cast_front = _front.duplicate()
-	_cast_back = _back.duplicate()
-	for cast: Sprite2D in [_cast_front, _cast_back]:
-		cast.material = ObjectView.shadow_material()
+		frames.add_animation("walk_" + view)
+		frames.set_animation_speed("walk_" + view, WALK_SPEED)
+		for number in range(1, sprites.walk_frames + 1):
+			frames.add_frame("walk_" + view, load(sprites.image_path("player_%s_walk_%d" % [view, number])))
+		_placements["walk_" + view] = sprites.placement(frames.get_frame_texture("walk_" + view, 0), walk_layout)
+
+		var cast := sprites.build_image(standing, layout)
+		cast.material = sprites.shadow_material()
 		shadow.add_child(cast)
-	_show_look(false)
+		_casts[view] = cast
+	_body.sprite_frames = frames
+	_body.centered = false
+	add_child(_body)
+	_show_look()
 
 
 func place(new_cell: Vector2i) -> void:
@@ -75,6 +64,7 @@ func place(new_cell: Vector2i) -> void:
 	_path.clear()
 	position = Iso.to_point(_exact)
 	shadow.position = position
+	_show_look()
 
 
 ## Cell a new path has to start from: the target of the step in progress.
@@ -98,7 +88,6 @@ func walk(path: Array[Vector2i]) -> void:
 func _process(delta: float) -> void:
 	if _path.is_empty():
 		return
-	_stride += delta * WALK_SPEED
 	var remaining := SPEED * delta
 	while remaining > 0.0 and not _path.is_empty():
 		var target := Vector2(_path[0])
@@ -107,6 +96,7 @@ func _process(delta: float) -> void:
 			_exact = target
 			remaining -= distance
 			cell = _path.pop_front()
+			# Whoever listens may give the character another path.
 			cell_reached.emit(cell)
 		else:
 			_exact = _exact.move_toward(target, remaining)
@@ -118,22 +108,25 @@ func _process(delta: float) -> void:
 	if absf(step.y) >= 0.01:
 		_towards_viewer = step.y > 0.0
 	if absf(step.x) >= 0.01:
-		_body.scale.x = -1.0 if step.x < 0.0 else 1.0
-	if _path.is_empty():
-		_stride = 0.0
-	_show_look(not _path.is_empty())
+		_facing_left = step.x < 0.0
+	_show_look()
 
 
-## Shows the image that fits the direction and whether the character is walking.
-func _show_look(walking: bool) -> void:
-	var frame := int(_stride) % WALK_FRAMES
-	_walking_front.texture = _frames_front[frame]
-	_walking_back.texture = _frames_back[frame]
-	_front.visible = _towards_viewer and not walking
-	_back.visible = not _towards_viewer and not walking
-	_walking_front.visible = _towards_viewer and walking
-	_walking_back.visible = not _towards_viewer and walking
-	_cast_front.visible = _towards_viewer
-	_cast_back.visible = not _towards_viewer
-	for cast: Sprite2D in [_cast_front, _cast_back]:
-		cast.flip_h = _body.scale.x < 0.0
+## Shows the animation that fits the direction and whether the character is walking.
+func _show_look() -> void:
+	var view: String = VIEWS[0] if _towards_viewer else VIEWS[1]
+	var look := ("walk_" if is_walking() else "stand_") + view
+	if _body.animation != look:
+		# Turning in mid-stride keeps the stride.
+		var in_stride := is_walking() and _body.animation.begins_with("walk_")
+		var frame := _body.frame
+		var progress := _body.frame_progress
+		_body.play(look)
+		if in_stride:
+			_body.set_frame_and_progress(frame, progress)
+	var placed: Dictionary = _placements[look]
+	_body.offset = placed.offset
+	_body.scale = placed.scale * Vector2(-1.0 if _facing_left else 1.0, 1.0)
+	for cast_view: String in _casts:
+		_casts[cast_view].visible = cast_view == view
+		_casts[cast_view].flip_h = _facing_left

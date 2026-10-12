@@ -12,7 +12,7 @@ dest_files=["res://.godot/imported/room_theme.mp3-97c2b98c780960fee5deaff43f3f93
 
 [params]
 
-loop=false
+loop=true
 loop_offset=0
 bpm=0
 beat_count=0

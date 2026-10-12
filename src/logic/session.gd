@@ -3,7 +3,8 @@ extends RefCounted
 ## A running game: the game state together with the worlds it plays in.
 ## Everything the player does goes through enter(), interact() and linger(). They change the
 ## state by the rules of the current world and return the effects that took place, so the view
-## can show them.
+## can show them. RuleCheck knows the same conditions and effects and reports rules that use
+## anything else.
 ##
 ## Conditions (all of a list have to hold; "world" defaults to the world the rule belongs to):
 ##   {"fact": name, "is": value}      a fact has this value (default true; unset facts are false)
@@ -72,6 +73,14 @@ func load_state(saved: Variant) -> bool:
 	if loaded == null or loaded.world not in world_ids():
 		return false
 	state = loaded
+	# Changes to worlds or objects the game no longer has are dropped.
+	for world_id: String in state.objects.keys():
+		if world_id not in world_ids():
+			state.objects.erase(world_id)
+			continue
+		for object_id: String in state.objects[world_id].keys():
+			if world(world_id).get_object(object_id) == null:
+				state.objects[world_id].erase(object_id)
 	for world_id: String in _worlds:
 		_worlds[world_id].apply(state.objects.get(world_id, {}))
 	if not world().is_walkable(state.cell):
@@ -107,9 +116,18 @@ func enter(cell: Vector2i) -> Array:
 	return _fire(enter_rule(cell))
 
 
-## Uses an object of the current world. Returns the effects that took place.
+## Uses an object of the current world. Returns the effects that took place. Does nothing if
+## the player cannot reach it from where they stand.
 func interact(object_id: String) -> Array:
+	if not can_use(object_id):
+		return []
 	return _fire(interact_rule(object_id))
+
+
+## Whether the player stands where the object can be used from.
+func can_use(object_id: String) -> bool:
+	var thing := world().get_object(object_id)
+	return thing != null and not thing.hidden and state.cell in world().cells_beside(thing)
 
 
 ## Fires the rule that waits for the player to stand still where they are. Returns the effects
@@ -136,21 +154,16 @@ func enter_rule(cell: Vector2i) -> Dictionary:
 	return {}
 
 
-## The rule that would fire when the player uses the object. Empty if none would.
+## The rule that would fire when the player uses the object, wherever they stand. Empty if none
+## would.
 func interact_rule(object_id: String) -> Dictionary:
-	if world().object(object_id).get("hidden", true):
+	var thing := world().get_object(object_id)
+	if thing == null or thing.hidden:
 		return {}
 	for rule in world().rules:
 		if rule.get("on") == "interact" and rule.get("object") == object_id and _can_fire(rule):
 			return rule
 	return {}
-
-
-## Whether the object reacts to being used at all, now or in some other state.
-func is_interactive(object_id: String) -> bool:
-	return world().rules.any(
-		func(rule: Dictionary) -> bool: return rule.get("on") == "interact" and rule.get("object") == object_id
-	)
 
 
 func holds(conditions: Array, home: String) -> bool:
@@ -233,7 +246,7 @@ func _fire(rule: Dictionary) -> Array:
 ## Lets all worlds react to the current state. Returns the effects that took place.
 func _react() -> Array:
 	var effects := []
-	for round in REACTION_LIMIT:
+	for attempt in REACTION_LIMIT:
 		var fired := false
 		for world_id: String in world_ids():
 			for rule in world(world_id).rules:
@@ -278,14 +291,8 @@ func _holds(condition: Dictionary, home: String) -> bool:
 	if condition.has("fixed"):
 		return is_fixed(where, condition["fixed"]) == expected
 	if condition.has("object"):
-		var object := world(where).object(condition["object"])
-		if object.is_empty():
-			return false
-		var wanted := World.read_properties(condition)
-		for property: String in wanted:
-			if object[property] != wanted[property]:
-				return false
-		return true
+		var thing := world(where).get_object(condition["object"])
+		return thing != null and thing.matches(World.read_properties(condition))
 	return false
 
 
@@ -293,16 +300,16 @@ func _is_possible(effect: Dictionary, home: String) -> bool:
 	if effect.has("change"):
 		var where: String = effect.get("world", home)
 		var target := world(where)
-		var object := target.object(effect["change"])
+		var thing := target.get_object(effect["change"])
 		var wanted := World.read_properties(effect)
-		if object.is_empty():
+		if thing == null:
 			return false
-		var solid: bool = object.kind not in World.FLAT_KINDS and not wanted.get("hidden", object.hidden)
-		var cell: Vector2i = wanted.get("cell", object.cell)
+		var solid: bool = not thing.is_flat() and not wanted.get("hidden", thing.hidden)
+		var cell: Vector2i = wanted.get("cell", thing.cell)
 		if solid and (wanted.has("cell") or wanted.has("hidden")):
-			if not target.has_room(object, cell):
+			if not target.has_room(thing, cell):
 				return false
-			if where == state.world and Rect2i(cell, object.size).has_point(state.cell):
+			if where == state.world and Rect2i(cell, thing.size).has_point(state.cell):
 				return false
 	elif effect.has("go"):
 		var target := world(effect["go"])

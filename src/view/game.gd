@@ -1,14 +1,12 @@
 extends Node2D
 ## Main scene: runs a session, shows the world the player is in and turns taps into moves.
+## The world on show is a Stage, the music a Music; this script brings them together with the
+## session and decides what happens when.
 
 const GAME_PATH := "res://data/game.json"
 const ZOOM := 1.5
 const SKY_TOP := Color("9db7c9")
 const SKY_BOTTOM := Color("f1dcc0")
-const SHADOW_OPACITY := 0.3
-const MUSIC_VOLUME := -6.0
-## Seconds a track takes to fade in, and the previous one to fade out.
-const MUSIC_CROSSFADE := 3.0
 ## Seconds the mood takes to follow a change of the world.
 const MOOD_CHANGE_DURATION := 2.5
 ## Seconds the picture takes to fade to black, and again to come back, when changing worlds.
@@ -18,32 +16,21 @@ const TRAVEL_FADE := 0.35
 const LINGER_DELAY := 3.5
 const MEMORY_DURATION := 4.5
 ## How far the mood moves towards the remembered one meanwhile.
-const MEMORY_STRENGTH := 0.75
-const GHOST_COLOR := Color(1.15, 1.1, 1.0, 0.6)
+const MEMORY_STRENGTH := 0.5
 
 var session: Session
 ## The world on show, which is the one the player is in.
-var world: World
-var player: Player
+var stage: Stage
 ## How far the shown mood has moved from the previous one (0) to the current one (1).
 var mood_progress := 1.0:
 	set(value):
 		mood_progress = value
 		_apply_mood()
 
-## Everything that belongs to the world on show. Built anew when the player changes worlds.
-var _stage: Node2D
-var _flat: Node2D
-var _shadows: CanvasGroup
-var _layer: Node2D
-var _views := {}
-var _marker: TargetMarker
+var _sprites := Sprites.new()
 var _camera: Camera2D
 var _grading: ShaderMaterial
-var _music: AudioStreamPlayer
-## The track that is fading out while another one fades in.
-var _music_leaving: AudioStreamPlayer
-var _muffler: AudioEffectLowPassFilter
+var _music := Music.new()
 var _mood_from := Mood.new()
 var _mood_to := Mood.new()
 var _mood_change: Tween
@@ -53,28 +40,28 @@ var _target_object := ""
 var _game := {}
 ## Black cover for the change between worlds. While it is up, taps are ignored.
 var _curtain: ColorRect
-var _dialogue: DialogueBox
-var _notebook: NotebookView
+var _dialogue := DialogueBox.new()
+var _notebook := NotebookView.new()
 var _travelling := false
 ## False while the start screen is up. The music waits for it.
 var _started := true
 ## Seconds the player has been standing still, and whether this standstill has shown its memory.
 var _idle := 0.0
 var _lingered := false
-## Images of the objects as the player remembers them, while the memory shows through.
-var _ghosts: Array[ObjectView] = []
+## Ends the memory that is showing through.
 var _memory: Tween
 ## File the game is saved to. Empty for a game that is not saved.
 var _save_path := SaveFile.DEFAULT_PATH
+## Arguments that drive the game for a check (see TestHelper). Only debug builds take any.
+var _arguments := OS.get_cmdline_user_args() if OS.is_debug_build() else PackedStringArray()
 
 
 func _ready() -> void:
 	# Runs driven by the test helper leave the player's save alone, unless they name a file.
-	var arguments := OS.get_cmdline_user_args()
-	if not arguments.is_empty():
+	if not _arguments.is_empty():
 		_save_path = ""
 	var language := ""
-	for argument in arguments:
+	for argument in _arguments:
 		if argument.begins_with("--save="):
 			_save_path = argument.trim_prefix("--save=")
 		elif argument.begins_with("--language="):
@@ -84,16 +71,20 @@ func _ready() -> void:
 	_game = JSON.parse_string(FileAccess.get_file_as_string(GAME_PATH))
 	if not _save_path.is_empty():
 		session = Session.resume(_game, SaveFile.read(_save_path))
+		if session == null:
+			# A save the game cannot read is kept, not overwritten by the new game.
+			SaveFile.set_aside(_save_path)
 	if session == null:
 		session = Session.create(_game)
+	if OS.is_debug_build():
+		for message in RuleCheck.errors(session, Notebook.read()):
+			push_error(message)
 
 	_build_sky()
 	_build_grading()
 	_build_curtain()
-	_build_music()
-	_notebook = NotebookView.new()
+	add_child(_music)
 	add_child(_notebook)
-	_dialogue = DialogueBox.new()
 	add_child(_dialogue)
 	_camera = Camera2D.new()
 	_camera.zoom = Vector2.ONE * ZOOM
@@ -101,19 +92,15 @@ func _ready() -> void:
 	add_child(_camera)
 	# The start screen only shows on the very first start. Runs driven by the test helper skip
 	# it, unless they ask for it.
-	if (arguments.is_empty() and not session.state.start_screen_seen) or "--start-screen" in arguments:
+	if (_arguments.is_empty() and not session.state.start_screen_seen) or "--start-screen" in _arguments:
 		_started = false
 		var start := StartScreen.new()
 		start.dismissed.connect(_on_start_dismissed)
 		add_child(start)
 	_build_stage()
 
-	if not arguments.is_empty():
+	if not _arguments.is_empty():
 		add_child(TestHelper.new())
-
-
-func _exit_tree() -> void:
-	ObjectView.cleanup()
 
 
 func _notification(what: int) -> void:
@@ -125,9 +112,10 @@ func _notification(what: int) -> void:
 func _process(delta: float) -> void:
 	_camera.position = _camera_target()
 
-	if player.is_walking():
+	var walking := stage.player.is_walking()
+	if walking:
 		_lingered = false
-	if player.is_walking() or _travelling or not _started or _dialogue.is_open() or _notebook.is_open():
+	if walking or _travelling or not _started or _dialogue.is_open() or _notebook.is_open():
 		_idle = 0.0
 	elif not _lingered:
 		_idle += delta
@@ -137,14 +125,17 @@ func _process(delta: float) -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
+	# Only the first finger counts; a second one resting on the screen is no tap.
 	var touch := event as InputEventScreenTouch
-	if touch and touch.pressed and not _travelling:
+	if touch and touch.pressed and touch.index == 0 and not _travelling:
 		tap(get_canvas_transform().affine_inverse() * touch.position)
-	# Temporary, for trying things out: F switches between the intact and the broken world.
+	if not OS.is_debug_build():
+		return
+	# For trying things out: F switches between the intact and the broken world, N throws the
+	# saved game away and starts a new one.
 	var key := event as InputEventKey
 	if key and key.pressed and not key.echo and key.physical_keycode == KEY_F:
 		set_broken(session.open_faults().is_empty())
-	# Temporary as well: N throws the saved game away and starts a new one.
 	if key and key.pressed and not key.echo and key.physical_keycode == KEY_N:
 		new_game()
 
@@ -153,16 +144,17 @@ func _unhandled_input(event: InputEvent) -> void:
 func tap(point: Vector2) -> bool:
 	_idle = 0.0
 	_forget()
-	var object_id := _object_at(point)
+	# Objects with nothing to do at the moment let the tap through to the ground.
+	var object_id := stage.object_at(point, func(id: String) -> bool: return not session.interact_rule(id).is_empty())
 	var understood := use(object_id) if not object_id.is_empty() else walk_to(Iso.to_cell(point))
 	if understood:
-		_marker.show_at(point)
+		stage.mark(point)
 	return understood
 
 
 ## Sends the character to a cell. Returns false if there is no path to it.
 func walk_to(cell: Vector2i) -> bool:
-	var path := world.find_path(player.next_stop(), cell)
+	var path := stage.world.find_path(stage.player.next_stop(), cell)
 	if path.is_empty():
 		return false
 	_target_object = ""
@@ -173,9 +165,10 @@ func walk_to(cell: Vector2i) -> bool:
 ## Sends the character next to an object and uses it on arrival. Returns false if there is no
 ## path to it.
 func use(object_id: String) -> bool:
+	var world := stage.world
 	var best: Array[Vector2i] = []
-	for cell in world.cells_beside(world.object(object_id)):
-		var path := world.find_path(player.next_stop(), cell)
+	for cell in world.cells_beside(world.get_object(object_id)):
+		var path := world.find_path(stage.player.next_stop(), cell)
 		if not path.is_empty() and (best.is_empty() or path.size() < best.size()):
 			best = path
 	if best.is_empty():
@@ -187,8 +180,8 @@ func use(object_id: String) -> bool:
 
 ## Turns the world on show into its broken or its intact version. For trying things out.
 func set_broken(enabled: bool, instant := false) -> void:
-	session.apply([{("break" if enabled else "restore"): world.id}], world.id)
-	_sync_objects()
+	session.apply([{("break" if enabled else "restore"): stage.world.id}], stage.world.id)
+	stage.sync()
 	_change_mood(instant)
 	save()
 
@@ -204,8 +197,8 @@ func new_game() -> void:
 
 ## Writes the game to its save file.
 func save() -> void:
-	if session and not _save_path.is_empty():
-		SaveFile.write(_save_path, session.state.to_data())
+	if session and not _save_path.is_empty() and not SaveFile.write(_save_path, session.state.to_data()):
+		push_warning("The game could not be saved to " + _save_path)
 
 
 func is_talking() -> bool:
@@ -219,26 +212,24 @@ func open_notebook(note := "") -> void:
 
 ## Seconds the music track has been playing. -1 without music.
 func music_position() -> float:
-	return _music.get_playback_position() if _music.playing else -1.0
+	return _music.position()
 
 
 func stop_music() -> void:
-	for music: AudioStreamPlayer in [_music, _music_leaving]:
-		music.stop()
-		music.stream = null
+	_music.stop()
 
 
 func _on_start_dismissed() -> void:
 	_started = true
 	session.state.start_screen_seen = true
 	save()
-	_play_music(world.music)
+	_music.play(stage.world.music)
 
 
 func _walk(path: Array[Vector2i]) -> void:
 	_destination = path[-1]
-	player.walk(path)
-	if not player.is_walking():
+	stage.player.walk(path)
+	if not stage.player.is_walking():
 		_arrive()
 
 
@@ -249,8 +240,8 @@ func _on_cell_reached(cell: Vector2i) -> void:
 		if _travelling:
 			return
 		# The rule may have changed what is in the way, so the rest of the path is found anew.
-		player.walk(world.find_path(cell, _destination))
-	if not player.is_walking():
+		stage.player.walk(stage.world.find_path(cell, _destination))
+	if not stage.player.is_walking():
 		_arrive()
 
 
@@ -260,8 +251,7 @@ func _arrive() -> void:
 		return
 	var object_id := _target_object
 	_target_object = ""
-	if player.cell in world.cells_beside(world.object(object_id)):
-		_show(session.interact(object_id))
+	_show(session.interact(object_id))
 
 
 ## The player has stood still for a while: rules waiting for that fire, and the memory of the
@@ -269,35 +259,20 @@ func _arrive() -> void:
 ## leans towards the remembered one.
 func _linger() -> void:
 	_show(session.linger())
-	if _travelling:
+	if _travelling or not stage.remember():
 		return
-	var remembered := world.differences()
-	if remembered.is_empty():
-		return
-	_memory = create_tween().set_parallel()
-	for object in remembered:
-		var ghost := ObjectView.new()
-		ghost.setup(object)
-		ghost.modulate = Color(GHOST_COLOR, 0.0)
-		ghost.z_index = 1
-		_layer.add_child(ghost)
-		_ghosts.append(ghost)
-		_memory.tween_property(ghost, "modulate:a", GHOST_COLOR.a, 1.2).set_trans(Tween.TRANS_SINE)
-	_memory.chain().tween_interval(MEMORY_DURATION)
-	_memory.chain().tween_callback(_forget)
+	_memory = create_tween()
+	_memory.tween_interval(Stage.GHOST_FADE_IN + MEMORY_DURATION)
+	_memory.tween_callback(_forget)
 	_change_mood(false, Mood.blend(session.mood(), session.remembered_mood(), MEMORY_STRENGTH))
 
 
 ## Lets the memory fade again.
 func _forget() -> void:
-	if _ghosts.is_empty():
+	if not stage.is_remembering():
 		return
 	_memory.kill()
-	var fade := create_tween().set_parallel()
-	for ghost in _ghosts:
-		fade.tween_property(ghost, "modulate:a", 0.0, 0.8)
-		fade.tween_callback(ghost.queue_free).set_delay(0.8)
-	_ghosts.clear()
+	stage.forget()
 	_change_mood()
 
 
@@ -316,7 +291,7 @@ func _show(effects: Array) -> void:
 	if effects.any(func(effect: Dictionary) -> bool: return effect.has("go")):
 		_travel()
 	else:
-		_sync_objects()
+		stage.sync()
 		_change_mood()
 	save()
 
@@ -325,7 +300,7 @@ func _show(effects: Array) -> void:
 func _travel() -> void:
 	_travelling = true
 	_target_object = ""
-	player.walk([] as Array[Vector2i])
+	stage.player.walk([] as Array[Vector2i])
 	var fade := create_tween()
 	fade.tween_property(_curtain, "color:a", 1.0, TRAVEL_FADE)
 	fade.tween_callback(_build_stage)
@@ -333,99 +308,29 @@ func _travel() -> void:
 	fade.tween_callback(func() -> void: _travelling = false)
 
 
-## The object under the point that would react to being used now: the one whose image is there,
-## the one furthest in front first, otherwise the one standing on the tapped cell. Empty if there
-## is none. Objects with nothing to do at the moment let the tap through to the ground.
-func _object_at(point: Vector2) -> String:
-	var found := ""
-	var front := -INF
-	for object_id: String in _views:
-		var view: ObjectView = _views[object_id]
-		if view.covers(point) and view.position.y > front and not session.interact_rule(object_id).is_empty():
-			found = object_id
-			front = view.position.y
-	if found.is_empty():
-		var object := world.object_at(Iso.to_cell(point))
-		if not object.is_empty() and not session.interact_rule(object.id).is_empty():
-			found = object.id
-	return found
-
-
+## Puts the world the player is in on show.
 func _build_stage() -> void:
-	if _stage:
-		_stage.queue_free()
-	_views.clear()
-	_ghosts.clear()
+	if stage:
+		stage.retire()
+	if _memory:
+		_memory.kill()
 	_target_object = ""
-	world = session.world()
 	_notebook.session = session
 	_notebook.refresh()
-	for message in world.errors():
-		push_error(message)
+	var world := session.world()
+	if OS.is_debug_build():
+		for message in world.errors():
+			push_error(message)
 
-	_stage = Node2D.new()
-	add_child(_stage)
-	_build_ground()
-
-	var water := WaterView.new()
-	water.world = world
-	_stage.add_child(water)
-
-	# Flat objects such as the bridge lie directly on the ground; the character always walks over them.
-	_flat = Node2D.new()
-	_stage.add_child(_flat)
-
-	# All shadows lie on the ground together. Drawn as one group, they do not get darker where
-	# they overlap.
-	_shadows = CanvasGroup.new()
-	_shadows.fit_margin = 400.0
-	_shadows.clear_margin = 400.0
-	_shadows.self_modulate = Color(1, 1, 1, SHADOW_OPACITY)
-	_stage.add_child(_shadows)
-
-	_marker = TargetMarker.new()
-	_stage.add_child(_marker)
-
-	# All other objects and the character share one layer that sorts by y: whatever stands
-	# further in front covers what is behind.
-	_layer = Node2D.new()
-	_layer.y_sort_enabled = true
-	_stage.add_child(_layer)
-	for object in world.objects:
-		_add_object(object)
-
-	player = Player.new()
-	player.place(session.state.cell)
-	player.cell_reached.connect(_on_cell_reached)
-	_layer.add_child(player)
-	_shadows.add_child(player.shadow)
+	stage = Stage.new(world, _sprites, session.state.cell)
+	stage.player.cell_reached.connect(_on_cell_reached)
+	add_child(stage)
 
 	_camera.position = _camera_target()
 	_camera.reset_smoothing()
-	_play_music(world.music)
+	if _started:
+		_music.play(world.music)
 	_change_mood(true)
-
-
-func _add_object(object: Dictionary) -> void:
-	var view := ObjectView.new()
-	view.setup(object)
-	(_flat if object.kind in World.FLAT_KINDS else _layer).add_child(view)
-	var shadow := view.build_shadow()
-	if shadow:
-		_shadows.add_child(shadow)
-	_views[object.id] = view
-
-
-## Lets the views follow the objects of the world: moved ones slide, changed ones are built anew.
-func _sync_objects() -> void:
-	for object in world.objects:
-		var view: ObjectView = _views[object.id]
-		if view.is_current(object) or view.follow(object):
-			continue
-		if view.shadow:
-			view.shadow.queue_free()
-		view.queue_free()
-		_add_object(object)
 
 
 ## Starts the change from the mood on show to the mood the world has now, or to the given one.
@@ -447,35 +352,15 @@ func _apply_mood() -> void:
 	RenderingServer.global_shader_parameter_set(&"wind", m.wind)
 	RenderingServer.global_shader_parameter_set(&"water", m.water)
 	RenderingServer.global_shader_parameter_set(&"shadow", m.shadow)
-	ObjectView.light = m.light
-	ObjectView.shadow_cast = m.shadow
+	stage.set_mood(m.light, m.shadow)
 	_grading.set_shader_parameter("saturation", m.saturation)
 	_grading.set_shader_parameter("tint", Vector3(m.tint.r, m.tint.g, m.tint.b))
 	_grading.set_shader_parameter("fog", m.fog)
-	_music.pitch_scale = m.pitch
-	_music_leaving.pitch_scale = m.pitch
-	# From open (20 kHz) to heavily muffled (800 Hz), spread evenly by ear.
-	_muffler.cutoff_hz = 20000.0 * pow(0.04, m.muffle)
+	_music.set_mood(m.pitch, m.muffle)
 
 
 func _camera_target() -> Vector2:
-	return player.position + Vector2(0, -40)
-
-
-## Uses the painted ground image of the world. If there is none, the ground is drawn as a placeholder.
-func _build_ground() -> void:
-	var path: String = world.ground_image.get("path", "")
-	if path.is_empty() or not ResourceLoader.exists(path):
-		var placeholder := GroundView.new()
-		placeholder.world = world
-		_stage.add_child(placeholder)
-		return
-	var image := Sprite2D.new()
-	image.texture = load(path)
-	image.centered = false
-	image.position = Vector2(world.ground_image.origin[0], world.ground_image.origin[1])
-	image.scale = Vector2.ONE / world.ground_image.scale
-	_stage.add_child(image)
+	return stage.player.position + Vector2(0, -40)
 
 
 func _build_sky() -> void:
@@ -525,45 +410,3 @@ func _build_curtain() -> void:
 	canvas.layer = 30
 	canvas.add_child(_curtain)
 	add_child(canvas)
-
-
-## A bus of its own for the music, so the muffling does not hit any other sounds.
-func _build_music() -> void:
-	var bus := AudioServer.bus_count
-	AudioServer.add_bus(bus)
-	AudioServer.set_bus_name(bus, "Music")
-	_muffler = AudioEffectLowPassFilter.new()
-	AudioServer.add_bus_effect(bus, _muffler)
-
-	_music = AudioStreamPlayer.new()
-	_music.bus = "Music"
-	add_child(_music)
-	_music_leaving = AudioStreamPlayer.new()
-	_music_leaving.bus = "Music"
-	add_child(_music_leaving)
-
-
-## Fades in the track of a world while the previous one fades out. A track that is already
-## playing just keeps playing.
-func _play_music(path: String) -> void:
-	if not _started or (_music.stream and _music.stream.resource_path == path):
-		return
-	# The two players swap roles: the one that was playing leaves.
-	var leaving := _music
-	_music = _music_leaving
-	_music_leaving = leaving
-	if leaving.playing:
-		var fade := create_tween()
-		fade.tween_property(leaving, "volume_db", -40.0, MUSIC_CROSSFADE)
-		fade.tween_callback(leaving.stop)
-	_music.stop()
-	_music.stream = null
-	if path.is_empty() or not ResourceLoader.exists(path):
-		return
-	var track: AudioStream = load(path)
-	if track is AudioStreamMP3:
-		track.loop = true
-	_music.stream = track
-	_music.volume_db = -40.0
-	_music.play()
-	create_tween().tween_property(_music, "volume_db", MUSIC_VOLUME, MUSIC_CROSSFADE)

@@ -1,0 +1,117 @@
+[gd_resource type="Theme" format=3]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_oeq2y"]
+content_margin_left = 36.0
+content_margin_top = 36.0
+content_margin_right = 36.0
+content_margin_bottom = 36.0
+bg_color = Color(0.09, 0.1, 0.14, 0.84)
+corner_radius_top_left = 18
+corner_radius_top_right = 18
+corner_radius_bottom_right = 18
+corner_radius_bottom_left = 18
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_6cha6"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_ib6tx"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_fenpc"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_omlnh"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_lvrds"]
+content_margin_left = 56.0
+content_margin_top = 56.0
+content_margin_right = 56.0
+content_margin_bottom = 56.0
+bg_color = Color(0.93, 0.89, 0.8, 1)
+corner_radius_top_left = 14
+corner_radius_top_right = 14
+corner_radius_bottom_right = 14
+corner_radius_bottom_left = 14
+
+[resource]
+default_font_size = 34
+DialogueName/base_type = &"Label"
+DialogueName/colors/font_color = Color(0.95, 0.8, 0.55, 1)
+DialogueName/font_sizes/font_size = 30
+DialoguePanel/base_type = &"PanelContainer"
+DialoguePanel/styles/panel = SubResource("StyleBoxFlat_oeq2y")
+DialogueText/base_type = &"Label"
+DialogueText/colors/font_color = Color(0.96, 0.95, 0.92, 1)
+DialogueText/font_sizes/font_size = 40
+IconButton/base_type = &"Button"
+IconButton/colors/font_color = Color(0.2, 0.17, 0.15, 1)
+IconButton/colors/font_focus_color = Color(0.2, 0.17, 0.15, 1)
+IconButton/colors/font_hover_color = Color(0.2, 0.17, 0.15, 1)
+IconButton/colors/font_hover_pressed_color = Color(0.2, 0.17, 0.15, 1)
+IconButton/colors/font_pressed_color = Color(0.2, 0.17, 0.15, 1)
+IconButton/font_sizes/font_size = 34
+IconButton/styles/disabled = SubResource("StyleBoxEmpty_6cha6")
+IconButton/styles/focus = SubResource("StyleBoxEmpty_6cha6")
+IconButton/styles/hover = SubResource("StyleBoxEmpty_6cha6")
+IconButton/styles/hover_pressed = SubResource("StyleBoxEmpty_6cha6")
+IconButton/styles/normal = SubResource("StyleBoxEmpty_6cha6")
+IconButton/styles/pressed = SubResource("StyleBoxEmpty_6cha6")
+NoteEntry/base_type = &"Button"
+NoteEntry/colors/font_color = Color(0.2, 0.17, 0.15, 1)
+NoteEntry/colors/font_focus_color = Color(0.2, 0.17, 0.15, 1)
+NoteEntry/colors/font_hover_color = Color(0.2, 0.17, 0.15, 1)
+NoteEntry/colors/font_hover_pressed_color = Color(0.2, 0.17, 0.15, 1)
+NoteEntry/colors/font_pressed_color = Color(0.2, 0.17, 0.15, 1)
+NoteEntry/font_sizes/font_size = 34
+NoteEntry/styles/disabled = SubResource("StyleBoxEmpty_ib6tx")
+NoteEntry/styles/focus = SubResource("StyleBoxEmpty_ib6tx")
+NoteEntry/styles/hover = SubResource("StyleBoxEmpty_ib6tx")
+NoteEntry/styles/hover_pressed = SubResource("StyleBoxEmpty_ib6tx")
+NoteEntry/styles/normal = SubResource("StyleBoxEmpty_ib6tx")
+NoteEntry/styles/pressed = SubResource("StyleBoxEmpty_ib6tx")
+NoteEntrySelected/base_type = &"Button"
+NoteEntrySelected/colors/font_color = Color(0.72, 0.36, 0.24, 1)
+NoteEntrySelected/colors/font_focus_color = Color(0.72, 0.36, 0.24, 1)
+NoteEntrySelected/colors/font_hover_color = Color(0.72, 0.36, 0.24, 1)
+NoteEntrySelected/colors/font_hover_pressed_color = Color(0.72, 0.36, 0.24, 1)
+NoteEntrySelected/colors/font_pressed_color = Color(0.72, 0.36, 0.24, 1)
+NoteEntrySelected/font_sizes/font_size = 34
+NoteEntrySelected/styles/disabled = SubResource("StyleBoxEmpty_fenpc")
+NoteEntrySelected/styles/focus = SubResource("StyleBoxEmpty_fenpc")
+NoteEntrySelected/styles/hover = SubResource("StyleBoxEmpty_fenpc")
+NoteEntrySelected/styles/hover_pressed = SubResource("StyleBoxEmpty_fenpc")
+NoteEntrySelected/styles/normal = SubResource("StyleBoxEmpty_fenpc")
+NoteEntrySelected/styles/pressed = SubResource("StyleBoxEmpty_fenpc")
+NoteFaint/base_type = &"Label"
+NoteFaint/colors/font_color = Color(0.2, 0.17, 0.15, 0.55)
+NoteFaint/font_sizes/font_size = 34
+NoteHeading/base_type = &"Label"
+NoteHeading/colors/font_color = Color(0.2, 0.17, 0.15, 1)
+NoteHeading/font_sizes/font_size = 44
+NoteLink/base_type = &"Button"
+NoteLink/colors/font_color = Color(0.72, 0.36, 0.24, 1)
+NoteLink/colors/font_focus_color = Color(0.72, 0.36, 0.24, 1)
+NoteLink/colors/font_hover_color = Color(0.72, 0.36, 0.24, 1)
+NoteLink/colors/font_hover_pressed_color = Color(0.72, 0.36, 0.24, 1)
+NoteLink/colors/font_pressed_color = Color(0.72, 0.36, 0.24, 1)
+NoteLink/font_sizes/font_size = 32
+NoteLink/styles/disabled = SubResource("StyleBoxEmpty_omlnh")
+NoteLink/styles/focus = SubResource("StyleBoxEmpty_omlnh")
+NoteLink/styles/hover = SubResource("StyleBoxEmpty_omlnh")
+NoteLink/styles/hover_pressed = SubResource("StyleBoxEmpty_omlnh")
+NoteLink/styles/normal = SubResource("StyleBoxEmpty_omlnh")
+NoteLink/styles/pressed = SubResource("StyleBoxEmpty_omlnh")
+NoteMissing/base_type = &"Label"
+NoteMissing/colors/font_color = Color(0.2, 0.17, 0.15, 0.55)
+NoteMissing/font_sizes/font_size = 32
+NoteSmall/base_type = &"Label"
+NoteSmall/colors/font_color = Color(0.2, 0.17, 0.15, 0.55)
+NoteSmall/font_sizes/font_size = 28
+NoteText/base_type = &"Label"
+NoteText/colors/font_color = Color(0.2, 0.17, 0.15, 1)
+NoteText/font_sizes/font_size = 34
+NotebookPaper/base_type = &"PanelContainer"
+NotebookPaper/styles/panel = SubResource("StyleBoxFlat_lvrds")
+StartAdvice/base_type = &"Label"
+StartAdvice/colors/font_color = Color(0.93, 0.9, 0.84, 1)
+StartAdvice/font_sizes/font_size = 44
+StartHint/base_type = &"Label"
+StartHint/colors/font_color = Color(0.93, 0.9, 0.84, 0.55)
+StartHint/font_sizes/font_size = 30

@@ -26,10 +26,6 @@ static func read(of_language: String) -> Dictionary:
 	return data if data is Dictionary else {}
 
 
-static func has(key: String) -> bool:
-	return _texts.has(key)
-
-
 ## The text for a key. A missing text shows as its key, so the gap is easy to spot.
 static func text(key: String) -> String:
 	return "\n".join(lines(key))

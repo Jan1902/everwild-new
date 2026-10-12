@@ -14,20 +14,18 @@ from concurrent.futures import ThreadPoolExecutor
 
 from PIL import Image
 
-from env import PROJECT
+from env import PROJECT, SPRITES
 from image_gen import openai_image
 from style import PAINTED_STYLE, VIEW
 
 RAW = PROJECT / "styletest" / "walk"
 STANDING = PROJECT / "styletest" / "room"
 OBJECTS = PROJECT / "assets" / "objects"
-FRAMES = 4
+FRAMES = SPRITES["walk_frames"]
 THRESHOLD = 24
-# Has to match MARGIN in src/view/object_view.gd.
-MARGIN = 0.12
-# Width of a frame as a multiple of the standing figure, to leave room for the stride. Has to
-# match WALK_WIDTH in src/view/player.gd.
-WIDTH_FACTOR = 1.4
+MARGIN = SPRITES["margin"]
+# Width of a frame as a multiple of the standing figure, to leave room for the stride.
+WIDTH_FACTOR = SPRITES["walk_width"]
 
 SHEET = (
     "A sprite sheet for a game: exactly four frames side by side in one row, evenly spaced, with "

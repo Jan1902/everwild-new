@@ -15,17 +15,26 @@ Was noch zu bauen ist, steht in `docs/backlog.md`. Erledigtes dort löschen, Neu
 
 - `src/logic/`: Spiellogik ohne Rendering. Muss headless laufen.
   - `GameState`: der zentrale Spielspeicher (Welt und Zelle der Figur, Fakten, Änderungen an Objekten je Welt, Gegenstände, Notizen). Reine Daten, speicherbar.
-  - `World`: eine Welt aus ihrer Datei (heile Fassung), über die die Änderungen aus dem Spielspeicher gelegt werden.
-  - `Session`: das laufende Spiel. Alles, was die Figur tut, läuft über `enter()` und `interact()`. Dort stehen auch alle Bedingungen und Folgen, die Regeln in Welt-Dateien benutzen dürfen.
+  - `World`: eine Welt aus ihrer Datei (heile Fassung), über die die Änderungen aus dem Spielspeicher gelegt werden. Ihre Objekte sind `WorldObject`.
+  - `Session`: das laufende Spiel. Alles, was die Figur tut, läuft über `enter()`, `interact()` und `linger()`. Dort stehen auch alle Bedingungen und Folgen, die Regeln in Welt-Dateien benutzen dürfen. `interact()` wirkt nur von einer Zelle aus, von der das Objekt erreichbar ist (`can_use()`).
+  - `RuleCheck`: liest alle Regeln, Fehler und Startfolgen und meldet, was `Session` nicht versteht (unbekannte Schlüssel, Namen von Welten, Objekten, Fehlern, Notizen, Fakten und Gegenständen, die es nicht gibt). Wer `Session` eine neue Bedingung oder Folge beibringt, trägt sie auch hier ein.
   - `Solver`: spielt das ganze Spiel in allen Varianten durch und meldet Sackgassen.
+  - `SaveFile`: schreibt und liest den Spielstand. Ein unlesbarer Stand wird als `save.json.unusable` beiseitegelegt, nicht überschrieben.
   - `Mood`, `Iso`: Stimmungsregler und Umrechnung zwischen Zelle und Bildpunkt.
-- `src/view/`: alles Sichtbare, Shader in `src/view/shaders/`. Die Hauptszene `scenes/game.tscn` baut ihre Knoten in `game.gd` per Code auf. Wind, Wasser und Schatten lesen ihre Richtung aus globalen Shader-Werten (`[shader_globals]` in `project.godot`), die `game.gd` aus der Stimmung setzt.
+- `src/view/`: alles Sichtbare, Shader in `src/view/shaders/`. Die Hauptszene `scenes/game.tscn` baut ihre Knoten per Code auf.
+  - `game.gd`: verbindet Session, Eingabe und Ansicht und entscheidet, was wann passiert (Laufen, Verweilen, Weltwechsel, Stimmung, Speichern).
+  - `Stage`: eine Welt auf dem Bildschirm (Boden, Wasser, Schatten, `ObjectView` je Objekt, `Player`, die durchscheinende Erinnerung). Wird bei jedem Weltwechsel neu gebaut.
+  - `Music`: spielt das Stück der Welt und blendet über. Der Bus „Music“ mit dem Dämpfungsfilter steht in `default_bus_layout.tres`, die Schleife in den Import-Einstellungen der Stücke.
+  - `Sprites`: liest `data/sprites.json` und hält, was alle Ansichten teilen (Materialien, Lichtflecken, Treffer-Masken). Gehört dem laufenden Spiel und wird an jede Ansicht übergeben; es gibt keinen statischen Zustand in der Ansicht.
+  - `DialogueBox`, `NotebookView`, `StartScreen`: Oberfläche aus echten Controls. Was offen ist, deckt den Bildschirm mit einem Control ab, das alle Tipps schluckt. Flächen reagieren auf die Berührung des ersten Fingers, Knöpfe sind `Button`. Aussehen (Schriftgrößen, Farben, Flächen) kommt aus `assets/ui/theme.tres`; die Ansichten nennen nur die Variante (`theme_type_variation`).
+  - Wind, Wasser und Schatten lesen ihre Richtung aus globalen Shader-Werten (`[shader_globals]` in `project.godot`), die `game.gd` aus der Stimmung setzt.
 - `data/game.json`: Startwelt, Liste aller Welten und was beim Start eines neuen Spiels passiert.
 - `data/worlds/`: Welten als JSON. Der Boden ist ein Zeichenraster (` ` Leere, `.` Gras, `=` Weg, `~` Wasser, `#` Brücke, `_` Boden eines Innenraums). `objects` beschreibt die heile Fassung, `broken` die Abweichungen der kaputten, `faults` die Fehler (jeder stellt bestimmte Stimmungsregler wieder her), `rules` was bei Interaktionen und beim Betreten von Zellen passiert.
+- `data/sprites.json`: wie jedes Bild in der Welt sitzt (Breite, Fußpunkt, Schatten, Licht) und die Maße, die Spiel und Bildwerkzeuge teilen (Rand, Laufbilder). Die Schlüssel sind in `src/view/sprites.gd` beschrieben.
 - `data/notes.json`: alle Einträge des Notizbuchs mit Art, Welt und Verknüpfungen (immer in beide Richtungen).
 - `data/texts/`: alle sichtbaren Texte je Sprache (`en.json`, `de.json`), mit denselben Schlüsseln in jeder Datei. Regeln nennen nur Schlüssel.
-- `assets/`: Bilder und Musik, die das Spiel lädt (`objects/`, `worlds/`, `music/`).
-- `tools/`: Python-Skripte für Bild- und Musikgenerierung, eigene Umgebung in `tools/.venv`. Die Stilvorgabe für alle Bild-Prompts steht in `tools/style.py`. `world_images.py <welt>` (Bodenbild einer Außenwelt), `village_images.py`, `bridge_image.py`, `room_images.py`, `fragment_images.py` und `walk_images.py` erzeugen die Rohbilder (jede Datei höchstens einmal), `crop_sprites.py` schneidet sie zu und legt sie nach `assets/`. Wie ein Bild in der Welt sitzt (Breite, Fußpunkt), steht in `ObjectView.IMAGES`.
+- `assets/`: Bilder und Musik, die das Spiel lädt (`objects/`, `worlds/`, `music/`), dazu das Theme der Oberfläche (`ui/theme.tres`, erzeugt von `tools/build_theme.gd`).
+- `tools/`: Python-Skripte für Bild- und Musikgenerierung, eigene Umgebung in `tools/.venv` (Pakete in `tools/requirements.txt`). Die Stilvorgabe für alle Bild-Prompts steht in `tools/style.py`. `world_images.py <welt>` (Bodenbild einer Außenwelt), `village_images.py`, `bridge_image.py`, `room_images.py`, `fragment_images.py` und `walk_images.py` erzeugen die Rohbilder (jede Datei höchstens einmal), `crop_sprites.py` schneidet sie zu und legt sie nach `assets/`. Wie ein Bild in der Welt sitzt (Breite, Fußpunkt), steht in `data/sprites.json`.
 - `styletest/`: generierte Rohbilder und Testmusik, von Godot ignoriert.
 
 ## Befehle
@@ -36,11 +45,14 @@ Godot liegt unter `C:\godot\godot.exe` (4.7.2). Nach neuen Skripten mit `class_n
 & "C:\godot\godot.exe" --headless --path . --import
 & "C:\godot\godot.exe" --headless --path . --script tests/test_logic.gd
 & "C:\godot\godot.exe" --path . -- --tap=11,9 --tap=16,9 --wait=3 --screenshot=C:/path/image.png
+& "C:\godot\godot.exe" --headless --path . --script tools/build_theme.gd
 ```
 
-Der dritte Befehl startet das Spiel im Fenster, tippt nacheinander auf die Zellen, speichert ein Bildschirmfoto und gibt die Zelle der Figur, die offenen Fehler und den Stand der Musik aus (`src/view/test_helper.gd`). Ein Tipp auf ein Objekt mit Regel benutzt es. Mit `--intact` startet die Welt in der heilen Fassung. Im Spiel selbst wechselt vorläufig die Taste F zwischen heil und kaputt, die Taste N beginnt ein neues Spiel. Der Spielstand liegt in `user://save.json` (`%APPDATA%\Godot\app_userdata\Everwild`); Läufe mit Argumenten laden und speichern nur mit `--save=Pfad`. Headless kann Godot nicht rendern, für Bildschirmfotos braucht es das Fenster.
+Der dritte Befehl startet das Spiel im Fenster, tippt nacheinander auf die Zellen, speichert ein Bildschirmfoto und gibt die Zelle der Figur, die offenen Fehler und den Stand der Musik aus (`src/view/test_helper.gd`). Ein Tipp auf ein Objekt mit Regel benutzt es. `--touch=x,y` tippt auf einen Punkt des Bildschirms (in Pixeln der Basisauflösung 1920x1080), etwa auf den Notizbuch-Knopf oder durch einen Dialog; mit `--mouse` kommen alle Tipps von der Maus statt vom Finger. Mit `--intact` startet die Welt in der heilen Fassung. Alle Argumente stehen in `src/view/test_helper.gd` und wirken nur in Debug-Bauten. Dort wechselt vorläufig auch die Taste F zwischen heil und kaputt, die Taste N beginnt ein neues Spiel. Der Spielstand liegt in `user://save.json` (`%APPDATA%\Godot\app_userdata\Everwild`); Läufe mit Argumenten laden und speichern nur mit `--save=Pfad`. Headless kann Godot nicht rendern, für Bildschirmfotos braucht es das Fenster.
 
-Der Test prüft auch die Lösbarkeit: Nach jeder Änderung an Welten oder Regeln laufen lassen.
+Der vierte Befehl schreibt das Theme neu, nachdem `tools/build_theme.gd` geändert wurde.
+
+Der Test prüft auch die Regeln aller Welten (`RuleCheck`) und die Lösbarkeit: Nach jeder Änderung an Welten oder Regeln laufen lassen. Beim Start im Fenster meldet ein Debug-Bau dieselben Regelfehler in der Ausgabe.
 
 Aufs Handy (USB-Debugging an, per USB verbunden):
 

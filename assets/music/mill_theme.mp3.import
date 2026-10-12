@@ -12,7 +12,7 @@ dest_files=["res://.godot/imported/mill_theme.mp3-757b053a25414f7eeb32ab46fae020
 
 [params]
 
-loop=false
+loop=true
 loop_offset=0
 bpm=0
 beat_count=0

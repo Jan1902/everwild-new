@@ -20,21 +20,13 @@ const SYMBOLS := {
 const WALKABLE := [Ground.GRASS, Ground.PATH, Ground.BRIDGE, Ground.FLOOR]
 ## Ground that objects can stand on.
 const FIRM := [Ground.GRASS, Ground.PATH, Ground.FLOOR]
-## Object kinds that lie flat on the ground: they block nothing and the character walks over them.
-const FLAT_KINDS := ["bridge", "raft"]
-## Properties of an object that can change during the game.
-const CHANGEABLE := ["cell", "mirrored", "hidden", "state"]
 const NEIGHBOURS: Array[Vector2i] = [Vector2i(0, -1), Vector2i(1, 0), Vector2i(0, 1), Vector2i(-1, 0)]
 
 var id := ""
-var title := ""
 var size := Vector2i.ZERO
 var start := Vector2i.ZERO
-## Entries with "id" and "kind" (String), "cell" (Vector2i, rear corner), "size" (Vector2i),
-## "mirrored" and "hidden" (bool), "state" (String, meaning depends on the kind) and "access"
-## (cells the object can be used from, such as the one in front of a door; empty means every
-## cell beside it).
-var objects: Array[Dictionary] = []
+## Everything that stands or lies in the world, as it is at the moment.
+var objects: Array[WorldObject] = []
 ## What happens when the player does something, in the order of the world file. Each rule has
 ## "on" ("interact" with "object", "enter" with "cells" or "zone", "linger", anywhere or
 ## limited by "cells" or "zone", or "always" for something that happens by itself as soon as its
@@ -79,7 +71,6 @@ static func from_file(path: String) -> World:
 static func from_data(data: Dictionary, world_id := "") -> World:
 	var world := World.new()
 	world.id = world_id
-	world.title = data.get("title", "")
 	world.size = _to_cell(data.get("size", [0, 0]))
 	world.start = _to_cell(data.get("start", [0, 0]))
 	world.ground_image = data.get("ground_image", {})
@@ -89,22 +80,20 @@ static func from_data(data: Dictionary, world_id := "") -> World:
 	world.mood_from = data.get("mood_from", "")
 	world._read_ground(data.get("ground", []))
 	for entry: Dictionary in data.get("objects", []):
-		var cell := _to_cell(entry.get("cell", [0, 0]))
-		var object := {
-			"id": entry.get("id", "%s_%d_%d" % [entry.get("kind", ""), cell.x, cell.y]),
-			"kind": entry.get("kind", ""),
-			"cell": cell,
-			"size": _to_cell(entry.get("size", [1, 1])),
-			"mirrored": entry.get("mirrored", false),
-			"hidden": entry.get("hidden", false),
-			"state": entry.get("state", ""),
-			"access": entry.get("access", []).map(_to_cell),
-		}
-		if world._by_id.has(object.id):
-			world._errors.append("Object id '%s' is used twice" % object.id)
-		world.objects.append(object)
-		world._by_id[object.id] = object
-		world._intact[object.id] = object.duplicate()
+		var thing := WorldObject.new()
+		thing.kind = entry.get("kind", "")
+		thing.cell = _to_cell(entry.get("cell", [0, 0]))
+		thing.id = entry.get("id", "%s_%d_%d" % [thing.kind, thing.cell.x, thing.cell.y])
+		thing.size = _to_cell(entry.get("size", [1, 1]))
+		thing.mirrored = entry.get("mirrored", false)
+		thing.hidden = entry.get("hidden", false)
+		thing.state = entry.get("state", "")
+		thing.access.assign(entry.get("access", []).map(_to_cell))
+		if world._by_id.has(thing.id):
+			world._errors.append("Object id '%s' is used twice" % thing.id)
+		world.objects.append(thing)
+		world._by_id[thing.id] = thing
+		world._intact[thing.id] = thing.copy()
 	world.rules.assign(data.get("rules", []))
 	world.faults.assign(data.get("faults", []))
 	var broken_data: Dictionary = data.get("broken", {})
@@ -117,7 +106,7 @@ static func from_data(data: Dictionary, world_id := "") -> World:
 ## Picks the changeable object properties out of an entry of a world file.
 static func read_properties(data: Dictionary) -> Dictionary:
 	var properties := {}
-	for property: String in CHANGEABLE:
+	for property: String in WorldObject.CHANGEABLE:
 		if data.has(property):
 			properties[property] = _to_cell(data[property]) if property == "cell" else data[property]
 	return properties
@@ -126,20 +115,21 @@ static func read_properties(data: Dictionary) -> Dictionary:
 ## What the break changed and has not been put right yet: the objects of the broken version that
 ## still differ from the intact world, as they were. Things the player has changed otherwise,
 ## such as something taken along, are not part of it.
-func differences() -> Array[Dictionary]:
-	var list: Array[Dictionary] = []
-	for object in objects:
-		if broken.has(object.id) and object != _intact[object.id]:
-			list.append(_intact[object.id].duplicate())
+func differences() -> Array[WorldObject]:
+	var list: Array[WorldObject] = []
+	for thing in objects:
+		var intact: WorldObject = _intact[thing.id]
+		if broken.has(thing.id) and not thing.matches(intact.properties()):
+			list.append(intact.copy())
 	return list
 
 
 ## Puts all objects back to the intact world and lays the given changes over it
 ## (object id -> properties).
 func apply(changes: Dictionary) -> void:
-	for object in objects:
-		object.merge(_intact[object.id], true)
-		object.merge(changes.get(object.id, {}), true)
+	for thing in objects:
+		thing.change(_intact[thing.id].properties())
+		thing.change(changes.get(thing.id, {}))
 	_update_occupied()
 
 
@@ -149,26 +139,21 @@ func errors() -> Array[String]:
 	if not is_walkable(start):
 		list.append("Start cell %s is not walkable" % start)
 	var seen := {}
-	for object in objects:
-		if object.hidden:
+	for thing in objects:
+		if thing.hidden:
 			continue
-		var flat: bool = object.kind in FLAT_KINDS
-		for cell in occupied_cells(object):
+		var flat := thing.is_flat()
+		for cell in thing.occupied_cells():
 			var fits := ground(cell) == Ground.BRIDGE if flat else ground(cell) in FIRM
 			if not fits:
-				list.append("Object '%s' at %s stands on the wrong ground" % [object.id, cell])
+				list.append("Object '%s' at %s stands on the wrong ground" % [thing.id, cell])
 			if not flat and seen.has(cell):
-				list.append("Objects '%s' and '%s' share cell %s" % [seen[cell], object.id, cell])
+				list.append("Objects '%s' and '%s' share cell %s" % [seen[cell], thing.id, cell])
 			if not flat:
-				seen[cell] = object.id
+				seen[cell] = thing.id
 	for object_id: String in broken:
 		if not _by_id.has(object_id):
 			list.append("Broken version names unknown object '%s'" % object_id)
-	for rule in rules:
-		if rule.get("on") == "interact" and not _by_id.has(rule.get("object", "")):
-			list.append("Rule names unknown object '%s'" % rule.get("object", ""))
-		elif rule.get("on") not in ["interact", "enter", "linger", "always"]:
-			list.append("Rule has unknown trigger '%s'" % rule.get("on", ""))
 	for fault in faults:
 		for dial: String in fault.get("restores", []):
 			if dial not in Mood.DIALS:
@@ -191,34 +176,26 @@ func is_walkable(cell: Vector2i) -> bool:
 	return kind in WALKABLE and not _occupied.has(cell)
 
 
-## The object with this id. Empty if there is none.
-func object(object_id: String) -> Dictionary:
-	return _by_id.get(object_id, {})
+## The object with this id. Null if there is none.
+func get_object(object_id: String) -> WorldObject:
+	return _by_id.get(object_id)
 
 
-## The object that blocks this cell. Empty if there is none.
-func object_at(cell: Vector2i) -> Dictionary:
-	return _by_id.get(_occupied.get(cell, ""), {})
-
-
-func occupied_cells(object: Dictionary) -> Array[Vector2i]:
-	var cells: Array[Vector2i] = []
-	for y in object.size.y:
-		for x in object.size.x:
-			cells.append(object.cell + Vector2i(x, y))
-	return cells
+## The object that blocks this cell. Null if there is none.
+func object_at(cell: Vector2i) -> WorldObject:
+	return _by_id.get(_occupied.get(cell, ""))
 
 
 ## Walkable cells from where the player can use the object: its access cells if it has any,
 ## otherwise all cells right next to it.
-func cells_beside(object: Dictionary) -> Array[Vector2i]:
+func cells_beside(thing: WorldObject) -> Array[Vector2i]:
 	var cells: Array[Vector2i] = []
-	if not object.access.is_empty():
-		for cell: Vector2i in object.access:
+	if not thing.access.is_empty():
+		for cell in thing.access:
 			if is_walkable(cell):
 				cells.append(cell)
 		return cells
-	for cell in occupied_cells(object):
+	for cell in thing.occupied_cells():
 		for step in NEIGHBOURS:
 			if is_walkable(cell + step) and cell + step not in cells:
 				cells.append(cell + step)
@@ -226,13 +203,13 @@ func cells_beside(object: Dictionary) -> Array[Vector2i]:
 
 
 ## Whether the object could stand on this cell: fitting ground and nothing else in the way.
-func has_room(object: Dictionary, cell: Vector2i) -> bool:
-	for y in object.size.y:
-		for x in object.size.x:
+func has_room(thing: WorldObject, cell: Vector2i) -> bool:
+	for y in thing.size.y:
+		for x in thing.size.x:
 			var spot := cell + Vector2i(x, y)
 			if ground(spot) not in FIRM:
 				return false
-			if _occupied.get(spot, object.id) != object.id:
+			if _occupied.get(spot, thing.id) != thing.id:
 				return false
 	return true
 
@@ -274,14 +251,14 @@ func _read_ground(rows: Array) -> void:
 func _update_occupied() -> void:
 	_occupied.clear()
 	_bridged.clear()
-	for object in objects:
-		if object.hidden:
+	for thing in objects:
+		if thing.hidden:
 			continue
-		for cell in occupied_cells(object):
-			if object.kind in FLAT_KINDS:
-				_bridged[cell] = object.id
+		for cell in thing.occupied_cells():
+			if thing.is_flat():
+				_bridged[cell] = thing.id
 			else:
-				_occupied[cell] = object.id
+				_occupied[cell] = thing.id
 	_paths_outdated = true
 
 

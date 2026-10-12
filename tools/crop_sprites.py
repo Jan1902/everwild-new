@@ -12,7 +12,7 @@ import sys
 
 from PIL import Image
 
-from env import PROJECT
+from env import PROJECT, SPRITES
 
 VILLAGE = PROJECT / "styletest" / "village"
 ROOM = PROJECT / "styletest" / "room"
@@ -36,8 +36,8 @@ GROUNDS = {"village": VILLAGE, "house_inside": ROOM, "mill_hill": PROJECT / "sty
 TRACKS = {"room_theme": ROOM, "mill_theme": FRAGMENTS, "spring_theme": FRAGMENTS}
 # Below this opacity a pixel counts as empty. Hides faint haze around the object.
 THRESHOLD = 24
-# Margin per side as a fraction of the content width. Has to match MARGIN in src/view/object_view.gd.
-MARGIN = 0.12
+# Margin per side as a fraction of the content width.
+MARGIN = SPRITES["margin"]
 
 
 # The bridge comes from a shape template (bridge_image.py), but the model painted it larger than
@@ -68,7 +68,7 @@ def crop(name):
             box = _shared_box(group)
     image = image.crop(box)
     if name == "bridge":
-        # Values for ObjectView.IMAGES.
+        # Values for data/sprites.json.
         print(
             "bridge: width %.1f, foot (%.3f, %.3f)"
             % (
