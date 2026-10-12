@@ -8,7 +8,8 @@ const COLORS := {
 	World.Ground.GRASS: Color("7fae6b"),
 	World.Ground.PATH: Color("d8c394"),
 	World.Ground.WATER: Color("74b6cc"),
-	World.Ground.BRIDGE: Color("a97c52"),
+	# Water that something may lie on to carry across. What lies there is an object of its own.
+	World.Ground.BRIDGE: Color("74b6cc"),
 	World.Ground.FLOOR: Color("b89468"),
 }
 const EARTH_LIGHT := Color("8a6a4f")
@@ -52,9 +53,6 @@ func _draw_face(cell: Vector2i) -> void:
 	var variation := 1.0 + (hash(cell) % 5 - 2) * 0.012
 	var color: Color = COLORS[kind]
 	draw_colored_polygon(c, Color(color.r * variation, color.g * variation, color.b * variation))
-	if kind == World.Ground.BRIDGE:
-		for fraction: float in [0.25, 0.5, 0.75]:
-			draw_line(c[0].lerp(c[1], fraction), c[3].lerp(c[2], fraction), color.darkened(0.25), 2.0)
 
 
 ## Corners of a cell's diamond: back, right, front, left.

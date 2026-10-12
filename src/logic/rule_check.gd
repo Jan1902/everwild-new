@@ -14,6 +14,7 @@ const CONDITIONS := {
 	"item": ["is"],
 	"note": ["is"],
 	"fixed": ["world", "is"],
+	"whole": ["is"],
 	"object": ["world", "cell", "state", "mirrored", "hidden"],
 	"not": [],
 	"any": [],
@@ -27,8 +28,9 @@ const EFFECTS := {
 	"change": ["world", "cell", "state", "mirrored", "hidden"],
 	"break": [],
 	"restore": [],
-	"go": ["cell"],
+	"go": ["cell", "by", "with"],
 	"say": ["who"],
+	"remember": [],
 }
 
 var _session: Session
@@ -59,6 +61,7 @@ func _run() -> void:
 	if definition.get("start", "") not in worlds:
 		_add("game", "start world '%s' is not one of the worlds" % definition.get("start", ""))
 	_check_effects(definition.get("on_start", []), definition.get("start", ""), "game, on_start")
+	_check_conditions(definition.get("complete_if", []), definition.get("start", ""), "game, complete_if")
 
 	for world_id: String in worlds:
 		var world := _session.world(world_id)
@@ -146,6 +149,11 @@ func _check_condition(condition: Variant, home: String, place: String) -> void:
 		"fixed":
 			if not where.is_empty() and not _has_fault(where, name):
 				_add(place, "%s: world '%s' has no such fault" % [what, where])
+		"whole":
+			if name not in _session.world_ids():
+				_add(place, what + ": unknown world")
+			elif _session.world(name).faults.is_empty():
+				_add(place, what + ": that world has no faults")
 		"object":
 			_check_object(condition, name, where, place, what)
 
@@ -178,6 +186,9 @@ func _check_effects(effects: Variant, home: String, place: String) -> void:
 				_check_object(effect, name, where, place, what)
 				if World.read_properties(effect).is_empty():
 					_add(place, what + ": changes nothing")
+			"remember":
+				if not home.is_empty() and not _session.world(home).memories.has(name):
+					_add(place, "%s: world '%s' has no such place of memory" % [what, home])
 			"break", "restore":
 				if name not in _session.world_ids():
 					_add(place, what + ": unknown world")
@@ -189,6 +200,12 @@ func _check_effects(effects: Variant, home: String, place: String) -> void:
 						_add(place, what + ": 'cell' is not [x, y]")
 					elif _session.world(name).ground(World.read_properties(effect).cell) not in World.WALKABLE:
 						_add(place, what + ": nobody can stand on that cell")
+				var aboard: Array = effect.get("with", []) if effect.get("with", []) is Array else [null]
+				for object_id: Variant in [effect.get("by", "")] + aboard:
+					if not object_id is String:
+						_add(place, what + ": 'by' is not an object and 'with' not a list of objects")
+					elif not object_id.is_empty() and not home.is_empty() and _session.world(home).get_object(object_id) == null:
+						_add(place, "%s: world '%s' has no object '%s' to travel with" % [what, home, object_id])
 
 
 ## The one key of a condition or effect that says what it is. Empty if there is none, more than

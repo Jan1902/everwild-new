@@ -1,0 +1,62 @@
+{
+	"size": [10, 8],
+	"start": [4, 5],
+	"ground": [
+		"          ",
+		"   ....   ",
+		"  ......  ",
+		"  ......  ",
+		"  ......  ",
+		"  ......  ",
+		"   ....   ",
+		"          "
+	],
+	"music": "res://assets/music/mill_theme.mp3",
+	"mood": {},
+	"mood_wrong": {"wind": -0.6, "shadow": [-0.3, 0.35], "saturation": 0.4, "tint": [0.8, 0.85, 1.0], "fog": 0.3, "light": 0.25, "pitch": 0.88, "muffle": 0.7},
+	"objects": [
+		{"id": "big_light", "kind": "big_light", "cell": [5, 3], "state": "lit"},
+		{"id": "arch_back", "kind": "arch", "cell": [2, 4], "access": [[3, 4]], "state": "open", "mirrored": true},
+		{"id": "view_village", "kind": "beacon", "cell": [3, 1], "state": "lit"},
+		{"id": "view_mill_hill", "kind": "beacon", "cell": [6, 1], "state": "lit"},
+		{"id": "view_spring", "kind": "beacon", "cell": [7, 3], "state": "lit"},
+		{"id": "view_pond", "kind": "beacon", "cell": [7, 5], "state": "lit"}
+	],
+	"broken": {
+		"big_light": {"state": "dark"},
+		"view_village": {"state": "dark"},
+		"view_mill_hill": {"state": "dark"},
+		"view_spring": {"state": "dark"},
+		"view_pond": {"state": "dark"}
+	},
+	"memories": [
+		{"id": "lookout", "zone": [2, 1, 6, 6]}
+	],
+	"faults": [
+		{"id": "light", "fixed_if": [{"object": "big_light", "state": "lit"}], "restores": ["light", "fog"]}
+	],
+	"rules": [
+		{"on": "always", "if": [{"whole": "village"}, {"object": "view_village", "state": "dark"}], "do": [{"change": "view_village", "state": "lit"}]},
+		{"on": "always", "if": [{"whole": "village", "is": false}, {"object": "view_village", "state": "lit"}], "do": [{"change": "view_village", "state": "dark"}]},
+		{"on": "interact", "object": "view_village", "if": [{"object": "view_village", "state": "lit"}], "do": [{"say": "view.village.lit"}]},
+		{"on": "interact", "object": "view_village", "do": [{"say": "view.village.dark"}]},
+		{"on": "always", "if": [{"whole": "mill_hill"}, {"object": "view_mill_hill", "state": "dark"}], "do": [{"change": "view_mill_hill", "state": "lit"}]},
+		{"on": "always", "if": [{"whole": "mill_hill", "is": false}, {"object": "view_mill_hill", "state": "lit"}], "do": [{"change": "view_mill_hill", "state": "dark"}]},
+		{"on": "interact", "object": "view_mill_hill", "if": [{"object": "view_mill_hill", "state": "lit"}], "do": [{"say": "view.mill_hill.lit"}]},
+		{"on": "interact", "object": "view_mill_hill", "do": [{"say": "view.mill_hill.dark"}]},
+		{"on": "always", "if": [{"whole": "spring"}, {"object": "view_spring", "state": "dark"}], "do": [{"change": "view_spring", "state": "lit"}]},
+		{"on": "always", "if": [{"whole": "spring", "is": false}, {"object": "view_spring", "state": "lit"}], "do": [{"change": "view_spring", "state": "dark"}]},
+		{"on": "interact", "object": "view_spring", "if": [{"object": "view_spring", "state": "lit"}], "do": [{"say": "view.spring.lit"}]},
+		{"on": "interact", "object": "view_spring", "do": [{"say": "view.spring.dark"}]},
+		{"on": "always", "if": [{"whole": "pond"}, {"object": "view_pond", "state": "dark"}], "do": [{"change": "view_pond", "state": "lit"}]},
+		{"on": "always", "if": [{"whole": "pond", "is": false}, {"object": "view_pond", "state": "lit"}], "do": [{"change": "view_pond", "state": "dark"}]},
+		{"on": "interact", "object": "view_pond", "if": [{"object": "view_pond", "state": "lit"}], "do": [{"say": "view.pond.lit"}]},
+		{"on": "interact", "object": "view_pond", "do": [{"say": "view.pond.dark"}]},
+		{"on": "interact", "object": "big_light", "if": [{"object": "big_light", "state": "lit"}], "do": [{"say": "big_light.burns"}]},
+		{"on": "interact", "object": "big_light", "if": [{"item": "wick"}, {"whole": "village"}, {"whole": "mill_hill"}, {"whole": "spring"}, {"whole": "pond"}], "do": [{"change": "big_light", "state": "lit"}, {"take": "wick"}, {"set": "chapter_done"}, {"say": "big_light.lit"}]},
+		{"on": "interact", "object": "big_light", "if": [{"item": "wick"}], "do": [{"say": "big_light.weak"}]},
+		{"on": "interact", "object": "big_light", "do": [{"say": "big_light.dark"}]},
+		{"on": "interact", "object": "arch_back", "do": [{"go": "pond", "cell": [2, 6]}]},
+		{"on": "linger", "cells": [[4, 2], [5, 2], [6, 2], [4, 3], [6, 3], [4, 4], [5, 4], [6, 4]], "if": [{"note": "still_place"}], "do": [{"remember": "lookout"}, {"note": "lookout"}, {"say": "memory.lookout"}]}
+	]
+}

@@ -37,6 +37,10 @@ var rules: Array[Dictionary] = []
 var faults: Array[Dictionary] = []
 ## The broken version: object id -> properties that differ from the intact world.
 var broken := {}
+## Places of memory: id -> the part of the world (cells, as Rect2i) that shows through as it was
+## while the player remembers there. Where the player has to stand for it is up to the rule that
+## has the effect "remember".
+var memories := {}
 ## Path of the music track, empty for none.
 var music := ""
 ## Mood of the intact world and of its wrong version.
@@ -96,6 +100,15 @@ static func from_data(data: Dictionary, world_id := "") -> World:
 		world._intact[thing.id] = thing.copy()
 	world.rules.assign(data.get("rules", []))
 	world.faults.assign(data.get("faults", []))
+	for memory: Dictionary in data.get("memories", []):
+		var zone: Variant = memory.get("zone")
+		var memory_id: String = memory.get("id", "")
+		if memory_id.is_empty() or world.memories.has(memory_id):
+			world._errors.append("Memory '%s' has no id of its own" % memory_id)
+		if zone is Array and zone.size() == 4:
+			world.memories[memory_id] = Rect2i(int(zone[0]), int(zone[1]), int(zone[2]), int(zone[3]))
+		else:
+			world._errors.append("Memory '%s' has a zone that is not [x, y, w, h]" % memory_id)
 	var broken_data: Dictionary = data.get("broken", {})
 	for object_id: String in broken_data:
 		world.broken[object_id] = read_properties(broken_data[object_id])
@@ -122,6 +135,12 @@ func differences() -> Array[WorldObject]:
 		if broken.has(thing.id) and not thing.matches(intact.properties()):
 			list.append(intact.copy())
 	return list
+
+
+## What shows through at a place of memory: the differences that stand in its part of the world.
+func remembered(memory_id: String) -> Array[WorldObject]:
+	var zone: Rect2i = memories.get(memory_id, Rect2i())
+	return differences().filter(func(thing: WorldObject) -> bool: return zone.intersects(Rect2i(thing.cell, thing.size)))
 
 
 ## Puts all objects back to the intact world and lays the given changes over it

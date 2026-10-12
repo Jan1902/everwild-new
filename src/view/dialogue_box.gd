@@ -10,6 +10,9 @@ const SPEED := 45.0
 ## not skip it.
 const GRACE := 0.25
 
+## The last line has been tapped away.
+signal closed
+
 ## Covers the whole screen while the box is open and catches every tap.
 var _cover := Control.new()
 var _name := Label.new()
@@ -141,6 +144,7 @@ func _next() -> void:
 		# The cover stays until the tap that closed the box has passed, so that tap does not
 		# reach the world as well.
 		_hide_cover.call_deferred()
+		closed.emit()
 		return
 	var entry: Dictionary = _queue.pop_front()
 	_name.text = entry.who

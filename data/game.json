@@ -1,10 +1,38 @@
 {
-	"start": "village",
-	"worlds": ["village", "house_inside", "mill_hill", "spring"],
+	"start": "house_inside",
+	"worlds": [
+		"village",
+		"house_inside",
+		"mill_hill",
+		"spring",
+		"pond",
+		"watch"
+	],
 	"on_start": [
-		{"break": "village"},
-		{"break": "mill_hill"},
-		{"break": "spring"},
-		{"note": "village"}
+		{
+			"change": "lantern_west",
+			"world": "village",
+			"state": "out"
+		},
+		{
+			"change": "lantern_bridge",
+			"world": "village",
+			"state": "out"
+		},
+		{
+			"change": "lantern_east",
+			"world": "village",
+			"state": "out"
+		},
+		{
+			"change": "music_box",
+			"world": "house_inside",
+			"state": "silent"
+		}
+	],
+	"complete_if": [
+		{
+			"fact": "chapter_done"
+		}
 	]
 }

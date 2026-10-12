@@ -4,8 +4,8 @@ extends RefCounted
 ## Pure data. It can be written to a file and read back without any difference.
 
 ## Version of the saved format. Raise it when the format changes and convert older data in
-## from_data.
-const VERSION := 1
+## from_data. Version 2 came with the valley chapter, whose worlds no older game fits.
+const VERSION := 2
 
 ## Id of the world the player is in, and the cell they stand on.
 var world := ""
@@ -47,6 +47,19 @@ func take(item: String) -> void:
 func add_note(note: String) -> void:
 	if note not in notes:
 		notes.append(note)
+
+
+## An independent copy of the state.
+func copy() -> GameState:
+	var twin := GameState.new()
+	twin.world = world
+	twin.cell = cell
+	twin.facts = facts.duplicate()
+	twin.objects = objects.duplicate(true)
+	twin.items = items.duplicate()
+	twin.notes = notes.duplicate()
+	twin.start_screen_seen = start_screen_seen
+	return twin
 
 
 ## The state as plain data for a save file.

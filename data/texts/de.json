@@ -13,113 +13,418 @@
 	"pause.confirm": "Von vorn beginnen?\nAlles, was du bisher getan hast, geht verloren.",
 	"pause.confirm_yes": "Ja, neu beginnen",
 	"pause.confirm_no": "Nein, zurück",
+	"notebook.whole": "Wieder heil",
+	"notebook.broken": "Hier stimmt noch etwas nicht",
+	"banner.whole": "%s ist wieder heil",
 	"kind.memory": "Erinnerung",
 	"kind.piece": "Weltstück",
 	"kind.hint": "Hinweis",
-	"world.village": "Das Dorf",
-	"world.house_inside": "Das Haus",
-	"note.village.title": "Das Dorf",
-	"note.village.text": "Ein Stück Land, das im Leeren hängt. Ich kenne seine Wege, bevor ich sie gehe.",
-	"note.stone_at_bridge.title": "Der Stein an der Brücke",
-	"note.stone_at_bridge.text": "Er lag neben dem Baum, nicht auf dem Weg. Als er wieder dort lag, floss der Bach wieder richtig herum.",
-	"note.old_man.title": "Der alte Mann",
-	"note.old_man.text": "Er kennt meinen Gang, aber nicht meinen Namen. Das Notizbuch lag schon vor dem Riss auf seinem Tisch. Es ist in meiner Handschrift geschrieben.",
-	"note.evening_walks.title": "Abends über die Brücke",
-	"note.evening_walks.text": "Eine Frau am Bach hat mich früher jeden Abend hinübergehen sehen. Wohin ich ging, weiß ich nicht mehr.",
+	"kind.rift": "Der Riss",
 	"name.self": "Ich",
 	"name.old_man": "Alter Mann",
 	"name.stranger": "Frau am Bach",
-	"old_man.first": [
-		"… Du. Ich kenne deinen Gang.",
-		"Die Laternen brennen wieder. Warst du das?",
-		"Seit dem Riss stimmt hier so vieles nicht mehr. Der Wind. Die Bäume. Ich weiß nur nicht mehr, wie es einmal war.",
-		"Dort auf dem Tisch liegt ein Notizbuch. Es lag schon da, bevor alles zerriss. Meins ist es nicht. Nimm es."
-	],
-	"old_man.hint_wind": [
-		"Der Wind steht falsch. Er kam immer vom Mühlenhügel.",
-		"Der Steinbogen am Ostrand führte früher dorthin. Vielleicht tut er es wieder."
-	],
-	"old_man.whole": [
-		"Jetzt höre ich es wieder. Das Dorf klingt wie früher.",
-		"Ich erinnere mich an deinen Namen. Lass mir einen Moment, dann finde ich ihn."
-	],
-	"stranger.remembers": [
-		"Du bist früher jeden Abend über diese Brücke gegangen.",
-		"Ich habe nie gefragt, wohin."
-	],
-	"stranger.lanterns": [
-		"Du kommst über die Brücke. Das hat lange niemand mehr getan.",
-		"Siehst du die Laternen? Seit dem Riss brennt keine mehr. Wir haben alles versucht. Bei uns bleiben sie dunkel.",
-		"Der Alte im Haus oben am Weg wüsste vielleicht Rat. Aber seine Tür führt seit dem Riss überallhin, nur nicht hinein."
-	],
-	"stranger.lanterns_lit": [
-		"Sie brennen. Alle drei.",
-		"Bei dir gehorchen die Dinge wieder. Versuch es an der Tür des Alten. Vielleicht findet auch sie zurück.",
-		"Und sieh nur, der Steinbogen am Rand schimmert wieder. Dahinter lag einmal der Mühlenhügel."
-	],
-	"old_man.take_it": [
-		"Das Notizbuch. Dort auf dem Tisch. Nimm es ruhig."
-	],
-	"notebook.taken": [
-		"Ein kleines Notizbuch. Die ersten Seiten sind schon beschrieben.",
-		"Es ist meine Handschrift."
-	],
 	"name.miller": "Müller",
+	"name.child": "Kind",
+	"name.fisher": "Fischerin",
+	"world.village": "Das Dorf",
+	"world.house_inside": "Das Haus",
 	"world.mill_hill": "Der Mühlenhügel",
 	"world.spring": "Die Quelle",
-	"arch.closed": [
-		"Ein Bogen aus alten Steinen. Dahinter ist nur Himmel."
+	"world.pond": "Der Weiher",
+	"world.watch": "Die Warte",
+	"old_man.before": [
+		"Da bist du ja. Es wird Abend.",
+		"Die Laternen, wie immer. Alle drei. Die an der Brücke nicht vergessen.",
+		"Und wenn du zurück bist … zieh mir die Spieluhr auf. Meine Finger wollen nicht mehr.",
+		"Ich muss dann los. Ich bin spät dran."
 	],
-	"old_man.crank": [
-		"Die Kurbel des Müllers? Die habe ich ganz vergessen.",
-		"Sieh im Schrank nach. Nimm sie mit."
+	"old_man.before_again": [
+		"Erst die Laternen. Dann die Spieluhr.",
+		"Wie jeden Abend."
 	],
-	"old_man.hint_brook": [
-		"Der Wind weht wieder richtig. Hörst du es?",
-		"Aber der Bach läuft noch bergauf. Seine Quelle liegt hinter der Mühle."
+	"music_box.later": [
+		"Eine kleine Spieluhr. Die Kurbel steckt schon.",
+		"Später. Erst das andere."
+	],
+	"table.before": [
+		"Auf dem Tisch liegt ein Buch.",
+		"Es liegt da, als hätte es schon immer da gelegen."
+	],
+	"stranger.before": [
+		"Guten Abend.",
+		"Du bist heute früh dran. Oder ich bin spät. Der Bach ist laut heute, hörst du?"
+	],
+	"child.before": [
+		"Ich zähle die Lichter. Wenn du fertig bist, sind es drei."
+	],
+	"arch.before": [
+		"Der Bogen zum Mühlenhügel.",
+		"Heute nicht mehr. Der Alte wartet."
+	],
+	"music_box.evening": [
+		"Die Kurbel dreht sich schwer. Dann beginnt die Melodie.",
+		"Der Alte hört zu. Er bewegt die Lippen dazu.",
+		"Dann steht er auf und nimmt seinen Mantel."
+	],
+	"old_man.leaving": [
+		"So ging sie. Genau so.",
+		"Ich muss los. Geh du vor, ich komme gleich nach."
+	],
+	"rift.comes": [
+		"In der Tür höre ich die Melodie hinter mir. Sie wird langsamer. Tiefer.",
+		"…"
+	],
+	"rift.wake": [
+		"Gras. Wind von der falschen Seite.",
+		"Ich liege am Weg. Wie lange schon?"
+	],
+	"lantern.blown": [
+		"Die Flamme greift. Sie flackert.",
+		"Dann nimmt der Wind sie mit."
+	],
+	"stranger.wind": [
+		"Du kommst über die Brücke. Das hat lange niemand getan.",
+		"Seit dem Riss fängt hier kein Docht mehr Feuer. Der Wind ist ein anderer.",
+		"Als Kind saß ich immer hinter dem großen Stein, wenn es zog. Dahinter war es still. Man konnte dort sogar … ach, das gehört nicht hierher.",
+		"Beim Alten ist es dunkel vor der Tür. Dunkel heißt bei uns: niemand daheim. Dann klopft man auch nicht."
+	],
+	"stranger.house_lit": [
+		"Beim Alten brennt Licht. Dann ist er daheim.",
+		"Hinter einem Stein, sagst du? Ja. Dahinter zog es nie. Das wusste ich schon als Kind.",
+		"Der Wind ist trotzdem ein anderer. Er war nicht immer so."
+	],
+	"stranger.evening": [
+		"Spürst du das? Der Wind ist wieder der alte.",
+		"Ich bin jeden Abend hier am Bach entlanggegangen. Bis zur Brücke, immer dieselben Schritte. Meine Füße wissen es noch.",
+		"An dem Abend … sind alle Laternen auf einmal ausgegangen. Noch bevor ein Wind ging. Das vergesse ich nicht."
+	],
+	"stranger.whole": [
+		"Jetzt ist es wieder mein Abend.",
+		"Du bist früher jeden Abend hier vorbeigekommen. Ich habe nie gefragt, wohin."
+	],
+	"child.shy": [
+		"…",
+		"Du hast es nicht dabei."
+	],
+	"child.still": [
+		"Das Buch! Das hattest du immer dabei.",
+		"Ich stehe jeden Tag hier. Wenn man ganz still ist, kommt es zurück. Nur hier.",
+		"Da drüben war etwas. Man konnte durchgehen."
+	],
+	"child.bright": [
+		"Siehst du. Es ist zurückgekommen.",
+		"An dem Abend war es ganz hell. Wie mittags. Keiner glaubt mir das."
+	],
+	"memory.cliff": [
+		"Da stand ein Bogen.",
+		"Er steht wieder da."
+	],
+	"memory.bridge": [
+		"Der Stein lag neben der Brücke, im Gras. Nicht auf dem Weg.",
+		"Und die Laterne brannte."
+	],
+	"arch.dark": [
+		"Ein Bogen aus alten Steinen. Dahinter ist nur Himmel.",
+		"Die Laterne hier ist dunkel."
+	],
+	"arch.skips": [
+		"Das war nicht der Weg zurück.",
+		"Der Bogen hat etwas übersprungen."
+	],
+	"old_man.first": [
+		"… Du. Ich kenne deinen Gang.",
+		"Setz dich. Nein. Du setzt dich ja nie.",
+		"Auf dem Tisch liegt ein Buch. Es liegt da, seit ich denken kann. Meine Schrift ist es nicht."
+	],
+	"old_man.take_it": [
+		"Das Buch. Dort auf dem Tisch.",
+		"Nimm es. Es sieht dich schon die ganze Zeit an."
+	],
+	"notebook.taken": [
+		"Ein kleines Notizbuch. Die ersten Seiten sind beschrieben.",
+		"Es ist meine Handschrift.",
+		"Was ich heute erfahren habe, steht schon darin."
+	],
+	"old_man.borrowed": [
+		"Die Spieluhr schweigt. Hörst du? Eben.",
+		"Ich habe sie immer aufgezogen mit … es liegt im Schrank. Es gehört mir nicht.",
+		"Ich gebe nichts heraus, von dem ich nicht weiß, wem es gehört. So war ich schon immer. Glaube ich."
+	],
+	"cupboard.guarded": [
+		"Lass den Schrank zu.",
+		"Was da liegt, ist geliehen. Sag mir, von wem, dann sehen wir weiter."
+	],
+	"old_man.yours": [
+		"Der Müller, sagst du? Der Müller! Natürlich.",
+		"Dann gehört sie ihm. Bring sie ihm. Und grüß ihn. Er weiß schon, von wem."
 	],
 	"cupboard.crank": [
-		"Zwischen alten Decken liegt eine schwere eiserne Kurbel."
+		"Er öffnet den Schrank. Zwischen alten Decken liegt eine schwere eiserne Kurbel.",
+		"Ich nehme sie mit."
+	],
+	"old_man.carry": [
+		"Bring sie dem Müller.",
+		"Die Spieluhr kann warten. Sie wartet schon lange."
+	],
+	"old_man.waiting": [
+		"Du hast sie ihm gebracht? Gut.",
+		"Es ist still hier ohne die Spieluhr. Ich warte."
+	],
+	"old_man.wind_it": [
+		"Er hat sie dir wiedergegeben?",
+		"Dann zieh sie auf. Bitte."
+	],
+	"old_man.humming": [
+		"Hm-hm, hmm … so ging sie. Genau so.",
+		"Abends bin ich immer irgendwo hinaufgegangen. Jeden Abend.",
+		"Wohin … es fällt mir nicht ein."
+	],
+	"old_man.above": [
+		"Ein großes Licht, sagst du. Über dem Wasser.",
+		"Die Warte. Ich habe es jeden Abend angezündet. Jeden.",
+		"An dem Abend wollte ich gerade los. Ich hörte noch die Spieluhr. Sie lief rückwärts.",
+		"Ich komme nicht mehr hinauf. Meine Beine wissen den Weg nicht mehr.",
+		"Hier. Der Docht. Ohne ihn brennt es nicht. Geh du."
+	],
+	"old_man.go": [
+		"Geh nur. Ich höre der Spieluhr zu.",
+		"Wenn es oben brennt, sehe ich es vom Fenster."
+	],
+	"music_box.silent": [
+		"Eine kleine Spieluhr. Sie schweigt.",
+		"Wo die Kurbel sitzen sollte, ist ein leeres Loch."
+	],
+	"music_box.wrong": [
+		"Die Kurbel passt.",
+		"Die Melodie kommt schief heraus, zu tief, wie unter Wasser. Draußen stimmt noch etwas nicht."
+	],
+	"music_box.plays": [
+		"Die Kurbel greift.",
+		"Die Melodie. So wie an dem Abend, bevor alles zerriss.",
+		"Der Alte hebt den Kopf."
+	],
+	"music_box.playing": [
+		"Sie spielt. Leise, ohne Ende."
 	],
 	"miller.crank": [
-		"Seit dem Riss steht sie still. Kein Flügel rührt sich, und der Wind ist fort.",
-		"Die Kurbel fehlt. Ich habe sie dem Alten im Dorf geliehen, lange davor. Sie müsste in seinem Schrank liegen.",
-		"Ich komme hier nicht weg. Die Bögen führen mich immer nur im Kreis."
+		"Seit dem Riss steht sie. Kein Flügel rührt sich. Kein Lüftchen hier oben.",
+		"Die Kurbel fehlt. Ich hab sie verliehen. An einen, der was aufziehen wollte. Was Kleines.",
+		"An wen … es liegt mir auf der Zunge. Seit Wochen. Oder Jahren.",
+		"Ich stehe jeden Abend hier und sehe dem Wetter zu. Jetzt gibt es keins. Nur manchmal, wenn ich ganz still stehe …"
 	],
 	"miller.have_crank": [
-		"Das ist sie! Setz sie an der Mühle an, gleich neben der Tür."
-	],
-	"miller.turning": [
-		"Hörst du das? Sie mahlt wieder.",
-		"Der Wind geht jetzt bis hinunter ins Dorf. Und an der Quelle treibt er die Dinge zurück an ihren Platz."
+		"Das ist sie! Woher … egal.",
+		"Setz sie an. Gleich neben der Tür."
 	],
 	"mill.stuck": [
-		"Die Flügel stehen. Wo die Kurbel sitzen sollte, ist nur ein leeres Loch."
+		"Die Flügel stehen.",
+		"Wo die Kurbel sitzen sollte, ist nur ein leeres Loch."
 	],
 	"mill.turns": [
-		"Die Kurbel greift. Ein Knarren, dann beginnen die Flügel sich zu drehen.",
-		"Der Wind ist wieder da."
+		"Die Kurbel greift. Ein Knarren, dann drehen sich die Flügel.",
+		"Der Wind ist wieder da. Der richtige."
+	],
+	"mill.backwards": [
+		"Die Kurbel greift. Die Flügel drehen sich.",
+		"Aber rückwärts. Der Wind kommt und geht wieder, alles auf einmal."
+	],
+	"mill.backwards_look": [
+		"Die Flügel laufen rückwärts.",
+		"Die Kurbel steckt fest. Daran liegt es nicht."
+	],
+	"miller.backwards": [
+		"Falsch herum. So mahlt sie nichts, so nimmt sie nur.",
+		"Sie richtet sich nach der Fahne dort. Und die Fahne … wo zeigte die noch hin?",
+		"Hier, wo ich stehe, wusste ich es früher sofort. Stell dich neben mich und sei still. Vielleicht siehst du mehr als ich."
+	],
+	"vane.right": [
+		"Die Fahne rastet ein.",
+		"Die Flügel halten an. Dann drehen sie sich andersherum.",
+		"Der Wind ist wieder da. Der richtige."
+	],
+	"vane.fixed": [
+		"Der Müller hat die Wetterfahne festgemacht.",
+		"Sie steht richtig."
+	],
+	"miller.dry": [
+		"Sie läuft! Aber leer.",
+		"Das Feld. Sieh es dir an. Es bekam sein Wasser immer am Morgen, von oben, von der Quelle.",
+		"Es ist lange kein Morgen gewesen."
+	],
+	"miller.grain": [
+		"Korn! Sie hat wieder Korn im Gang. Jetzt bleibt sie nicht mehr stehen.",
+		"Hier, die Kurbel. Die brauchte sie nur zum Anwerfen. Bring sie dem zurück, der … du weißt schon, wem.",
+		"An dem Abend standen die Flügel einen Augenblick still. Bei vollem Wind. Das gibt es nicht."
+	],
+	"miller.whole": [
+		"Hörst du sie mahlen?",
+		"Du bist früher oft hier heraufgekommen. Du hast nie Mehl gekauft."
+	],
+	"memory.mill": [
+		"Die Flügel drehen sich.",
+		"Und die Wetterfahne zeigt anders als jetzt."
 	],
 	"raft.away": [
-		"Hier führte ein Floß über den Bach. Es liegt jetzt drüben im Teich, am anderen Ufer.",
-		"Der Wind muss es hinübergetrieben haben."
+		"Hier führte ein Floß über den Bach.",
+		"Es liegt jetzt oben im Teich, am anderen Ufer. Der Wind muss es hinübergetrieben haben."
 	],
 	"sluice.opens": [
 		"Das Wehr gibt nach. Das Wasser läuft ab, den Bach hinunter.",
-		"In die richtige Richtung."
+		"Als wäre es Morgen."
 	],
+	"sluice.closes": [
+		"Das Wehr schließt. Der Bach wird dünn, dann still.",
+		"Unten liegt das Bett wieder trocken."
+	],
+	"steps.flooded": [
+		"Stufen, die ins Bachbett hinunterführen.",
+		"Jetzt stürzt das Wasser darüber. Solange das Wehr offen ist, kommt da niemand hinunter."
+	],
+	"steps.flooded_up": [
+		"Die Stufen hinauf zur Quelle.",
+		"Das Wasser stürzt darüber herab."
+	],
+	"fisher.mud": [
+		"Oh. Von dort oben ist lange niemand gekommen.",
+		"Ich wollte nur noch heim. Drüben, das Haus. Siehst du es?",
+		"Im Schlamm fährt kein Boot. Das Wasser kam immer am Morgen und ging am Abend. Seitdem ist Abend.",
+		"Und ohne das Licht auf der Insel fahre ich sowieso nicht hinaus. Bei Niedrigwasser kam man zu Fuß hinüber, über die Steine. Aber ich … ich bleibe lieber beim Boot."
+	],
+	"fisher.no_light": [
+		"Wasser! Das Boot schwimmt.",
+		"Aber das Licht auf der Insel ist aus. Ohne das Licht fahre ich nicht. Meine Mutter fuhr einmal ohne.",
+		"Hinüber zur Insel kam man nur zu Fuß, über die Steine. Bei Niedrigwasser. Jetzt liegen sie unter Wasser."
+	],
+	"fisher.light_on": [
+		"Das Licht! Es brennt wieder. Danach bin ich immer gefahren.",
+		"Aber im Schlamm fährt niemand. Das Wasser kam immer am Morgen, von oben."
+	],
+	"fisher.row": [
+		"Wasser, und das Licht brennt.",
+		"Steig ein. Ich fahre heim."
+	],
+	"boat.hers": [
+		"Ein Ruderboot. Es gehört der Fischerin."
+	],
+	"boat.mud": [
+		"Das Boot liegt im Schlamm."
+	],
+	"fisher.home": [
+		"Daheim. Das Boot kannst du nehmen, wann du willst.",
+		"Hier auf dem Steg saß ich jeden Abend. Vom Wasser aus sah man oben das große Licht. Hinauf ging nur der Alte.",
+		"An dem Abend spiegelte es sich noch im Weiher, als es oben schon aus war. Ich habe hinaufgesehen und wieder hinunter. Zweimal."
+	],
+	"fisher.whole": [
+		"Es brennt wieder. Da oben.",
+		"Du bist früher manchmal mitgefahren. Du hast nie gesagt, wohin du wolltest."
+	],
+	"memory.jetty": [
+		"Über dem Wasser, hoch oben: ein großes Licht.",
+		"Da ist noch ein Stück. Eines, das niemand mehr kennt."
+	],
+	"view.village.dark": [
+		"Tief unten: das Dorf.",
+		"Dort ist es noch dunkel."
+	],
+	"view.village.lit": [
+		"Tief unten: das Dorf.",
+		"Seine Lichter brennen."
+	],
+	"view.mill_hill.dark": [
+		"Dort drüben: der Mühlenhügel.",
+		"Dort ist es noch dunkel."
+	],
+	"view.mill_hill.lit": [
+		"Dort drüben: der Mühlenhügel.",
+		"Die Flügel drehen sich im Licht."
+	],
+	"view.spring.dark": [
+		"Weiter hinten: die Quelle.",
+		"Dort ist es noch dunkel."
+	],
+	"view.spring.lit": [
+		"Weiter hinten: die Quelle.",
+		"Das Wasser glänzt."
+	],
+	"view.pond.dark": [
+		"Gleich unterhalb: der Weiher.",
+		"Dort ist es noch dunkel."
+	],
+	"view.pond.lit": [
+		"Gleich unterhalb: der Weiher.",
+		"Das Licht auf der Insel brennt."
+	],
+	"big_light.dark": [
+		"Eine große Feuerschale auf einem Pfeiler. Kalt.",
+		"Der Docht fehlt."
+	],
+	"big_light.weak": [
+		"Der Docht sitzt. Die Flamme bleibt klein und duckt sich.",
+		"Unten ist es noch nicht überall hell. Allein trägt sie nicht."
+	],
+	"big_light.lit": [
+		"Der Docht sitzt. Die Flamme greift und richtet sich auf.",
+		"Unten antworten die Lichter. Das Dorf. Die Mühle. Die Quelle. Der Weiher.",
+		"Das Tal hängt wieder zusammen.",
+		"Und dahinter, im Dunkeln: andere Stücke. Viele. Keines von ihnen hat Licht.",
+		"Der Riss ist nicht vorbei. Er ist nur hier vorbei."
+	],
+	"big_light.burns": [
+		"Das große Licht brennt.",
+		"Dahinter liegen noch viele Stücke im Dunkeln."
+	],
+	"memory.lookout": [
+		"Hier stand er. Jeden Abend.",
+		"Erst brannte das große Licht. Dann, eines nach dem anderen, die Lichter unten."
+	],
+	"note.village.title": "Das Dorf",
+	"note.village.text": "Ein Stück Land, das im Leeren hängt. Ich kenne seine Wege, bevor ich sie gehe.",
 	"note.mill_hill.title": "Der Mühlenhügel",
-	"note.mill_hill.text": "Ein Hügel mit einer Windmühle. Von hier kam immer der Wind ins Dorf.",
+	"note.mill_hill.text": "Ein Hügel mit einer Windmühle. Hier oben ist es still. Der Wind für das ganze Tal kommt von hier.",
 	"note.spring.title": "Die Quelle",
-	"note.spring.text": "Ein Teich, aus dem der Bach entspringt. Ein Wehr hält das Wasser zurück.",
+	"note.spring.text": "Ein Teich, aus dem der Bach entspringt. Ein Wehr hält das Wasser zurück. Stufen führen ins Bachbett hinunter.",
+	"note.pond.title": "Der Weiher",
+	"note.pond.text": "Ein Stück, von dem oben niemand mehr sprach. Seit es in diesem Buch steht, führt der Bogen der Quelle hierher.",
+	"note.watch.title": "Die Warte",
+	"note.watch.text": "Der höchste Ort des Tals. Hier brannte jeden Abend das große Licht. Der Alte hat es angezündet.",
+	"note.lee_of_stone.title": "Hinter dem Stein",
+	"note.lee_of_stone.text": "Die Frau am Bach saß als Kind hinter dem großen Stein, wenn es zog. Dahinter war es still.",
+	"note.light_means_home.title": "Licht vor der Tür",
+	"note.light_means_home.text": "Im Dorf heißt ein dunkles Haus: niemand daheim. Dann klopft man auch nicht.",
+	"note.lent_thing.title": "Etwas Geliehenes",
+	"note.lent_thing.text": "Im Schrank des Alten liegt etwas, womit er die Spieluhr aufzog. Es gehört ihm nicht. Er weiß nicht mehr, wem.",
+	"note.millers_crank.title": "Die Kurbel des Müllers",
+	"note.millers_crank.text": "Der Müller hat seine Kurbel verliehen, an einen, der etwas Kleines aufziehen wollte. An wen, weiß er nicht mehr.",
+	"note.still_place.title": "Wo es zurückkommt",
+	"note.still_place.text": "Das Kind sagt: Wo jemand jeden Tag steht, kommt es zurück, wenn man ganz still ist. Nur dort. Ich muss mich daneben stellen und warten.",
+	"note.field_thirsty.title": "Das Feld",
+	"note.field_thirsty.text": "Das Feld am Mühlenhügel bekam sein Wasser am Morgen, von der Quelle. Ohne Korn läuft die Mühle leer.",
+	"note.morning_water.title": "Wasser am Morgen",
+	"note.morning_water.text": "Das Wasser kam am Morgen und ging am Abend. Jemand schloss das Wehr über Nacht. Der Riss kam am Abend.",
+	"note.island_light.title": "Das Licht auf der Insel",
+	"note.island_light.text": "Die Fischerin fährt nur, wenn das Licht auf der Insel brennt. Zur Insel kommt man zu Fuß, über Steine, bei niedrigem Wasser.",
+	"note.evening_walk.title": "Abends am Bach",
+	"note.evening_walk.text": "Die Frau ging jeden Abend am Bach entlang bis zur Brücke. Immer dieselben Schritte.",
+	"note.fishers_evening.title": "Der Steg",
+	"note.fishers_evening.text": "Die Fischerin saß jeden Abend auf dem Steg vor ihrem Haus. Von dort sah man über dem Wasser ein großes Licht.",
 	"note.arch_village.title": "Der Bogen im Dorf",
-	"note.arch_village.text": "Der Steinbogen am Ostrand des Dorfs führt zum Mühlenhügel. Er öffnet sich erst, wenn die Laternen brennen.",
-	"note.arch_mill.title": "Die Bögen am Mühlenhügel",
-	"note.arch_mill.text": "Der linke Bogen führt zurück ins Dorf, der rechte zur Quelle.",
-	"note.arch_spring.title": "Der Bogen an der Quelle",
-	"note.arch_spring.text": "Er führte mich nicht zurück zum Mühlenhügel, sondern ins Dorf. Die Wege sind falsch verbunden, solange das Wehr geschlossen ist.",
-	"note.crank.title": "Die Kurbel der Mühle",
-	"note.crank.text": "Ohne Kurbel steht die Mühle still. Der Müller hat sie dem alten Mann geliehen. Sie soll in seinem Schrank liegen.",
-	"note.raft.title": "Das Floß",
-	"note.raft.text": "Das Floß an der Quelle liegt am falschen Ufer. Der Wind hat es dorthin getrieben. Der Wind kommt von der Mühle."
+	"note.arch_village.text": "Am Ostrand stand ein Steinbogen. Als ich mich an ihn erinnerte, stand er wieder da. Daneben sah ich einen Stein liegen, wo jetzt keiner liegt.",
+	"note.stone_places.title": "Der Stein an der Brücke",
+	"note.stone_places.text": "Er lag neben der Brücke im Gras. Nicht auf dem Weg und nicht vor dem Haus.",
+	"note.vane_direction.title": "Die Wetterfahne",
+	"note.vane_direction.text": "Vom Platz des Müllers aus sah ich die Mühle, wie sie war. Die Fahne zeigte zum hinteren Rand des Hügels, vom Weg weg.",
+	"note.big_light.title": "Das große Licht",
+	"note.big_light.text": "Vom Steg der Fischerin aus sah ich es: hoch über dem Wasser ein großes Licht. Dort oben muss noch ein Stück sein.",
+	"note.lookout.title": "Der Platz des Alten",
+	"note.lookout.text": "Er stand jeden Abend auf der Warte. Erst brannte das große Licht, dann die Lichter unten, eines nach dem anderen.",
+	"note.rift_stranger.title": "Der Riss: die Laternen",
+	"note.rift_stranger.text": "Die Frau am Bach sagt: Alle Laternen gingen auf einmal aus, noch bevor ein Wind ging.",
+	"note.rift_miller.title": "Der Riss: die Flügel",
+	"note.rift_miller.text": "Der Müller sagt: Die Flügel standen einen Augenblick still, bei vollem Wind.",
+	"note.rift_child.title": "Der Riss: die Helligkeit",
+	"note.rift_child.text": "Das Kind sagt: Es war ganz hell, wie mittags. Dabei war es Abend.",
+	"note.rift_fisher.title": "Der Riss: der Spiegel",
+	"note.rift_fisher.text": "Die Fischerin sagt: Das große Licht spiegelte sich noch im Weiher, als es oben schon aus war.",
+	"note.rift_old_man.title": "Der Riss: die Spieluhr",
+	"note.rift_old_man.text": "Der Alte sagt: Er wollte gerade los und hörte die Spieluhr. Sie lief rückwärts. Ich war dabei. Ich habe sie nur langsamer werden hören."
 }

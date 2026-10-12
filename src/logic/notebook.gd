@@ -1,10 +1,11 @@
 class_name Notebook
 extends RefCounted
-## What the notebook can hold: memories, pieces of the world and hints, and how they relate.
+## What the notebook can hold: memories, pieces of the world, hints and what people recall of
+## the Rift, and how they relate.
 ## Which of them the player has found is part of the game state.
 
 const PATH := "res://data/notes.json"
-const KINDS := ["memory", "piece", "hint"]
+const KINDS := ["memory", "piece", "hint", "rift"]
 
 
 ## All notes of the game: id -> "kind", "world" and "links" (ids of related notes).

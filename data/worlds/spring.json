@@ -19,27 +19,17 @@
 		"      .~..      ",
 		"                "
 	],
-	"ground_image": {
-		"path": "res://assets/worlds/spring_ground.png",
-		"scale": 1.607,
-		"origin": [-764.52, 83.2]
-	},
+	"ground_image": {"path": "res://assets/worlds/spring_ground.png", "scale": 1.607, "origin": [-764.52, 83.2]},
 	"music": "res://assets/music/spring_theme.mp3",
 	"mood": {},
-	"mood_wrong": {
-		"wind": -1.2,
-		"water": -1.0,
-		"shadow": [-0.45, 0.3],
-		"saturation": 0.55,
-		"tint": [0.88, 1.0, 0.93],
-		"fog": 0.22,
-		"pitch": 0.92,
-		"muffle": 0.6
-	},
+	"mood_wrong": {"wind": -1.2, "water": -1.0, "shadow": [-0.45, 0.3], "saturation": 0.55, "tint": [0.88, 1.0, 0.93], "fog": 0.22, "light": 0.35, "pitch": 0.92, "muffle": 0.6},
 	"objects": [
 		{"id": "raft", "kind": "raft", "cell": [7, 7]},
 		{"id": "sluice", "kind": "sluice", "cell": [9, 4], "access": [[9, 5]], "state": "open"},
 		{"id": "arch_back", "kind": "arch", "cell": [2, 7], "access": [[3, 7]], "state": "open", "mirrored": true},
+		{"id": "arch_on", "kind": "arch", "cell": [3, 12], "access": [[4, 12]], "state": "open", "mirrored": true},
+		{"id": "spring_lantern", "kind": "lantern", "cell": [5, 10], "state": "lit"},
+		{"id": "steps", "kind": "steps", "cell": [8, 13], "access": [[8, 12]]},
 		{"kind": "tree", "cell": [3, 3]},
 		{"kind": "tree", "cell": [2, 5]},
 		{"kind": "tree", "cell": [4, 10]},
@@ -52,44 +42,28 @@
 	],
 	"broken": {
 		"raft": {"cell": [9, 3]},
-		"sluice": {"state": "closed"}
+		"sluice": {"state": "closed"},
+		"spring_lantern": {"state": "out"},
+		"arch_on": {"state": "closed"}
 	},
 	"faults": [
-		{
-			"id": "raft",
-			"fixed_if": [{"object": "raft", "cell": [7, 7]}],
-			"restores": ["wind"]
-		},
-		{
-			"id": "sluice",
-			"fixed_if": [{"object": "sluice", "state": "open"}],
-			"restores": ["water"]
-		}
+		{"id": "lantern", "fixed_if": [{"object": "spring_lantern", "state": "lit"}], "restores": ["light"]},
+		{"id": "raft", "fixed_if": [{"object": "raft", "cell": [7, 7]}], "restores": ["wind"]},
+		{"id": "sluice", "fixed_if": [{"object": "sluice", "state": "open"}], "restores": ["water"]}
 	],
 	"rules": [
-		{
-			"on": "always",
-			"if": [{"object": "mill", "world": "mill_hill", "state": "turning"}, {"object": "raft", "cell": [9, 3]}],
-			"do": [{"change": "raft", "cell": [7, 7]}]
-		},
-		{
-			"on": "enter", "cells": [[6, 7]],
-			"if": [{"object": "raft", "cell": [9, 3]}, {"fact": "raft_seen", "is": false}],
-			"do": [{"say": "raft.away"}, {"set": "raft_seen"}, {"note": "raft"}]
-		},
-		{
-			"on": "interact", "object": "sluice",
-			"if": [{"object": "sluice", "state": "closed"}],
-			"do": [{"change": "sluice", "state": "open"}, {"say": "sluice.opens"}]
-		},
-		{
-			"on": "interact", "object": "arch_back",
-			"if": [{"fixed": "sluice"}],
-			"do": [{"go": "mill_hill", "cell": [11, 9]}]
-		},
-		{
-			"on": "interact", "object": "arch_back",
-			"do": [{"go": "village", "cell": [14, 13]}, {"note": "arch_spring"}]
-		}
+		{"on": "always", "if": [{"object": "mill", "world": "mill_hill", "state": "turning"}, {"object": "raft", "cell": [9, 3]}], "do": [{"change": "raft", "cell": [7, 7]}]},
+		{"on": "interact", "object": "sluice", "if": [{"fact": "rift"}, {"object": "sluice", "state": "closed"}], "do": [{"change": "sluice", "state": "open"}, {"say": "sluice.opens"}]},
+		{"on": "interact", "object": "sluice", "if": [{"fact": "rift"}, {"object": "sluice", "state": "open"}], "do": [{"change": "sluice", "state": "closed"}, {"say": "sluice.closes"}]},
+		{"on": "interact", "object": "steps", "if": [{"object": "sluice", "world": "spring", "state": "closed"}], "do": [{"go": "pond", "cell": [3, 2]}, {"note": "pond"}]},
+		{"on": "interact", "object": "steps", "do": [{"say": "steps.flooded"}]},
+		{"on": "interact", "object": "spring_lantern", "if": [{"object": "spring_lantern", "state": "out"}, {"object": "mill", "world": "mill_hill", "state": "turning"}], "do": [{"change": "spring_lantern", "state": "lit"}]},
+		{"on": "interact", "object": "spring_lantern", "if": [{"object": "spring_lantern", "state": "out"}], "do": [{"say": "lantern.blown"}]},
+		{"on": "always", "if": [{"object": "spring_lantern", "state": "lit"}, {"object": "arch_on", "state": "closed"}], "do": [{"change": "arch_on", "state": "open"}]},
+		{"on": "always", "if": [{"object": "spring_lantern", "state": "out"}, {"object": "arch_on", "state": "open"}], "do": [{"change": "arch_on", "state": "closed"}]},
+		{"on": "interact", "object": "arch_on", "if": [{"object": "arch_on", "state": "open"}, {"note": "pond"}], "do": [{"go": "pond", "cell": [2, 4]}]},
+		{"on": "interact", "object": "arch_on", "if": [{"object": "arch_on", "state": "open"}], "do": [{"go": "village", "cell": [15, 13]}, {"say": "arch.skips"}]},
+		{"on": "interact", "object": "arch_on", "do": [{"say": "arch.dark"}]},
+		{"on": "interact", "object": "arch_back", "do": [{"go": "mill_hill", "cell": [11, 9]}]}
 	]
 }

@@ -6,6 +6,8 @@ Alle Entscheidungen zu Spieldesign, Stil, Technik und Arbeitsteilung stehen in `
 
 Was noch zu bauen ist, steht in `docs/backlog.md`. Erledigtes dort löschen, Neues eintragen.
 
+Der Spielinhalt steht je Kapitel in `docs/chapters/` (bisher `valley.md`): Geschichte, Orte, Figuren, Rätsel und Zusammenhänge, als Text und als feste Blöcke. Wer Welten, Regeln oder Texte eines Kapitels ändert, ändert auch seine Datei.
+
 ## Sprache
 
 - **Englisch:** der gesamte Quellcode (GDScript, Shader, Python), Bezeichner, Kommentare, Datei- und Ordnernamen, Schlüssel und Werte in Datendateien, Kommandozeilen-Argumente und Programmausgaben. Das gilt für alles Neue.
@@ -18,20 +20,21 @@ Was noch zu bauen ist, steht in `docs/backlog.md`. Erledigtes dort löschen, Neu
   - `World`: eine Welt aus ihrer Datei (heile Fassung), über die die Änderungen aus dem Spielspeicher gelegt werden. Ihre Objekte sind `WorldObject`.
   - `Session`: das laufende Spiel. Alles, was die Figur tut, läuft über `enter()`, `interact()` und `linger()`. Dort stehen auch alle Bedingungen und Folgen, die Regeln in Welt-Dateien benutzen dürfen. `interact()` wirkt nur von einer Zelle aus, von der das Objekt erreichbar ist (`can_use()`).
   - `RuleCheck`: liest alle Regeln, Fehler und Startfolgen und meldet, was `Session` nicht versteht (unbekannte Schlüssel, Namen von Welten, Objekten, Fehlern, Notizen, Fakten und Gegenständen, die es nicht gibt). Wer `Session` eine neue Bedingung oder Folge beibringt, trägt sie auch hier ein.
-  - `Solver`: spielt das ganze Spiel in allen Varianten durch und meldet Sackgassen.
+  - `Solver`: spielt das ganze Spiel in allen Varianten durch und meldet Sackgassen. Zustände, die sich nur in etwas unterscheiden, wonach keine Regel fragt, zählen als gleich.
   - `Settings`: was der Spieler für das ganze Spiel eingestellt hat (Lautstärke der Musik, Sprache), in `user://settings.json`. Getrennt vom Spielstand, damit es ein neues Spiel überdauert.
   - `SaveFile`: schreibt und liest den Spielstand. Ein unlesbarer Stand wird als `save.json.unusable` beiseitegelegt, nicht überschrieben.
   - `Mood`, `Iso`: Stimmungsregler und Umrechnung zwischen Zelle und Bildpunkt.
 - `src/view/`: alles Sichtbare, Shader in `src/view/shaders/`. Die Hauptszene `scenes/game.tscn` baut ihre Knoten per Code auf.
   - `game.gd`: verbindet Session, Eingabe und Ansicht und entscheidet, was wann passiert (Laufen, Verweilen, Weltwechsel, Stimmung, Speichern).
-  - `Stage`: eine Welt auf dem Bildschirm (Boden, Wasser, Schatten, `ObjectView` je Objekt, `Player`, die durchscheinende Erinnerung). Wird bei jedem Weltwechsel neu gebaut.
+  - `Stage`: eine Welt auf dem Bildschirm (Boden, Wasser, Schatten, `ObjectView` je Objekt (ohne Bild als gezeichneter Platzhalter), `Player`, die durchscheinende Erinnerung). Wird bei jedem Weltwechsel neu gebaut.
   - `Music`: spielt das Stück der Welt und blendet über. Der Bus „Music“ mit dem Dämpfungsfilter steht in `default_bus_layout.tres`, die Schleife in den Import-Einstellungen der Stücke.
   - `Sprites`: liest `data/sprites.json` und hält, was alle Ansichten teilen (Materialien, Lichtflecken, Treffer-Masken). Gehört dem laufenden Spiel und wird an jede Ansicht übergeben; es gibt keinen statischen Zustand in der Ansicht.
+  - `Banner`: ein Schriftzug, der für seltene Momente kurz erscheint, etwa wenn eine Welt heil wird (`Session` meldet das als Folge `{"whole": welt}`).
   - `PauseView`: der Pause-Knopf oben links und die Pause-Seite (Lautstärke, Sprache, neu beginnen). Solange sie offen ist, steht der ganze Baum still (`get_tree().paused`); nur sie selbst und die Musik laufen weiter. Die Zurück-Geste des Handys öffnet sie, eine zweite verlässt das Spiel.
   - `DialogueBox`, `NotebookView`, `PauseView`, `StartScreen`: Oberfläche aus echten Controls. Was offen ist, deckt den Bildschirm mit einem Control ab, das alle Tipps schluckt. Flächen reagieren auf die Berührung des ersten Fingers, Knöpfe sind `Button`. Aussehen (Schriftgrößen, Farben, Flächen) kommt aus `assets/ui/theme.tres`; die Ansichten nennen nur die Variante (`theme_type_variation`).
   - Wind, Wasser und Schatten lesen ihre Richtung aus globalen Shader-Werten (`[shader_globals]` in `project.godot`), die `game.gd` aus der Stimmung setzt.
-- `data/game.json`: Startwelt, Liste aller Welten und was beim Start eines neuen Spiels passiert.
-- `data/worlds/`: Welten als JSON. Der Boden ist ein Zeichenraster (` ` Leere, `.` Gras, `=` Weg, `~` Wasser, `#` Brücke, `_` Boden eines Innenraums). `objects` beschreibt die heile Fassung, `broken` die Abweichungen der kaputten, `faults` die Fehler (jeder stellt bestimmte Stimmungsregler wieder her), `rules` was bei Interaktionen und beim Betreten von Zellen passiert.
+- `data/game.json`: Startwelt, Liste aller Welten, was beim Start eines neuen Spiels passiert und wann das Spiel zu Ende ist (`complete_if`).
+- `data/worlds/`: Welten als JSON. Der Boden ist ein Zeichenraster (` ` Leere, `.` Gras, `=` Weg, `~` Wasser, `#` Brücke, `_` Boden eines Innenraums). `objects` beschreibt die heile Fassung, `broken` die Abweichungen der kaputten, `faults` die Fehler (jeder stellt bestimmte Stimmungsregler wieder her), `memories` die Orte der Erinnerung (jeder nennt den Ausschnitt der Welt, der dort durchscheint), `rules` was bei Interaktionen, beim Betreten von Zellen und beim Verweilen passiert.
 - `data/sprites.json`: wie jedes Bild in der Welt sitzt (Breite, Fußpunkt, Schatten, Licht) und die Maße, die Spiel und Bildwerkzeuge teilen (Rand, Laufbilder). Die Schlüssel sind in `src/view/sprites.gd` beschrieben.
 - `data/notes.json`: alle Einträge des Notizbuchs mit Art, Welt und Verknüpfungen (immer in beide Richtungen).
 - `data/texts/`: alle sichtbaren Texte je Sprache (`en.json`, `de.json`), mit denselben Schlüsseln in jeder Datei. Regeln nennen nur Schlüssel.
@@ -54,7 +57,7 @@ Der dritte Befehl startet das Spiel im Fenster, tippt nacheinander auf die Zelle
 
 Der vierte Befehl schreibt das Theme neu, nachdem `tools/build_theme.gd` geändert wurde.
 
-Der Test prüft auch die Regeln aller Welten (`RuleCheck`) und die Lösbarkeit: Nach jeder Änderung an Welten oder Regeln laufen lassen. Beim Start im Fenster meldet ein Debug-Bau dieselben Regelfehler in der Ausgabe.
+Der Test prüft auch die Regeln aller Welten (`RuleCheck`) und die Lösbarkeit und spielt das Kapitel einmal so durch, wie es gedacht ist: Nach jeder Änderung an Welten oder Regeln laufen lassen. Er braucht etwa eine halbe Minute, fast alles davon für die Lösbarkeit. Beim Start im Fenster meldet ein Debug-Bau dieselben Regelfehler in der Ausgabe.
 
 Aufs Handy (USB-Debugging an, per USB verbunden):
 

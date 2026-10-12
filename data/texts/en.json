@@ -13,113 +13,418 @@
 	"pause.confirm": "Start over from the beginning?\nEverything you have done so far will be lost.",
 	"pause.confirm_yes": "Yes, start over",
 	"pause.confirm_no": "No, go back",
+	"notebook.whole": "Whole again",
+	"notebook.broken": "Something is still wrong here",
+	"banner.whole": "%s is whole again",
 	"kind.memory": "Memory",
 	"kind.piece": "Piece of the world",
 	"kind.hint": "Hint",
-	"world.village": "The village",
-	"world.house_inside": "The house",
-	"note.village.title": "The village",
-	"note.village.text": "A piece of land hanging in the void. I know its paths before I walk them.",
-	"note.stone_at_bridge.title": "The stone by the bridge",
-	"note.stone_at_bridge.text": "It lay beside the tree, not on the path. Once it was back there, the brook ran the right way again.",
-	"note.old_man.title": "The old man",
-	"note.old_man.text": "He knows the way I walk, but not my name. The notebook lay on his table before the Rift. It is written in my handwriting.",
-	"note.evening_walks.title": "Across the bridge at dusk",
-	"note.evening_walks.text": "A woman by the brook used to see me cross it every evening. Where I went, I no longer know.",
+	"kind.rift": "The Rift",
 	"name.self": "Me",
 	"name.old_man": "Old man",
 	"name.stranger": "Woman by the brook",
-	"old_man.first": [
-		"... You. I know the way you walk.",
-		"The lanterns are burning again. Was that you?",
-		"So much has been wrong here since the Rift. The wind. The trees. I just cannot recall how it used to be.",
-		"There is a notebook on the table over there. It lay there before everything tore apart. It is not mine. Take it."
-	],
-	"old_man.hint_wind": [
-		"The wind stands wrong. It always came from the mill hill.",
-		"The stone arch at the eastern edge used to lead there. Perhaps it does again."
-	],
-	"old_man.whole": [
-		"Now I can hear it again. The village sounds the way it did.",
-		"I remember your name. Give me a moment and I will find it."
-	],
-	"stranger.remembers": [
-		"You used to cross this bridge every evening.",
-		"I never asked where you were going."
-	],
-	"stranger.lanterns": [
-		"You came across the bridge. Nobody has done that in a long time.",
-		"Do you see the lanterns? Not one has burned since the Rift. We tried everything. For us they stay dark.",
-		"The old man in the house up the path might know what to do. But since the Rift his door leads everywhere except inside."
-	],
-	"stranger.lanterns_lit": [
-		"They are burning. All three.",
-		"Things listen to you again. Try the old man's door. Perhaps it will find its way back as well.",
-		"And look, the stone arch at the edge is shimmering again. The mill hill used to lie beyond it."
-	],
-	"old_man.take_it": [
-		"The notebook. On the table over there. Go on, take it."
-	],
-	"notebook.taken": [
-		"A small notebook. The first pages are already written on.",
-		"It is my handwriting."
-	],
 	"name.miller": "Miller",
+	"name.child": "Child",
+	"name.fisher": "Fisherwoman",
+	"world.village": "The village",
+	"world.house_inside": "The house",
 	"world.mill_hill": "The mill hill",
 	"world.spring": "The spring",
-	"arch.closed": [
-		"An arch of old stones. Beyond it there is only sky."
+	"world.pond": "The pond",
+	"world.watch": "The watch",
+	"old_man.before": [
+		"There you are. Evening is coming.",
+		"The lanterns, as always. All three. Don't forget the one by the bridge.",
+		"And when you are back … wind the music box for me. My fingers won't do it any more.",
+		"I have to be off then. I am late."
 	],
-	"old_man.crank": [
-		"The miller's crank? I had forgotten all about it.",
-		"Look in the cupboard. Take it with you."
+	"old_man.before_again": [
+		"The lanterns first. Then the music box.",
+		"Like every evening."
 	],
-	"old_man.hint_brook": [
-		"The wind is blowing the right way again. Can you hear it?",
-		"But the brook still runs uphill. Its spring lies beyond the mill."
+	"music_box.later": [
+		"A small music box. The crank is already in place.",
+		"Later. The other things first."
+	],
+	"table.before": [
+		"A book lies on the table.",
+		"It lies there as if it always had."
+	],
+	"stranger.before": [
+		"Good evening.",
+		"You are early today. Or I am late. The brook is loud tonight, do you hear?"
+	],
+	"child.before": [
+		"I am counting the lights. When you are done, there are three."
+	],
+	"arch.before": [
+		"The arch to the mill hill.",
+		"Not today. The old man is waiting."
+	],
+	"music_box.evening": [
+		"The crank turns heavily. Then the tune begins.",
+		"The old man listens. His lips move along.",
+		"Then he gets up and takes his coat."
+	],
+	"old_man.leaving": [
+		"That is how it went. Just so.",
+		"I have to be off. You go ahead, I will be right behind you."
+	],
+	"rift.comes": [
+		"In the doorway I hear the tune behind me. It grows slower. Deeper.",
+		"…"
+	],
+	"rift.wake": [
+		"Grass. Wind from the wrong side.",
+		"I am lying by the path. For how long?"
+	],
+	"lantern.blown": [
+		"The flame takes. It flickers.",
+		"Then the wind carries it off."
+	],
+	"stranger.wind": [
+		"You come across the bridge. Nobody has done that for a long time.",
+		"Since the Rift no wick here will catch. The wind is a different one.",
+		"As a child I always sat behind the big stone when it blew. It was still behind it. You could even … oh, that does not belong here.",
+		"It is dark in front of the old man's door. Dark means: nobody home. Then you do not knock either."
+	],
+	"stranger.house_lit": [
+		"There is light at the old man's. Then he is home.",
+		"Behind a stone, you say? Yes. It never blew behind it. I knew that as a child.",
+		"The wind is a different one all the same. It was not always like this."
+	],
+	"stranger.evening": [
+		"Do you feel that? The wind is the old one again.",
+		"I walked along the brook here every evening. As far as the bridge, always the same steps. My feet still know.",
+		"That evening … all the lanterns went out at once. Before any wind blew. I do not forget that."
+	],
+	"stranger.whole": [
+		"Now it is my evening again.",
+		"You used to pass here every evening. I never asked where to."
+	],
+	"child.shy": [
+		"…",
+		"You do not have it with you."
+	],
+	"child.still": [
+		"The book! You always had that with you.",
+		"I stand here every day. If you are very still, it comes back. Only here.",
+		"There was something over there. You could walk through it."
+	],
+	"child.bright": [
+		"See. It has come back.",
+		"That evening it was all bright. Like noon. Nobody believes me."
+	],
+	"memory.cliff": [
+		"An arch stood there.",
+		"It stands there again."
+	],
+	"memory.bridge": [
+		"The stone lay beside the bridge, in the grass. Not on the path.",
+		"And the lantern was burning."
+	],
+	"arch.dark": [
+		"An arch of old stones. Behind it there is only sky.",
+		"The lantern here is dark."
+	],
+	"arch.skips": [
+		"That was not the way back.",
+		"The arch skipped something."
+	],
+	"old_man.first": [
+		"… You. I know your walk.",
+		"Sit down. No. You never sit down.",
+		"There is a book on the table. It has been lying there for as long as I can think. The writing is not mine."
+	],
+	"old_man.take_it": [
+		"The book. There on the table.",
+		"Take it. It has been looking at you all this time."
+	],
+	"notebook.taken": [
+		"A small notebook. The first pages are written on.",
+		"It is my handwriting.",
+		"What I have learned today is already in it."
+	],
+	"old_man.borrowed": [
+		"The music box is silent. Do you hear? Exactly.",
+		"I always wound it with … it is in the cupboard. It is not mine.",
+		"I hand out nothing unless I know whose it is. I have always been like that. I think."
+	],
+	"cupboard.guarded": [
+		"Leave the cupboard shut.",
+		"What lies in there is borrowed. Tell me from whom, then we shall see."
+	],
+	"old_man.yours": [
+		"The miller, you say? The miller! Of course.",
+		"Then it is his. Take it to him. And greet him. He will know from whom."
 	],
 	"cupboard.crank": [
-		"Between old blankets lies a heavy iron crank."
+		"He opens the cupboard. Between old blankets lies a heavy iron crank.",
+		"I take it."
+	],
+	"old_man.carry": [
+		"Take it to the miller.",
+		"The music box can wait. It has been waiting a long time."
+	],
+	"old_man.waiting": [
+		"You took it to him? Good.",
+		"It is quiet here without the music box. I am waiting."
+	],
+	"old_man.wind_it": [
+		"He gave it back to you?",
+		"Then wind it. Please."
+	],
+	"old_man.humming": [
+		"Hm-hm, hmm … that is how it went. Just so.",
+		"In the evenings I always went up somewhere. Every evening.",
+		"Where to … it will not come to me."
+	],
+	"old_man.above": [
+		"A great light, you say. Above the water.",
+		"The watch. I lit it every evening. Every one.",
+		"That evening I was just about to leave. I still heard the music box. It was running backwards.",
+		"I cannot get up there any more. My legs no longer know the way.",
+		"Here. The wick. It will not burn without it. You go."
+	],
+	"old_man.go": [
+		"Go on. I will listen to the music box.",
+		"When it burns up there, I shall see it from the window."
+	],
+	"music_box.silent": [
+		"A small music box. It is silent.",
+		"Where the crank should sit there is an empty hole."
+	],
+	"music_box.wrong": [
+		"The crank fits.",
+		"The tune comes out crooked, too low, as if under water. Something outside is still wrong."
+	],
+	"music_box.plays": [
+		"The crank catches.",
+		"The tune. As on the evening before everything tore.",
+		"The old man lifts his head."
+	],
+	"music_box.playing": [
+		"It is playing. Softly, without end."
 	],
 	"miller.crank": [
-		"She has stood still since the Rift. Not a sail moves, and the wind is gone.",
-		"The crank is missing. I lent it to the old man in the village, long before. It should be in his cupboard.",
-		"I cannot get away from here. The arches only ever lead me in circles."
+		"Since the Rift she stands still. Not a sail moves. Not a breath of air up here.",
+		"The crank is missing. I lent it out. To someone who wanted to wind something. Something small.",
+		"To whom … it is on the tip of my tongue. Has been for weeks. Or years.",
+		"I stand here every evening and watch the weather. Now there is none. Only sometimes, when I stand quite still …"
 	],
 	"miller.have_crank": [
-		"That is it! Set it on the mill, right beside the door."
-	],
-	"miller.turning": [
-		"Do you hear that? She is grinding again.",
-		"The wind reaches all the way down to the village now. And at the spring it drives things back to where they belong."
+		"That is it! Where from … never mind.",
+		"Put it on. Right beside the door."
 	],
 	"mill.stuck": [
-		"The sails stand still. Where the crank should sit there is only an empty hole."
+		"The sails stand still.",
+		"Where the crank should sit there is only an empty hole."
 	],
 	"mill.turns": [
-		"The crank catches. A creak, then the sails begin to turn.",
-		"The wind is back."
+		"The crank catches. A creak, then the sails turn.",
+		"The wind is back. The right one."
+	],
+	"mill.backwards": [
+		"The crank catches. The sails turn.",
+		"But backwards. The wind comes and goes again, all at once."
+	],
+	"mill.backwards_look": [
+		"The sails run backwards.",
+		"The crank sits firm. That is not the reason."
+	],
+	"miller.backwards": [
+		"The wrong way round. Like that she grinds nothing, she only takes.",
+		"She goes by the vane over there. And the vane … where did it point again?",
+		"Here, where I stand, I used to know at once. Stand beside me and keep still. Maybe you see more than I do."
+	],
+	"vane.right": [
+		"The vane clicks into place.",
+		"The sails stop. Then they turn the other way.",
+		"The wind is back. The right one."
+	],
+	"vane.fixed": [
+		"The miller has fastened the weather vane.",
+		"It points the right way."
+	],
+	"miller.dry": [
+		"She runs! But empty.",
+		"The field. Look at it. It always got its water in the morning, from above, from the spring.",
+		"There has been no morning for a long time."
+	],
+	"miller.grain": [
+		"Grain! She has grain in her again. Now she will not stop any more.",
+		"Here, the crank. She only needed it to start. Take it back to the one who … you know whom.",
+		"That evening the sails stood still for a moment. In full wind. That does not happen."
+	],
+	"miller.whole": [
+		"Do you hear her grinding?",
+		"You used to come up here often. You never bought any flour."
+	],
+	"memory.mill": [
+		"The sails are turning.",
+		"And the weather vane points another way than now."
 	],
 	"raft.away": [
-		"A raft used to cross the brook here. Now it lies over in the pond, on the far bank.",
-		"The wind must have driven it across."
+		"A raft used to lead across the brook here.",
+		"Now it lies up in the pool, on the far bank. The wind must have driven it over."
 	],
 	"sluice.opens": [
 		"The sluice gives way. The water runs off, down the brook.",
-		"The right way."
+		"As if it were morning."
 	],
+	"sluice.closes": [
+		"The sluice shuts. The brook grows thin, then still.",
+		"Below, the bed lies dry again."
+	],
+	"steps.flooded": [
+		"Steps leading down into the bed of the brook.",
+		"Now the water rushes over them. Nobody gets down there while the sluice is open."
+	],
+	"steps.flooded_up": [
+		"The steps up to the spring.",
+		"Water rushes down over them."
+	],
+	"fisher.mud": [
+		"Oh. Nobody has come from up there for a long time.",
+		"I only wanted to get home. Over there, the house. Do you see it?",
+		"No boat goes in the mud. The water always came in the morning and went in the evening. It has been evening ever since.",
+		"And without the light on the island I do not go out anyway. At low water you could walk across, over the stones. But I … I would rather stay with the boat."
+	],
+	"fisher.no_light": [
+		"Water! The boat floats.",
+		"But the light on the island is out. Without the light I do not go. My mother once went without.",
+		"You could only reach the island on foot, over the stones. At low water. Now they lie under water."
+	],
+	"fisher.light_on": [
+		"The light! It burns again. I always steered by it.",
+		"But nobody goes in the mud. The water always came in the morning, from above."
+	],
+	"fisher.row": [
+		"Water, and the light is burning.",
+		"Get in. I am going home."
+	],
+	"boat.hers": [
+		"A rowing boat. It belongs to the fisherwoman."
+	],
+	"boat.mud": [
+		"The boat lies in the mud."
+	],
+	"fisher.home": [
+		"Home. You can take the boat whenever you like.",
+		"I sat here on the jetty every evening. From the water you could see the great light up above. Only the old man went up.",
+		"That evening it was still mirrored in the pond when it had already gone out above. I looked up and down again. Twice."
+	],
+	"fisher.whole": [
+		"It burns again. Up there.",
+		"You sometimes came along in the boat. You never said where you wanted to go."
+	],
+	"memory.jetty": [
+		"Above the water, high up: a great light.",
+		"There is another piece. One that nobody knows any more."
+	],
+	"view.village.dark": [
+		"Far below: the village.",
+		"It is still dark there."
+	],
+	"view.village.lit": [
+		"Far below: the village.",
+		"Its lights are burning."
+	],
+	"view.mill_hill.dark": [
+		"Over there: the mill hill.",
+		"It is still dark there."
+	],
+	"view.mill_hill.lit": [
+		"Over there: the mill hill.",
+		"The sails turn in the light."
+	],
+	"view.spring.dark": [
+		"Further back: the spring.",
+		"It is still dark there."
+	],
+	"view.spring.lit": [
+		"Further back: the spring.",
+		"The water glints."
+	],
+	"view.pond.dark": [
+		"Right below: the pond.",
+		"It is still dark there."
+	],
+	"view.pond.lit": [
+		"Right below: the pond.",
+		"The light on the island is burning."
+	],
+	"big_light.dark": [
+		"A great fire bowl on a pillar. Cold.",
+		"The wick is missing."
+	],
+	"big_light.weak": [
+		"The wick is in. The flame stays small and cowers.",
+		"Below, it is not bright everywhere yet. Alone it does not carry."
+	],
+	"big_light.lit": [
+		"The wick is in. The flame takes and straightens.",
+		"Below, the lights answer. The village. The mill. The spring. The pond.",
+		"The valley holds together again.",
+		"And beyond it, in the dark: other pieces. Many. None of them has a light.",
+		"The Rift is not over. It is only over here."
+	],
+	"big_light.burns": [
+		"The great light is burning.",
+		"Beyond it many pieces still lie in the dark."
+	],
+	"memory.lookout": [
+		"Here he stood. Every evening.",
+		"First the great light burned. Then, one after the other, the lights below."
+	],
+	"note.village.title": "The village",
+	"note.village.text": "A piece of land hanging in the void. I know its paths before I walk them.",
 	"note.mill_hill.title": "The mill hill",
-	"note.mill_hill.text": "A hill with a windmill. The wind always came to the village from here.",
+	"note.mill_hill.text": "A hill with a windmill. Up here it is still. The wind for the whole valley comes from here.",
 	"note.spring.title": "The spring",
-	"note.spring.text": "A pond where the brook rises. A sluice holds the water back.",
+	"note.spring.text": "A pool from which the brook rises. A sluice holds the water back. Steps lead down into the bed of the brook.",
+	"note.pond.title": "The pond",
+	"note.pond.text": "A piece nobody up there spoke of any more. Since it stands in this book, the arch at the spring leads here.",
+	"note.watch.title": "The watch",
+	"note.watch.text": "The highest place of the valley. The great light burned here every evening. The old man lit it.",
+	"note.lee_of_stone.title": "Behind the stone",
+	"note.lee_of_stone.text": "As a child the woman by the brook sat behind the big stone when it blew. It was still behind it.",
+	"note.light_means_home.title": "Light at the door",
+	"note.light_means_home.text": "In the village a dark house means: nobody home. Then you do not knock either.",
+	"note.lent_thing.title": "Something borrowed",
+	"note.lent_thing.text": "In the old man's cupboard lies the thing he wound the music box with. It is not his. He no longer knows whose.",
+	"note.millers_crank.title": "The miller's crank",
+	"note.millers_crank.text": "The miller lent out his crank, to someone who wanted to wind something small. He no longer knows to whom.",
+	"note.still_place.title": "Where it comes back",
+	"note.still_place.text": "The child says: where somebody stands every day, it comes back if you are very still. Only there. I have to stand beside them and wait.",
+	"note.field_thirsty.title": "The field",
+	"note.field_thirsty.text": "The field on the mill hill got its water in the morning, from the spring. Without grain the mill runs empty.",
+	"note.morning_water.title": "Water in the morning",
+	"note.morning_water.text": "The water came in the morning and went in the evening. Somebody shut the sluice for the night. The Rift came in the evening.",
+	"note.island_light.title": "The light on the island",
+	"note.island_light.text": "The fisherwoman only goes out when the light on the island burns. You reach the island on foot, over stones, at low water.",
+	"note.evening_walk.title": "Along the brook in the evening",
+	"note.evening_walk.text": "The woman walked along the brook every evening, as far as the bridge. Always the same steps.",
+	"note.fishers_evening.title": "The jetty",
+	"note.fishers_evening.text": "The fisherwoman sat on the jetty by her house every evening. From there you could see a great light above the water.",
 	"note.arch_village.title": "The arch in the village",
-	"note.arch_village.text": "The stone arch at the eastern edge of the village leads to the mill hill. It only opens once the lanterns burn.",
-	"note.arch_mill.title": "The arches on the mill hill",
-	"note.arch_mill.text": "The left arch leads back to the village, the right one to the spring.",
-	"note.arch_spring.title": "The arch at the spring",
-	"note.arch_spring.text": "It did not take me back to the mill hill but to the village. The ways are wrongly joined as long as the sluice is closed.",
-	"note.crank.title": "The crank of the mill",
-	"note.crank.text": "Without its crank the mill stands still. The miller lent it to the old man. It should be in his cupboard.",
-	"note.raft.title": "The raft",
-	"note.raft.text": "The raft at the spring lies on the wrong bank. The wind drove it there. The wind comes from the mill."
+	"note.arch_village.text": "A stone arch stood at the eastern edge. When I remembered it, it stood there again. Beside it I saw a stone lying where none lies now.",
+	"note.stone_places.title": "The stone by the bridge",
+	"note.stone_places.text": "It lay beside the bridge in the grass. Not on the path and not in front of the house.",
+	"note.vane_direction.title": "The weather vane",
+	"note.vane_direction.text": "From the miller's place I saw the mill as it was. The vane pointed to the far edge of the hill, away from the path.",
+	"note.big_light.title": "The great light",
+	"note.big_light.text": "From the fisherwoman's jetty I saw it: a great light high above the water. There must be another piece up there.",
+	"note.lookout.title": "The old man's place",
+	"note.lookout.text": "He stood on the watch every evening. First the great light burned, then the lights below, one after the other.",
+	"note.rift_stranger.title": "The Rift: the lanterns",
+	"note.rift_stranger.text": "The woman by the brook says: all the lanterns went out at once, before any wind blew.",
+	"note.rift_miller.title": "The Rift: the sails",
+	"note.rift_miller.text": "The miller says: the sails stood still for a moment, in full wind.",
+	"note.rift_child.title": "The Rift: the brightness",
+	"note.rift_child.text": "The child says: it was all bright, like noon. Yet it was evening.",
+	"note.rift_fisher.title": "The Rift: the mirror",
+	"note.rift_fisher.text": "The fisherwoman says: the great light was still mirrored in the pond when it had already gone out above.",
+	"note.rift_old_man.title": "The Rift: the music box",
+	"note.rift_old_man.text": "The old man says: he was just about to leave and heard the music box. It was running backwards. I was there. I only heard it grow slower."
 }

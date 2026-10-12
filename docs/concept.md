@@ -52,28 +52,30 @@ Leitgefühl: Alles war einmal eins und ist jetzt getrennt. Der Spieler bewegt si
 - **Erinnerung der NPCs als Fortschrittsanzeige:** Je weiter ein Bruchstück repariert ist, desto mehr erinnern sich seine Bewohner. Ihre Dialoge ändern sich mit dem Zustand der Welt.
 - **Das Tutorial legt Musik und Farben als Referenz fest:** Leitmotiv und Farbpalette der heilen Welt sind das, was in den Bruchstücken zerbrochen ist und sich beim Reparieren wieder zusammensetzt.
 
-### Ablauf im kaputten Dorf (Jan, Stand der ersten Fassung)
+### Der Riss und das Notizbuch gehören dem ganzen Spiel (Jan, 2026-10-12)
 
-Der Spieler soll ohne Erklärtexte merken, was er tun kann. Die Hinweise kommen von den Figuren:
+- **Der Riss bleibt rätselhaft und übergreifend.** Er ist das Ereignis hinter dem gesamten Spiel, nicht hinter einem einzelnen Abschnitt. Die Geschichte eines Abschnitts (das Dorf mit Mühlenhügel und Quelle) darf ihn nicht erklären oder auflösen. Sie erzählt, was der Riss dort angerichtet hat und was die Leute dort verloren haben, und gibt höchstens ein Bruchstück der großen Frage preis.
+- **Das Notizbuch ist übergreifend.** Es begleitet den Spieler durch alle Abschnitte und gehört nicht zur Geschichte eines Dorfs. Was es ist und woher es kommt, ist Teil der großen Geschichte.
+- Ein Entwurf, der beides in die Geschichte des Dorfs zog (der Spieler als Laternenanzünder, der Riss als Folge einer ausgefallenen Runde, das Notizbuch als Rundenbuch), ist deshalb verworfen.
 
-1. Der Stein versperrt die Brücke, dahinter steht die Frau am Bach. Wer mit ihr sprechen will, räumt den Stein weg und lernt so das Verrücken.
-2. Die Frau erzählt, dass die Laternen seit dem großen Ereignis nicht mehr brennen und niemand etwas dagegen tun konnte. Sie verweist auf den Alten im Haus, dessen Tür nirgends mehr hinführt, wo sie soll.
-3. Brennen die Laternen, führt die Tür ins Haus. Der alte Mann bietet ein Notizbuch an, das schon vor dem Ereignis auf seinem Tisch lag.
-4. Der Spieler nimmt es vom Tisch. Erst damit gibt es das Notizbuch im Spiel. Es ist in seiner eigenen Handschrift beschrieben.
+### Kapitel (Jan, 2026-10-12)
+
+Das Spiel besteht aus Kapiteln. Jedes hat eine Datei in `docs/chapters/`, die Geschichte, Orte, Figuren, Rätsel und Zusammenhänge beschreibt: lesbarer Text zum Diskutieren und feste Blöcke für alles, was eindeutig sein muss. Aus ihr werden Welten, Texte und der Bedarf an Bildern und Musik abgeleitet. Der Aufbau der Datei steht in ihrer Lesehilfe.
 
 Die Figuren nennen das große Ereignis **„der Riss“** (englisch „the Rift“). Der Name ist vorläufig.
 
-### Die ersten drei Weltstücke (Stand der ersten Fassung)
+### Erstes Kapitel: das Tal
 
-Das Dorf wird erst heil, wenn auch die anderen Stücke stimmen: Sein Wind kommt vom Mühlenhügel, sein Bach von der Quelle. Die Stücke sind durch Steinbögen verbunden.
+Die verbindliche Fassung steht in `docs/chapters/valley.md`. In Kürze:
 
-- **Dorf:** Laternen (im Dorf lösbar), Wind (hängt an der Mühle), Bach (hängt am Wehr der Quelle). Der Steinbogen am Ostrand öffnet sich, wenn die Laternen brennen, und führt zum Mühlenhügel.
-- **Mühlenhügel:** Die Mühle steht still, weil die Kurbel fehlt. Der Müller hat sie dem alten Mann geliehen, sie liegt in dessen Schrank im Dorf. Ein Bogen führt zurück ins Dorf, einer zur Quelle.
-- **Quelle:** Das Floß über den Bach hat der falsche Wind ans andere Ufer getrieben, das Wehr dahinter ist unerreichbar. Der Bogen führt nicht zurück zum Mühlenhügel, sondern ins Dorf, solange das Wehr geschlossen ist.
+- **Fünf Stücke im Kreis:** Dorf (mit dem Haus des Alten), Mühlenhügel, Quelle, Weiher, Warte. Bögen verbinden sie. Vorwärts trägt ein Bogen nur, wenn die Laterne seines Stücks brennt, und er überspringt Stücke, die nicht im Notizbuch stehen.
+- **Der Riss kam am Abend, und es ist Abend geblieben.** Das Wehr an der Quelle ist zu, weil der Morgen nie kam. Der Wind weht falsch, solange die Mühle nicht richtig läuft, und bläst jede Flamme aus, die nicht im Windschatten steht.
+- **Jeder hat etwas verloren:** der Alte den Weg zum großen Licht auf der Warte, der Müller seine Kurbel, die Fischerin den Heimweg, die Frau am Bach ihren Abendweg. Das Kind am Abhang führt das Verweilen ein.
+- **Der Spieler bringt das Tal wieder in Gang** und zündet am Ende das große Licht an, weil der Alte nicht mehr hinaufkommt. Von oben sieht man dahinter weitere dunkle Stücke.
+- **Über den Riss erfährt er nur fünf Bruchstücke,** eines je Figur, und sie passen nicht zusammen.
+- **Das Kapitel beginnt mit dem Abend vor dem Riss:** Der Spieler zündet im heilen Dorf die Laternen an und zieht dem Alten die Spieluhr auf.
 
-Der gedachte Weg: Dorf → Mühlenhügel (Müller erzählt von der Kurbel) → Quelle (Floß fehlt) → über den falsch verbundenen Bogen ins Dorf → Kurbel aus dem Schrank → Mühlenhügel, Mühle dreht sich → dadurch weht der Wind im Dorf richtig und das Floß treibt zurück → Quelle, Wehr öffnen → der Bach im Dorf fließt richtig, der Bogen führt wieder zurück.
-
-Das Notizbuch hält die Bögen und die Zusammenhänge fest (Kurbel, Floß, wohin welcher Bogen führt).
+Das Kapitel ist als Probefassung gebaut: Was es an Neuem braucht, ist mit einfachen Flächen gezeichnet, damit Jan es im Spiel beurteilen kann, bevor Bilder und Musik entstehen.
 
 ## 4. Spieldesign
 
@@ -220,7 +222,8 @@ Keys gehören in eine lokale `.env`-Datei, die nicht ins Repository kommt.
 - **Regeln als Daten:** Was beim Benutzen eines Objekts, beim Betreten einer Zelle oder beim Verweilen passiert, steht als Regel mit Bedingungen und Folgen in der Weltdatei. Folgen dürfen in andere Welten reichen. Türen und Portale sind Regeln mit einem Ziel.
 - **Ein zentraler Spielspeicher:** Ort der Figur, Fakten, Abweichungen der Objekte je Welt, Gegenstände und Notizen. Er wird nach jeder Änderung lokal gespeichert.
 - **Lösbarkeit wird durchgespielt:** Ein Prüfer geht alle Zustände durch, die das Spiel annehmen kann, und meldet jeden, aus dem es nicht mehr zu Ende gespielt werden kann.
-- **Verweilen zeigt die Erinnerung:** Bleibt die Figur an einem Ort der Erinnerung stehen, erscheint langsam, was gerade anders ist, durchscheinend so, wie es einmal war, und Farbe und Musik nähern sich der heilen Welt. Ein Tipp beendet das. So zeigt die Erinnerung, was falsch ist, ohne eigene Schaltfläche. Wo das geht, steht als Daten in der Weltdatei (siehe Abschnitt 4, „Verweilen ist selten und hat einen Ort“). Noch nicht umgesetzt: Bisher erscheint die Erinnerung überall nach wenigen Sekunden.
+- **Verweilen zeigt die Erinnerung:** Bleibt die Figur an einem Ort der Erinnerung stehen, erscheint langsam, was gerade anders ist, durchscheinend so, wie es einmal war, und Farbe und Musik nähern sich der heilen Welt. Ein Tipp beendet das. So zeigt die Erinnerung, was falsch ist, ohne eigene Schaltfläche. Wo das geht, steht als Daten in der Weltdatei (siehe Abschnitt 4, „Verweilen ist selten und hat einen Ort“).
+- **Die Erinnerung zeigt nur einen Teil, und nur etwas richtiger (Jan, 2026-10-12):** Ein Ort der Erinnerung (`memories` in der Weltdatei) nennt den Ausschnitt der Welt, der durchscheint. Eine Verweil-Regel mit der Folge `remember` legt fest, wo die Figur dafür stehen muss. Im Ausschnitt erscheint, was dort anders ist, durchscheinend so, wie es war, und nur dort nähern sich die Farben der heilen Welt, mit weichem Rand. Die Musik hat keinen Ort und neigt sich als Ganzes ein wenig. Das bleibt, bis sich die Figur wieder bewegt. Die Erinnerung ändert nichts am Spielstand.
 - **Figuren aus Bildbögen:** Ein Bildmodell liefert zu einem Standbild einen Bogen mit vier Schritt-Bildern derselben Figur, wenn es das Standbild als Vorlage bekommt. Ein Skript schneidet den Bogen und richtet die Bilder an Kopf und Füßen aus. Zwei Ansichten (vorn, hinten) reichen, gespiegelt ergeben sie alle vier Laufrichtungen.
 - **Welten reagieren aufeinander:** Regeln mit dem Auslöser `always` feuern von selbst, sobald ihre Bedingungen gelten, auch wenn die Ursache in einer anderen Welt liegt (die Mühle dreht sich, also treibt das Floß an der Quelle zurück).
 - **Bewegte Teile aus zwei Bildern:** Die Mühlenflügel sind ein eigenes, von vorn gemaltes Bild, das die Engine in die Wandebene legt und dreht.
@@ -230,7 +233,12 @@ Keys gehören in eine lokale `.env`-Datei, die nicht ins Repository kommt.
 - **Bildmaße als Daten:** Wie ein Bild in der Welt sitzt, steht in einer Datendatei, die das Spiel und die Bildwerkzeuge gemeinsam lesen.
 - **Oberfläche mit Godots eigenen Mitteln:** Dialog, Notizbuch und Startbildschirm bestehen aus Controls mit einem gemeinsamen Theme. Was offen ist, fängt alle Tipps ab, damit keiner zusätzlich in der Welt ankommt. Nur der erste Finger zählt.
 - **Ein unlesbarer Spielstand wird aufgehoben:** Kann das Spiel einen Stand nicht lesen, legt es ihn beiseite und beginnt neu, statt ihn zu überschreiben. Änderungen an Welten oder Objekten, die es nicht mehr gibt, fallen beim Laden weg.
+- **Eine heile Welt gibt sich zu erkennen:** Ist der letzte Fehler einer Welt behoben, meldet die Spiellogik das, und das Spiel markiert den Moment: Der Name der Welt erscheint kurz als Schriftzug („Der Mühlenhügel ist wieder heil“), und steht der Spieler in dieser Welt, schwillt warmes Licht über das Bild. Das gilt auch, wenn die Ursache in einer anderen Welt lag. Im Notizbuch zeigt jedes Weltstück einen Punkt je Fehler, gefüllt, sobald er behoben ist. Die Punkte sagen, wie viel noch nicht stimmt, aber nicht was.
 - **Eine Pause-Seite, sonst nichts:** Ein kleiner Knopf oben links hält das Spiel an und öffnet eine Seite mit Lautstärke der Musik, Sprache, „Neu beginnen“ (mit Rückfrage) und „Weiter“. Die Zurück-Geste des Handys öffnet dieselbe Seite, eine zweite verlässt das Spiel. Es gibt bewusst keinen Knopf „Spiel verlassen“ (auf dem Handy verlässt man eine App über das System) und nur einen einzigen, automatisch gespeicherten Spielstand: In einem Spiel ohne Sackgassen braucht es keine Stände zum Zurückspringen, und der spätere Abgleich mit Google Play bleibt einfach. Lautstärke und Sprache liegen in einer eigenen Datei und überdauern ein neues Spiel.
+- **Ein Ortswechsel hat eine Reihenfolge (Jan, 2026-10-12):** Was eine Regel vor dem Wechsel sagt, wird erst zu Ende gehört; was sie danach sagt, kommt bei der Ankunft. Der Wechsel selbst ist eine kurze Blende oder, wenn die Regel ein Fahrzeug nennt, eine sichtbare Fahrt. Ein Schnitt mitten im Satz hat verwirrt.
+- **Das Ende steht in der Spieldatei:** `data/game.json` nennt die Bedingung, unter der das Spiel zu Ende ist (`complete_if`). Die Lösbarkeitsprüfung sucht den Weg dorthin. Ohne die Angabe ist das Spiel zu Ende, wenn keine Welt mehr einen offenen Fehler hat; das taugt nicht mehr, seit das Spiel im heilen Dorf beginnt.
+- **Was noch kein Bild hat, wird gezeichnet:** Ein Objekt ohne Bild und eine Welt ohne Bodenbild erscheinen als einfache Flächen. So lässt sich Inhalt im Spiel beurteilen, bevor er generiert wird.
+- **Alte Spielstände passen nicht zu neuen Kapiteln:** Mit dem Tal hat der Spielstand die Formatversion 2 bekommen. Ältere Stände werden beiseitegelegt, das Spiel beginnt neu.
 - **Test-Hilfen nur in Debug-Bauten:** Kommandozeilen-Argumente und die Tasten zum Ausprobieren wirken in einem Release-Bau nicht.
 
 ### Verworfen

@@ -19,25 +19,14 @@
 		"      ....      ",
 		"                "
 	],
-	"ground_image": {
-		"path": "res://assets/worlds/mill_hill_ground.png",
-		"scale": 1.607,
-		"origin": [-764.52, 83.2]
-	},
+	"ground_image": {"path": "res://assets/worlds/mill_hill_ground.png", "scale": 1.607, "origin": [-764.52, 83.2]},
 	"music": "res://assets/music/mill_theme.mp3",
 	"mood": {},
-	"mood_wrong": {
-		"wind": 0.0,
-		"shadow": [-0.5, 0.25],
-		"saturation": 0.6,
-		"tint": [0.92, 0.9, 1.0],
-		"fog": 0.16,
-		"light": 0.35,
-		"pitch": 0.95,
-		"muffle": 0.5
-	},
+	"mood_wrong": {"wind": 0.0, "shadow": [-0.5, 0.25], "saturation": 0.6, "tint": [0.92, 0.9, 1.0], "fog": 0.16, "light": 0.35, "pitch": 0.95, "muffle": 0.5},
 	"objects": [
 		{"id": "mill", "kind": "mill", "cell": [7, 3], "size": [2, 2], "access": [[8, 5]], "state": "turning"},
+		{"id": "vane", "kind": "vane", "cell": [5, 3], "state": "north"},
+		{"id": "field", "kind": "field", "cell": [8, 8], "size": [2, 2], "state": "grown"},
 		{"id": "arch_village", "kind": "arch", "cell": [4, 11], "access": [[4, 10]], "state": "open"},
 		{"id": "arch_spring", "kind": "arch", "cell": [11, 11], "access": [[11, 10]], "state": "open"},
 		{"id": "miller", "kind": "miller", "cell": [10, 5]},
@@ -53,57 +42,45 @@
 	],
 	"broken": {
 		"mill": {"state": "still"},
-		"mill_lantern": {"state": "out"}
+		"vane": {"state": "south"},
+		"field": {"state": "withered"},
+		"mill_lantern": {"state": "out"},
+		"arch_spring": {"state": "closed"}
 	},
+	"memories": [
+		{"id": "mill", "zone": [4, 2, 6, 4]}
+	],
 	"faults": [
-		{
-			"id": "sails",
-			"fixed_if": [{"object": "mill", "state": "turning"}],
-			"restores": ["wind", "pitch"]
-		},
-		{
-			"id": "lantern",
-			"fixed_if": [{"object": "mill_lantern", "state": "lit"}],
-			"restores": ["light"]
-		}
+		{"id": "lantern", "fixed_if": [{"object": "mill_lantern", "state": "lit"}], "restores": ["light"]},
+		{"id": "vane", "fixed_if": [{"object": "vane", "state": "north"}], "restores": ["shadow"]},
+		{"id": "sails", "fixed_if": [{"object": "mill", "state": "turning"}], "restores": ["wind", "pitch"]},
+		{"id": "field", "fixed_if": [{"object": "field", "state": "grown"}], "restores": ["saturation"]}
 	],
 	"rules": [
-		{
-			"on": "interact", "object": "arch_village",
-			"do": [{"go": "village", "cell": [14, 13]}]
-		},
-		{
-			"on": "interact", "object": "arch_spring",
-			"do": [{"go": "spring", "cell": [4, 7]}, {"note": "arch_mill"}, {"note": "spring"}]
-		},
-		{
-			"on": "interact", "object": "mill_lantern",
-			"if": [{"object": "mill_lantern", "state": "out"}],
-			"do": [{"change": "mill_lantern", "state": "lit"}]
-		},
-		{
-			"on": "interact", "object": "mill",
-			"if": [{"object": "mill", "state": "still"}, {"item": "crank"}],
-			"do": [{"change": "mill", "state": "turning"}, {"take": "crank"}, {"say": "mill.turns"}]
-		},
-		{
-			"on": "interact", "object": "mill",
-			"if": [{"object": "mill", "state": "still"}],
-			"do": [{"say": "mill.stuck"}]
-		},
-		{
-			"on": "interact", "object": "miller",
-			"if": [{"object": "mill", "state": "turning"}],
-			"do": [{"say": "miller.turning", "who": "miller"}]
-		},
-		{
-			"on": "interact", "object": "miller",
-			"if": [{"item": "crank"}],
-			"do": [{"say": "miller.have_crank", "who": "miller"}]
-		},
-		{
-			"on": "interact", "object": "miller",
-			"do": [{"say": "miller.crank", "who": "miller"}, {"set": "crank_known"}, {"note": "crank"}]
-		}
+		{"on": "interact", "object": "arch_village", "do": [{"go": "village", "cell": [15, 13]}]},
+		{"on": "always", "if": [{"object": "mill_lantern", "state": "lit"}, {"object": "arch_spring", "state": "closed"}], "do": [{"change": "arch_spring", "state": "open"}]},
+		{"on": "always", "if": [{"object": "mill_lantern", "state": "out"}, {"object": "arch_spring", "state": "open"}], "do": [{"change": "arch_spring", "state": "closed"}]},
+		{"on": "interact", "object": "arch_spring", "if": [{"object": "arch_spring", "state": "open"}], "do": [{"go": "spring", "cell": [4, 7]}, {"note": "spring"}]},
+		{"on": "interact", "object": "arch_spring", "do": [{"say": "arch.dark"}]},
+		{"on": "interact", "object": "mill_lantern", "if": [{"object": "mill_lantern", "state": "out"}], "do": [{"change": "mill_lantern", "state": "lit"}]},
+		{"on": "interact", "object": "mill", "if": [{"object": "mill", "state": "still"}, {"item": "crank"}, {"object": "vane", "state": "north"}], "do": [{"take": "crank"}, {"set": "crank_in"}, {"change": "mill", "state": "turning"}, {"say": "mill.turns"}]},
+		{"on": "interact", "object": "mill", "if": [{"object": "mill", "state": "still"}, {"item": "crank"}], "do": [{"take": "crank"}, {"set": "crank_in"}, {"change": "mill", "state": "backwards"}, {"say": "mill.backwards"}]},
+		{"on": "interact", "object": "mill", "if": [{"object": "mill", "state": "still"}], "do": [{"say": "mill.stuck"}]},
+		{"on": "interact", "object": "mill", "if": [{"object": "mill", "state": "backwards"}], "do": [{"say": "mill.backwards_look"}]},
+		{"on": "interact", "object": "vane", "if": [{"not": {"object": "mill", "state": "turning"}}, {"object": "vane", "state": "south"}], "do": [{"change": "vane", "state": "west"}]},
+		{"on": "interact", "object": "vane", "if": [{"object": "mill", "state": "backwards"}, {"object": "vane", "state": "west"}], "do": [{"change": "vane", "state": "north"}, {"change": "mill", "state": "turning"}, {"say": "vane.right"}]},
+		{"on": "interact", "object": "vane", "if": [{"not": {"object": "mill", "state": "turning"}}, {"object": "vane", "state": "west"}], "do": [{"change": "vane", "state": "north"}]},
+		{"on": "interact", "object": "vane", "if": [{"not": {"object": "mill", "state": "turning"}}, {"object": "vane", "state": "north"}], "do": [{"change": "vane", "state": "east"}]},
+		{"on": "interact", "object": "vane", "if": [{"not": {"object": "mill", "state": "turning"}}, {"object": "vane", "state": "east"}], "do": [{"change": "vane", "state": "south"}]},
+		{"on": "interact", "object": "vane", "do": [{"say": "vane.fixed"}]},
+		{"on": "always", "if": [{"object": "sluice", "world": "spring", "state": "open"}, {"object": "field", "state": "withered"}], "do": [{"change": "field", "state": "grown"}]},
+		{"on": "always", "if": [{"object": "sluice", "world": "spring", "state": "closed"}, {"object": "field", "state": "grown"}], "do": [{"change": "field", "state": "withered"}]},
+		{"on": "interact", "object": "miller", "if": [{"object": "mill", "state": "turning"}, {"object": "field", "state": "grown"}, {"fact": "crank_returned", "is": false}], "do": [{"say": "miller.grain", "who": "miller"}, {"give": "crank"}, {"set": "crank_returned"}, {"note": "rift_miller"}]},
+		{"on": "interact", "object": "miller", "if": [{"object": "mill", "state": "turning"}, {"object": "field", "state": "grown"}], "do": [{"say": "miller.whole", "who": "miller"}]},
+		{"on": "interact", "object": "miller", "if": [{"object": "mill", "state": "turning"}], "do": [{"say": "miller.dry", "who": "miller"}, {"note": "field_thirsty"}]},
+		{"on": "interact", "object": "miller", "if": [{"object": "mill", "state": "backwards"}], "do": [{"say": "miller.backwards", "who": "miller"}]},
+		{"on": "interact", "object": "miller", "if": [{"item": "crank"}], "do": [{"say": "miller.have_crank", "who": "miller"}]},
+		{"on": "interact", "object": "miller", "do": [{"say": "miller.crank", "who": "miller"}, {"note": "millers_crank"}]},
+		{"on": "linger", "cells": [[9, 4], [10, 4], [11, 4], [9, 5], [11, 5], [9, 6], [10, 6], [11, 6]], "if": [{"note": "still_place"}], "do": [{"remember": "mill"}, {"note": "vane_direction"}, {"say": "memory.mill"}]}
 	]
 }

@@ -5,7 +5,7 @@ extends RefCounted
 ## Properties that can change during the game.
 const CHANGEABLE := ["cell", "mirrored", "hidden", "state"]
 ## Kinds that lie flat on the ground: they block nothing and the character walks over them.
-const FLAT_KINDS := ["bridge", "raft"]
+const FLAT_KINDS := ["bridge", "raft", "stepping_stones"]
 
 var id := ""
 var kind := ""

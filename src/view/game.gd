@@ -11,12 +11,23 @@ const SKY_BOTTOM := Color("f1dcc0")
 const MOOD_CHANGE_DURATION := 2.5
 ## Seconds the picture takes to fade to black, and again to come back, when changing worlds.
 const TRAVEL_FADE := 0.35
-## Seconds the player has to stand still before the memory of the intact world shows through,
-## and seconds it stays.
+## Seconds a crossing aboard something takes.
+const RIDE_DURATION := 4.0
+## Seconds the player has to stand still before rules that wait for lingering fire.
 const LINGER_DELAY := 3.5
-const MEMORY_DURATION := 4.5
-## How far the mood moves towards the remembered one meanwhile.
-const MEMORY_STRENGTH := 0.5
+## Remembering: seconds the remembered part of the world takes to show through and to fade
+## again, how far its colours move towards the remembered ones, how far the music does, and how
+## much larger than the remembered cells the part of the picture is that changes.
+const MEMORY_FADE_IN := 3.0
+const MEMORY_FADE_OUT := 0.8
+const MEMORY_STRENGTH := 0.75
+const MEMORY_MUSIC := 0.3
+const MEMORY_MARGIN := 1.5
+## The moment a world becomes whole: how bright the warm light gets that swells over the
+## picture, and seconds it takes to come and to go.
+const WHOLE_GLOW := 0.28
+const WHOLE_GLOW_IN := 0.9
+const WHOLE_GLOW_OUT := 3.0
 
 var session: Session
 ## The world on show, which is the one the player is in.
@@ -25,6 +36,11 @@ var stage: Stage
 var mood_progress := 1.0:
 	set(value):
 		mood_progress = value
+		_apply_mood()
+## How far the remembered part of the world shows through, from 0 to 1.
+var memory_progress := 0.0:
+	set(value):
+		memory_progress = value
 		_apply_mood()
 
 var _sprites := Sprites.new()
@@ -43,6 +59,7 @@ var _curtain: ColorRect
 var _dialogue := DialogueBox.new()
 var _notebook := NotebookView.new()
 var _pause := PauseView.new()
+var _banner := Banner.new()
 var _settings: Settings
 var _travelling := false
 ## False while the start screen is up. The music waits for it.
@@ -50,7 +67,10 @@ var _started := true
 ## Seconds the player has been standing still, and whether this standstill has shown its memory.
 var _idle := 0.0
 var _lingered := false
-## Ends the memory that is showing through.
+## Whether the player is remembering, the part of the world that shows through, and the change
+## of memory_progress in progress.
+var _remembering := false
+var _memory_zone := Rect2i()
 var _memory: Tween
 ## File the game is saved to. Empty for a game that is not saved.
 var _save_path := SaveFile.DEFAULT_PATH
@@ -93,6 +113,7 @@ func _ready() -> void:
 	_build_curtain()
 	add_child(_music)
 	_music.set_volume(_settings.music_volume)
+	add_child(_banner)
 	add_child(_notebook)
 	add_child(_dialogue)
 	_pause.set_volume(_settings.music_volume)
@@ -134,6 +155,8 @@ func _notification(what: int) -> void:
 
 func _process(delta: float) -> void:
 	_camera.position = _camera_target()
+	if memory_progress > 0.0:
+		_place_memory()
 
 	var walking := stage.player.is_walking()
 	if walking:
@@ -214,6 +237,8 @@ func new_game() -> void:
 	var seen := session.state.start_screen_seen
 	session = Session.create(_game)
 	session.state.start_screen_seen = seen
+	_travelling = false
+	_curtain.color.a = 0.0
 	_dialogue.clear()
 	_notebook.reset()
 	_build_stage()
@@ -303,26 +328,55 @@ func _arrive() -> void:
 	_show(session.interact(object_id))
 
 
-## The player has stood still for a while: rules waiting for that fire, and the memory of the
-## intact world shows through. Everything that is different now appears as it was, and the mood
-## leans towards the remembered one.
+## The player has stood still for a while: rules waiting for that fire. At a place of memory
+## one of them lets a part of the world show through as it was.
 func _linger() -> void:
-	_show(session.linger())
-	if _travelling or not stage.remember():
-		return
-	_memory = create_tween()
-	_memory.tween_interval(Stage.GHOST_FADE_IN + MEMORY_DURATION)
-	_memory.tween_callback(_forget)
-	_change_mood(false, Mood.blend(session.mood(), session.remembered_mood(), MEMORY_STRENGTH))
+	var effects := session.linger()
+	_show(effects)
+	for effect: Dictionary in effects:
+		if effect.has("remember") and not _travelling:
+			_remember(effect["remember"])
+
+
+## Lets the part of the world that belongs to a place of memory slowly show through as it was:
+## what is different there appears as it used to be, and colours and music lean towards the
+## remembered ones. It stays until the player moves again.
+func _remember(memory_id: String) -> void:
+	_remembering = true
+	_memory_zone = stage.world.memories[memory_id]
+	stage.remember(stage.world.remembered(memory_id), MEMORY_FADE_IN)
+	_place_memory()
+	_change_memory(1.0, MEMORY_FADE_IN)
 
 
 ## Lets the memory fade again.
 func _forget() -> void:
-	if not stage.is_remembering():
+	if not _remembering:
 		return
-	_memory.kill()
+	_remembering = false
 	stage.forget()
-	_change_mood()
+	_change_memory(0.0, MEMORY_FADE_OUT)
+
+
+func _change_memory(target: float, duration: float) -> void:
+	if _memory:
+		_memory.kill()
+	_memory = create_tween()
+	_memory.tween_property(self, "memory_progress", target, duration).set_trans(Tween.TRANS_SINE)
+
+
+## Tells the colour grading where on screen the remembered part of the world is.
+func _place_memory() -> void:
+	# Corners of the remembered cells, widened a little, as points of the world.
+	var area := Rect2(_memory_zone).grow(MEMORY_MARGIN)
+	var on_screen := Rect2()
+	for corner: Vector2 in [area.position, Vector2(area.end.x, area.position.y), area.end, Vector2(area.position.x, area.end.y)]:
+		# Cells are named by their centre, so their corners lie half a cell before it.
+		var point := get_canvas_transform() * Iso.to_point(corner - Vector2(0.5, 0.5))
+		on_screen = Rect2(point, Vector2.ZERO) if on_screen == Rect2() else on_screen.expand(point)
+	var screen := get_viewport_rect().size
+	_grading.set_shader_parameter("memory_centre", on_screen.get_center() / screen)
+	_grading.set_shader_parameter("memory_radius", on_screen.size * 0.5 / screen)
 
 
 ## Brings the view up to date after rules have fired.
@@ -331,30 +385,73 @@ func _show(effects: Array) -> void:
 		return
 	_forget()
 	_notebook.refresh()
-	for effect: Dictionary in effects:
+	var leaving := effects.find_custom(func(effect: Dictionary) -> bool: return effect.has("go"))
+	for number in effects.size():
+		var effect: Dictionary = effects[number]
 		if effect.has("note"):
 			_notebook.mark_unread()
-		if effect.has("say"):
-			# Lines without a speaker are the player talking to themselves.
-			_dialogue.say(Texts.text("name." + effect.get("who", "self")), Texts.lines(effect["say"]))
-	if effects.any(func(effect: Dictionary) -> bool: return effect.has("go")):
-		_travel()
+		if effect.has("whole"):
+			_celebrate(effect["whole"])
+		# What is said after leaving waits for the arrival.
+		if effect.has("say") and (leaving < 0 or number < leaving):
+			_say(effect)
+	if leaving >= 0:
+		_travel(effects[leaving], effects.slice(leaving + 1))
 	else:
 		stage.sync()
 		_change_mood()
 	save()
 
 
-## Shows the place the player has been moved to, with a short fade to black in between.
-func _travel() -> void:
+func _say(effect: Dictionary) -> void:
+	# Lines without a speaker are the player talking to themselves.
+	_dialogue.say(Texts.text("name." + effect.get("who", "self")), Texts.lines(effect["say"]))
+
+
+## Marks the moment a world has become whole: its name appears for a while, the notebook has
+## something new to show, and if the player is there, warm light swells over the picture.
+func _celebrate(world_id: String) -> void:
+	_banner.show_text(Texts.text("banner.whole") % Texts.text("world." + world_id))
+	_notebook.mark_unread()
+	var here := stage.world
+	if world_id != here.id and world_id != here.mood_from:
+		return
+	var glow := create_tween()
+	glow.tween_method(_set_glow, 0.0, WHOLE_GLOW, WHOLE_GLOW_IN).set_trans(Tween.TRANS_SINE)
+	glow.tween_method(_set_glow, WHOLE_GLOW, 0.0, WHOLE_GLOW_OUT).set_trans(Tween.TRANS_SINE)
+
+
+func _set_glow(amount: float) -> void:
+	_grading.set_shader_parameter("glow", amount)
+
+
+## Shows the place the player has been moved to. What is being said is heard out first. Then the
+## player crosses aboard what the "go" effect names, or the picture fades to black for a moment.
+## What was said after leaving follows on arrival.
+func _travel(go: Dictionary, afterwards: Array) -> void:
+	var travelling := session
 	_travelling = true
 	_target_object = ""
 	stage.player.walk([] as Array[Vector2i])
-	var fade := create_tween()
-	fade.tween_property(_curtain, "color:a", 1.0, TRAVEL_FADE)
-	fade.tween_callback(_build_stage)
-	fade.tween_property(_curtain, "color:a", 0.0, TRAVEL_FADE)
-	fade.tween_callback(func() -> void: _travelling = false)
+	if _dialogue.is_open():
+		await _dialogue.closed
+	if go.has("by") and session == travelling:
+		await stage.ride(go["by"], go.get("with", []), RIDE_DURATION).finished
+		if session == travelling:
+			_build_stage()
+	elif session == travelling:
+		var fade := create_tween()
+		fade.tween_property(_curtain, "color:a", 1.0, TRAVEL_FADE)
+		fade.tween_callback(_build_stage)
+		fade.tween_property(_curtain, "color:a", 0.0, TRAVEL_FADE)
+		await fade.finished
+	# A new game may have begun in the meantime. Then this journey is no longer anybody's.
+	if session != travelling:
+		return
+	_travelling = false
+	for effect: Dictionary in afterwards:
+		if effect.has("say"):
+			_say(effect)
 
 
 ## Puts the world the player is in on show.
@@ -363,6 +460,7 @@ func _build_stage() -> void:
 		stage.retire()
 	if _memory:
 		_memory.kill()
+	_remembering = false
 	_target_object = ""
 	_notebook.session = session
 	_notebook.refresh()
@@ -374,6 +472,7 @@ func _build_stage() -> void:
 	stage = Stage.new(world, _sprites, session.state.cell)
 	stage.player.cell_reached.connect(_on_cell_reached)
 	add_child(stage)
+	memory_progress = 0.0
 
 	_camera.position = _camera_target()
 	_camera.reset_smoothing()
@@ -382,10 +481,10 @@ func _build_stage() -> void:
 	_change_mood(true)
 
 
-## Starts the change from the mood on show to the mood the world has now, or to the given one.
-func _change_mood(instant := false, target: Mood = null) -> void:
+## Starts the change from the mood on show to the mood the world has now.
+func _change_mood(instant := false) -> void:
 	_mood_from = Mood.blend(_mood_from, _mood_to, mood_progress)
-	_mood_to = target if target else session.mood()
+	_mood_to = session.mood()
 	if _mood_change:
 		_mood_change.kill()
 	if instant:
@@ -405,7 +504,15 @@ func _apply_mood() -> void:
 	_grading.set_shader_parameter("saturation", m.saturation)
 	_grading.set_shader_parameter("tint", Vector3(m.tint.r, m.tint.g, m.tint.b))
 	_grading.set_shader_parameter("fog", m.fog)
-	_music.set_mood(m.pitch, m.muffle)
+	# The remembered part of the picture gets the colours of the intact world. The music has no
+	# place, so all of it leans that way a little.
+	var remembered := session.remembered_mood()
+	_grading.set_shader_parameter("memory", memory_progress * MEMORY_STRENGTH)
+	_grading.set_shader_parameter("memory_saturation", remembered.saturation)
+	_grading.set_shader_parameter("memory_tint", Vector3(remembered.tint.r, remembered.tint.g, remembered.tint.b))
+	_grading.set_shader_parameter("memory_fog", remembered.fog)
+	var heard := Mood.blend(m, remembered, memory_progress * MEMORY_MUSIC)
+	_music.set_mood(heard.pitch, heard.muffle)
 
 
 func _camera_target() -> Vector2:

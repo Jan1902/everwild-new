@@ -16,6 +16,7 @@ func _init() -> void:
 	_test_rule_check()
 	_test_village_game()
 	_test_story()
+	_test_watch_waits()
 	_test_save_file()
 	_test_texts()
 	_test_settings()
@@ -80,7 +81,7 @@ func _test_village() -> void:
 	_check(world.is_walkable(Vector2i(13, 9)), "Bridge is not walkable")
 	_check(not world.is_walkable(Vector2i(8, 5)), "House is walkable")
 	_check(not world.is_walkable(Vector2i(9, 6)), "Second cell of the house is walkable")
-	_check(not world.is_walkable(Vector2i(7, 8)), "Lantern is walkable")
+	_check(not world.is_walkable(Vector2i(4, 8)), "Lantern is walkable")
 	_check(world.objects.any(func(o: WorldObject) -> bool: return o.kind == "bridge"), "Village has no bridge object")
 	_check(not world.is_walkable(Vector2i(-1, 5)), "Cell outside the grid is walkable")
 
@@ -177,12 +178,12 @@ func _test_state() -> void:
 	_check(loaded != null and loaded.start_screen_seen, "State forgets that the start screen was shown")
 	_check(GameState.from_data("nonsense") == null, "Nonsense is accepted as a saved state")
 	_check(GameState.from_data({"version": 999, "world": "tiny", "cell": [0, 0]}) == null, "Unknown version is accepted")
-	_check(GameState.from_data({"version": 1, "world": "tiny"}) == null, "State without a cell is accepted")
+	_check(GameState.from_data({"version": 2, "world": "tiny"}) == null, "State without a cell is accepted")
 	# Data of the wrong shape must not get through, whatever part of the save it sits in.
-	var sound := {"version": 1, "world": "tiny", "cell": [0, 0]}
+	var sound := {"version": 2, "world": "tiny", "cell": [0, 0]}
 	_check(GameState.from_data(sound) != null, "Smallest sound state is not accepted")
 	for part: Dictionary in [
-		{"version": [1]}, {"cell": ["a", "b"]}, {"facts": []}, {"objects": {"tiny": 5}}, {"objects": {"tiny": {"gate": 5}}},
+		{"version": [2]}, {"cell": ["a", "b"]}, {"facts": []}, {"objects": {"tiny": 5}}, {"objects": {"tiny": {"gate": 5}}},
 		{"objects": {"tiny": {"gate": {"cell": 3}}}}, {"objects": {"tiny": {"gate": {"hidden": "yes"}}}},
 		{"objects": {"tiny": {"gate": {"size": [9, 9]}}}}, {"items": "match"}, {"items": [1]}, {"notes": [{}]},
 	]:
@@ -224,7 +225,9 @@ func _test_rules() -> void:
 	_check(session.state.items == ["match"] and session.state.notes == ["match_found"], "Rule does not give item and note")
 	_check(session.enter(Vector2i(3, 0)).is_empty(), "Rule for entering fires twice")
 	session.enter(Vector2i(4, 0))
-	session.interact("lamp")
+	_check(session.whole_worlds().is_empty(), "World counts as whole with an open fault")
+	_check(session.interact("lamp")[-1] == {"whole": "tiny"}, "Fixing the last fault is not reported")
+	_check(session.whole_worlds() == ["tiny"], "Repaired world does not count as whole")
 	_check(session.state.items.is_empty() and world.get_object("lamp").state == "lit", "Lamp is not lit with the match")
 	_check(session.is_complete(), "Game is not complete although all faults are fixed")
 	_check(session.mood().fog == 0.0, "Repaired world does not have the intact mood")
@@ -238,9 +241,9 @@ func _test_rules() -> void:
 	var continued := Session.resume(_tiny_game(), JSON.parse_string(JSON.stringify(session.state.to_data())), _tiny_sources())
 	_check(continued != null and continued.state.key() == session.state.key(), "Continued game differs from the saved one")
 	_check(continued != null and continued.world().get_object("gate").cell == Vector2i(2, 0), "Continued game loses object changes")
-	_check(Session.resume(_tiny_game(), {"version": 1, "world": "nowhere", "cell": [0, 0]}, _tiny_sources()) == null, "Save for an unknown world is accepted")
+	_check(Session.resume(_tiny_game(), {"version": 2, "world": "nowhere", "cell": [0, 0]}, _tiny_sources()) == null, "Save for an unknown world is accepted")
 	# A save from an older game may name worlds and objects that are gone.
-	var stale := {"version": 1, "world": "tiny", "cell": [0, 0], "objects": {
+	var stale := {"version": 2, "world": "tiny", "cell": [0, 0], "objects": {
 		"tiny": {"gate": {"cell": [2, 0]}, "torch": {"state": "out"}}, "attic": {"chest": {"hidden": true}},
 	}}
 	continued = Session.resume(_tiny_game(), stale, _tiny_sources())
@@ -282,6 +285,22 @@ func _test_rules() -> void:
 	result = Solver.check(_tiny_game(), patient)
 	_check(result.solution == ["use gate", "linger at 3,0", "use lamp"], "Solver does not linger: %s" % [result.solution])
 
+	# Remembering is an effect of lingering at a place. It shows the part of the world that
+	# belongs to the place as it was, and changes nothing.
+	var wistful := _tiny_sources()
+	wistful.tiny["memories"] = [{"id": "niche", "zone": [2, 0, 1, 2]}, {"id": "corner", "zone": [0, 0, 1, 1]}]
+	wistful.tiny.rules.append({"on": "linger", "cells": [[1, 0]], "do": [{"remember": "niche"}]})
+	session = Session.create(_tiny_game(), wistful)
+	_check(session.world().errors().is_empty() and RuleCheck.errors(session).is_empty(), "World with a memory has errors")
+	session.enter(Vector2i(1, 0))
+	var before := session.state.key()
+	_check(session.linger() == [{"remember": "niche"}] and session.state.key() == before, "Remembering does not fire or changes the state")
+	var shown := session.world().remembered("niche")
+	_check(shown.size() == 1 and shown[0].id == "gate" and shown[0].cell == Vector2i(2, 1), "Memory does not show the gate where it belongs")
+	_check(session.world().remembered("corner").is_empty(), "Memory shows things outside its part of the world")
+	result = Solver.check(_tiny_game(), wistful)
+	_check(result.solvable and result.dead_ends == 0 and result.complete, "Remembering confuses the solver: %s" % [result])
+
 	# A game that cannot be completed at all has to be found as well.
 	var hopeless := _tiny_sources()
 	hopeless.tiny.rules.clear()
@@ -290,7 +309,7 @@ func _test_rules() -> void:
 
 ## A tiny game that has not started, so rules with slips in them are read but never fire.
 func _unstarted(game: Dictionary, sources: Dictionary) -> Session:
-	return Session.resume(game, {"version": 1, "world": "tiny", "cell": [0, 0]}, sources)
+	return Session.resume(game, {"version": 2, "world": "tiny", "cell": [0, 0]}, sources)
 
 
 ## Every kind of slip in the rules has to be reported, each exactly once.
@@ -316,6 +335,7 @@ func _test_rule_check() -> void:
 		"item 'macth' is asked for but never given": {"on": "always", "do": [{"take": "macth"}]},
 		"note 'lost' is asked for but never given": {"on": "always", "if": [{"note": "lost"}], "do": [{"set": "found"}]},
 		"the notebook has no such note": {"on": "always", "do": [{"note": "unwritten"}]},
+		"has no such place of memory": {"on": "linger", "do": [{"remember": "nowhere"}]},
 	}
 	var notes := {"match_found": {"kind": "hint", "world": "tiny", "links": []}, "lost": {"kind": "hint", "world": "tiny", "links": []}}
 	_check(RuleCheck.errors(_unstarted(_tiny_game(), _tiny_sources()), notes).is_empty(), "Sound rules are reported as wrong")
@@ -347,7 +367,7 @@ func _test_texts() -> void:
 		needed["world." + world_id] = true
 	for key: String in ["start.advice", "start.begin", "notebook.title", "notebook.empty", "notebook.links", "notebook.unknown",
 		"pause.title", "pause.volume", "pause.language", "pause.new_game", "pause.continue", "pause.confirm",
-		"pause.confirm_yes", "pause.confirm_no",
+		"pause.confirm_yes", "pause.confirm_no", "notebook.whole", "notebook.broken", "banner.whole",
 	]:
 		needed[key] = true
 	var notes := Notebook.read()
@@ -357,10 +377,10 @@ func _test_texts() -> void:
 		needed["note.%s.text" % note] = true
 		needed["kind." + notes[note].kind] = true
 		needed["world." + notes[note].world] = true
-	var found: Array[String] = ["old_man", "nonsense", "village"]
+	var found: Array[String] = ["millers_crank", "nonsense", "mill_hill"]
 	var entries := Notebook.entries(notes, found)
-	_check(entries.size() == 2 and entries[0].id == "old_man", "Notebook does not list the found notes in order")
-	_check(entries[0].links.slice(0, 2) == [{"id": "village", "known": true}, {"id": "evening_walks", "known": false}], "Links do not tell known from unknown notes")
+	_check(entries.size() == 2 and entries[0].id == "millers_crank", "Notebook does not list the found notes in order")
+	_check(entries[0].links == [{"id": "lent_thing", "known": false}, {"id": "mill_hill", "known": true}], "Links do not tell known from unknown notes")
 
 	var reference := Texts.read(Texts.LANGUAGES[0]).keys()
 	reference.sort()
@@ -376,7 +396,7 @@ func _test_texts() -> void:
 	_check(Texts.language == "de" and Texts.text("name.old_man") == "Alter Mann", "German texts are not used")
 	Texts.use("xx")
 	_check(Texts.language == "en", "Unknown language does not fall back to English")
-	_check(Texts.lines("old_man.first").size() == 4, "Lines of a dialogue are not read")
+	_check(Texts.lines("old_man.first").size() == 3, "Lines of a dialogue are not read")
 	_check(Texts.text("no.such.text") == "no.such.text", "Missing text does not show as its key")
 
 
@@ -402,52 +422,207 @@ func _test_settings() -> void:
 
 ## Plays the story across the worlds the way it is meant to go, and checks that every step has
 ## its effect in the other worlds.
+## Whether the first thing that happened is the player or somebody saying this text.
+func _said(effects: Array, text: String) -> bool:
+	return effects.any(func(effect: Dictionary) -> bool: return effect.get("say") == text)
+
+
+## Lets the player stand still on a cell.
+func _linger(session: Session, cell: Vector2i) -> Array:
+	session.state.cell = cell
+	return session.linger()
+
+
+## Plays the evening before the Rift, up to waking in the broken village.
+func _play_evening(session: Session) -> void:
+	_use(session, "old_man")
+	session.enter(Vector2i(2, 5))
+	for lantern: String in ["lantern_west", "lantern_bridge", "lantern_east"]:
+		_use(session, lantern)
+	_use(session, "house_west")
+	_use(session, "music_box")
+	session.enter(Vector2i(2, 5))
+
+
+## Plays the whole chapter the way it is meant to go and checks what each step brings about.
 func _test_story() -> void:
 	var game: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://data/game.json"))
 	var session := Session.create(game)
-	var use := func(cell: Vector2i, object_id: String) -> Array:
-		session.state.cell = cell
-		return session.interact(object_id)
 
-	_check(use.call(Vector2i(15, 13), "arch")[0].get("say") == "arch.closed", "Arch is open before the lanterns burn")
-	use.call(Vector2i(11, 9), "rock_bridge")
+	# The evening before the Rift.
+	_check(session.state.world == "house_inside", "Game does not start in the house")
+	_check(session.open_faults("village").is_empty(), "Village is not whole before the Rift")
+	_check(_said(_use(session, "music_box"), "music_box.later"), "Music box can be wound before the old man asks")
+	_check(_said(_use(session, "old_man"), "old_man.before"), "Old man does not ask for the evening round")
+	_check(_said(_use(session, "table"), "table.before"), "Notebook can be taken before the Rift")
+	session.enter(Vector2i(2, 5))
+	_check(session.state.world == "village", "Door of the room does not lead outside")
+	_check(_said(_use(session, "arch"), "arch.before"), "Arch can be used before the Rift")
 	for lantern: String in ["lantern_west", "lantern_bridge", "lantern_east"]:
-		use.call(session.world().cells_beside(session.world().get_object(lantern))[0], lantern)
-	_check(session.world().get_object("arch").state == "open", "Arch does not open when the lanterns burn")
-	_check(session.open_faults("village") == ["brook", "wind"], "Village faults do not depend on the other worlds")
+		_use(session, lantern)
+		_check(session.world().get_object(lantern).state == "lit", "Lantern '%s' cannot be lit before the Rift" % lantern)
+	_use(session, "house_west")
+	_check(_said(_use(session, "music_box"), "music_box.evening"), "Music box cannot be wound once the lanterns burn")
+	_check(_said(_use(session, "old_man"), "old_man.leaving"), "Old man does not get ready to leave")
+	_check(not session.state.facts.get("rift", false), "Rift comes before the player leaves")
+	session.enter(Vector2i(2, 5))
+	_check(session.state.facts.get("rift", false), "Leaving after the evening's work does not bring the Rift")
+	_check(session.state.world == "village" and session.state.cell == Vector2i(6, 11), "Player does not wake by the path")
+	_check(session.open_faults("village").size() == 6, "Not every fault of the village is open after the Rift")
+	_check(session.whole_worlds().is_empty(), "A world is still whole after the Rift")
 
-	use.call(Vector2i(15, 13), "arch")
+	# Village: the wrong wind, the door, the notebook, the child, the arch.
+	var village := session.world()
+	_check(village.find_path(village.start, Vector2i(16, 9)).is_empty(), "Rock does not block the bridge")
+	_check(_said(_use(session, "lantern_bridge"), "lantern.blown"), "Lantern burns in the wrong wind")
+	_use(session, "rock_bridge")
+	_check(not village.find_path(village.start, Vector2i(16, 9)).is_empty(), "Rolled rock still blocks the bridge")
+	_check(_said(_use(session, "stranger"), "stranger.wind"), "Woman does not tell about the wind")
+	_check(_said(_use(session, "lantern_west"), "lantern.blown"), "Lantern burns without shelter")
+	_use(session, "house_west")
+	_check(session.state.world == "village" and session.state.cell == Vector2i(10, 6), "Door of the dark house leads inside")
+	_use(session, "rock_bridge")
+	_check(village.get_object("rock_bridge").cell == Vector2i(5, 7), "Rock does not roll to the windward side of the lantern")
+	_use(session, "lantern_west")
+	_check(village.get_object("lantern_west").state == "lit", "Lantern does not burn behind the rock")
+	_use(session, "rock_bridge")
+	_check(village.get_object("lantern_west").state == "out", "Lantern keeps burning when the rock rolls away")
+	_check(village.get_object("rock_bridge").cell == Vector2i(11, 8), "Rock rolls back onto the path instead of to its place")
+	_use(session, "rock_bridge")
+	_use(session, "lantern_west")
+	_use(session, "house_west")
+	_check(session.state.world == "house_inside", "Door of the lit house does not lead inside")
+
+	_check(_said(_use(session, "old_man"), "old_man.first"), "Old man does not greet the player")
+	_check(_said(_use(session, "cupboard"), "cupboard.guarded"), "Cupboard opens unasked")
+	_check("crank" not in session.state.items, "Crank can be taken without knowing whose it is")
+	_use(session, "table")
+	_check("notebook" in session.state.items, "Notebook cannot be taken from the table")
+	_check("lee_of_stone" in session.state.notes, "What the player learned before is not in the notebook")
+	_check(_said(_use(session, "old_man"), "old_man.borrowed"), "Old man does not tell about the borrowed thing")
+	_check(_said(_use(session, "cupboard"), "cupboard.guarded"), "Old man hands out the crank without a name")
+	_check(_said(_use(session, "music_box"), "music_box.silent"), "Music box plays without a crank")
+	session.enter(Vector2i(2, 5))
+
+	_check(_linger(session, Vector2i(13, 15)).is_empty(), "Memory shows before the child has told about it")
+	_check(_said(_use(session, "child"), "child.still"), "Child does not tell about the place")
+	_check(village.get_object("arch").hidden, "Arch stands before it is remembered")
+	var remembered := _linger(session, Vector2i(13, 15))
+	_check({"remember": "cliff"} in remembered, "Standing still by the child shows no memory")
+	_check(not village.get_object("arch").hidden, "Remembering does not bring the arch back")
+	_check(_said(_use(session, "arch"), "arch.dark"), "Arch carries without its lantern")
+	_use(session, "rock_east")
+	_use(session, "rock_east")
+	_use(session, "lantern_east")
+	_check(village.get_object("arch").state == "open", "Arch does not shine when its lantern burns")
+	_use(session, "arch")
 	_check(session.state.world == "mill_hill", "Arch of the village does not lead to the mill hill")
-	_check(session.mood().wind == 0.0, "There is wind on the mill hill although the mill stands still")
-	_check(use.call(Vector2i(8, 5), "mill")[0].get("say") == "mill.stuck", "Mill turns without its crank")
-	use.call(Vector2i(10, 6), "miller")
-	_check(session.state.facts.get("crank_known", false), "Miller does not tell about the crank")
 
-	use.call(Vector2i(11, 10), "arch_spring")
+	# Mill hill and the first look at the spring.
+	_check(session.mood().wind == 0.0, "There is wind on the mill hill although the mill stands still")
+	_check(_said(_use(session, "mill"), "mill.stuck"), "Mill turns without its crank")
+	_check(_said(_use(session, "miller"), "miller.crank"), "Miller does not tell about the crank")
+	_check(_said(_use(session, "arch_spring"), "arch.dark"), "Arch to the spring carries without its lantern")
+	_use(session, "mill_lantern")
+	_use(session, "vane")
+	_use(session, "arch_spring")
 	_check(session.state.world == "spring", "Arch of the mill hill does not lead to the spring")
 	_check(not session.world().is_walkable(Vector2i(7, 7)), "Brook can be crossed without the raft")
-	_check(session.enter(Vector2i(6, 7)).size() >= 3, "Missing raft is not noticed")
-	use.call(Vector2i(3, 7), "arch_back")
-	_check(session.state.world == "village", "Wrongly joined arch of the spring does not lead to the village")
+	_check(_said(_use(session, "spring_lantern"), "lantern.blown"), "Lantern of the spring burns in the wrong wind")
+	_use(session, "arch_back")
+	_use(session, "arch_village")
+	_check(session.state.world == "village", "Arches do not lead back to the village")
 
-	session.state.world = "house_inside"
-	_check(use.call(Vector2i(2, 2), "cupboard").size() >= 3 and "crank" in session.state.items, "Crank is not in the cupboard")
-	_check(use.call(Vector2i(2, 2), "cupboard").is_empty(), "Crank can be taken twice")
-
-	session.state.world = "mill_hill"
-	use.call(Vector2i(8, 5), "mill")
-	_check(session.open_faults("mill_hill") == ["lantern"], "Mill does not turn with the crank")
-	_check(session.open_faults("village") == ["brook"], "Turning mill does not bring the wind back to the village")
+	# The crank and the mill.
+	_use(session, "house_west")
+	_check(_said(_use(session, "old_man"), "old_man.yours") and "crank" in session.state.items, "Old man does not hand over the crank once the player knows whose it is")
+	_check(_use(session, "cupboard").is_empty(), "Crank can be taken twice")
+	_check(_said(_use(session, "music_box"), "music_box.wrong"), "Music box plays right in the broken village")
+	session.enter(Vector2i(2, 5))
+	_use(session, "arch")
+	_check(_said(_use(session, "mill"), "mill.backwards"), "Mill turns the right way with the vane wrong")
+	_check(session.open_faults("village").has("wind"), "A mill running backwards brings the wind back")
+	_check(_said(_linger(session, Vector2i(10, 4)), "memory.mill"), "Miller's place shows no memory")
+	_check(_said(_use(session, "vane"), "vane.right"), "Turning the vane north does not set the mill right")
+	_check(_said(_use(session, "vane"), "vane.fixed"), "Vane can be turned once the mill runs")
+	_check(session.open_faults("mill_hill") == ["field"], "Mill hill has other open faults than the field")
+	_check(not session.open_faults("village").has("wind"), "Turning mill does not bring the wind back to the village")
 	_check(session.world("spring").get_object("raft").cell == Vector2i(7, 7), "Turning mill does not drive the raft back")
-	use.call(Vector2i(5, 6), "mill_lantern")
+	_check(_said(_use(session, "miller"), "miller.dry"), "Miller does not tell about the field")
 
+	# Spring and pond: low water first, then high.
+	_use(session, "arch_spring")
+	_use(session, "spring_lantern")
+	_use(session, "arch_on")
+	_check(session.state.world == "village", "Arch of the spring does not skip the forgotten pond")
 	session.state.world = "spring"
-	_check(not session.world().find_path(Vector2i(4, 7), Vector2i(9, 5)).is_empty(), "Raft does not carry across the brook")
-	use.call(Vector2i(9, 5), "sluice")
-	_check(session.open_faults("village").is_empty(), "Open sluice does not let the village brook run right")
-	use.call(Vector2i(3, 7), "arch_back")
-	_check(session.state.world == "mill_hill", "Arch of the spring is still wrongly joined")
-	_check(session.is_complete(), "Story ends with open faults")
+	_use(session, "steps")
+	_check(session.state.world == "pond" and "pond" in session.state.notes, "Dry bed does not lead down to the pond")
+	var pond := session.world()
+	_check(pond.find_path(Vector2i(3, 5), Vector2i(6, 5)).size() > 0, "Stepping stones do not carry at low water")
+	_check(_said(_use(session, "fisher"), "fisher.mud"), "Fisherwoman does not tell about the mud")
+	_check(_said(_use(session, "boat"), "boat.hers"), "Boat goes in the mud")
+	_use(session, "pond_lantern")
+	_check(_said(_use(session, "fisher"), "fisher.light_on"), "Fisherwoman does not see the light")
+	_use(session, "steps")
+	_check(session.state.world == "spring", "Dry bed does not lead back up")
+	var opened := _use(session, "sluice")
+	_check({"whole": "spring"} in opened and {"whole": "mill_hill"} in opened, "Opening the sluice does not make spring and mill hill whole")
+	_check(not session.open_faults("village").has("brook"), "Open sluice does not let the village brook run")
+	_check(_said(_use(session, "steps"), "steps.flooded"), "Bed of the brook can be walked with the sluice open")
+	_use(session, "arch_on")
+	_check(session.state.world == "pond", "Arch of the spring does not lead to the pond once it is in the notebook")
+	_check(pond.find_path(Vector2i(3, 5), Vector2i(6, 5)).is_empty(), "Stepping stones carry at high water")
+	var rowed := _use(session, "fisher")
+	_check({"whole": "pond"} in rowed, "Rowing the fisherwoman home does not make the pond whole")
+	_check(session.state.cell == Vector2i(10, 5) and pond.get_object("fisher").hidden, "Fisherwoman does not row to the far shore")
+	_check(_linger(session, Vector2i(10, 4)).is_empty(), "Jetty shows its memory before the fisherwoman has told about it")
+	_use(session, "fisher_home")
+	_check(_said(_linger(session, Vector2i(10, 4)), "memory.jetty") and "big_light" in session.state.notes, "Jetty shows no memory")
+	_use(session, "boat")
+	_check(session.state.cell == Vector2i(3, 7), "Boat does not carry back")
+	_use(session, "arch_on")
+	_check(session.state.world == "village", "Arch of the pond does not skip the forgotten watch")
+
+	# The village becomes whole.
+	_check(_said(_use(session, "stranger"), "stranger.evening"), "Woman does not notice the wind")
+	_check(_said(_linger(session, Vector2i(16, 10)), "memory.bridge"), "Woman's walk shows no memory")
+	_use(session, "rock_bridge")
+	_use(session, "rock_east")
+	_check(session.world().get_object("lantern_west").state == "lit", "Lantern goes out in the right wind")
+	_use(session, "lantern_bridge")
+	_check(session.open_faults("village") == ["music_box"], "Village has other open faults than the music box")
+	_check(_said(_use(session, "stranger"), "stranger.evening"), "Woman calls the village whole too early")
+	session.state.world = "mill_hill"
+	_check(_said(_use(session, "miller"), "miller.grain") and "crank" in session.state.items, "Miller does not give the crank back")
+	session.state.world = "house_inside"
+	_check(_said(_use(session, "old_man"), "old_man.wind_it"), "Old man does not ask for the music box")
+	_check({"whole": "village"} in _use(session, "music_box"), "Music box does not make the village whole")
+	_check(_said(_use(session, "old_man"), "old_man.above"), "Old man does not remember the watch")
+	_check("wick" in session.state.items and "watch" in session.state.notes, "Old man does not hand over the wick")
+
+	# The watch.
+	session.state.world = "pond"
+	_use(session, "arch_on")
+	_check(session.state.world == "watch", "Arch of the pond does not lead to the watch once it is in the notebook")
+	_check(session.world().get_object("view_village").state == "lit", "Watch does not show the whole village")
+	_check(not session.is_complete(), "Chapter ends before the great light burns")
+	var lit := _use(session, "big_light")
+	_check(_said(lit, "big_light.lit") and {"whole": "watch"} in lit, "Great light does not catch")
+	_check(session.is_complete(), "Chapter does not end when the great light burns")
+	_check(session.whole_worlds().size() == 5, "Not every piece of the valley is whole at the end")
+	_check(not session.world("pond").get_object("distant_light").hidden, "Great light cannot be seen from the pond")
+
+
+## The great light only catches once every piece below is whole.
+func _test_watch_waits() -> void:
+	var game: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://data/game.json"))
+	var session := Session.create(game)
+	_play_evening(session)
+	session.state.world = "watch"
+	session.state.give("wick")
+	_check(_said(_use(session, "big_light"), "big_light.weak"), "Great light catches above a broken valley")
+	_check(_said(_use(session, "view_pond"), "view.pond.dark"), "Watch shows a broken piece as lit")
 
 
 func _test_save_file() -> void:
@@ -470,14 +645,14 @@ func _test_save_file() -> void:
 	_check(not FileAccess.file_exists(path + ".tmp"), "Draft of the save file is left behind")
 
 	var file := FileAccess.open(path, FileAccess.WRITE)
-	file.store_string("{\"version\": 1, \"world\": ")
+	file.store_string("{\"version\": 2, \"world\": ")
 	file.close()
 	_check(Session.resume(_tiny_game(), SaveFile.read(path), _tiny_sources()) == null, "Half-written save file is accepted")
 
 	# A save the game cannot use is set aside, so the next save does not overwrite it.
 	SaveFile.set_aside(path)
 	_check(not FileAccess.file_exists(path), "Unusable save file stays in place")
-	_check(FileAccess.get_file_as_string(path + SaveFile.UNUSABLE).begins_with("{\"version\": 1"), "Unusable save file is not kept")
+	_check(FileAccess.get_file_as_string(path + SaveFile.UNUSABLE).begins_with("{\"version\": 2"), "Unusable save file is not kept")
 	SaveFile.write(path, session.state.to_data())
 	SaveFile.set_aside(path)
 	_check(GameState.from_data(SaveFile.read(path + SaveFile.UNUSABLE)) != null, "A save set aside earlier is not replaced")
@@ -493,48 +668,27 @@ func _test_save_file() -> void:
 func _test_village_game() -> void:
 	var game: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://data/game.json"))
 	var session := Session.create(game)
+	var slips := RuleCheck.errors(session, Notebook.read())
+	_check(slips.is_empty(), "Rules have errors:\n  %s" % "\n  ".join(slips))
+	_play_evening(session)
 	var world := session.world()
 	_check(world.errors().is_empty(), "Broken village has data errors: %s" % [world.errors()])
 	_check(session.open_faults().size() == world.faults.size(), "Not every fault is open in the broken village")
-	_check(world.find_path(world.start, Vector2i(16, 9)).is_empty(), "Rock does not block the bridge")
-	var slips := RuleCheck.errors(session, Notebook.read())
-	_check(slips.is_empty(), "Rules have errors:\n  %s" % "\n  ".join(slips))
-	_check(_use(session, "stranger")[0].get("say") == "stranger.lanterns", "Woman does not tell about the lanterns")
 	var remembered := world.differences()
 	_check(remembered.size() == world.broken.size(), "Memory does not show every changed object")
 	_check(remembered.any(func(o: WorldObject) -> bool: return o.id == "rock_bridge" and o.cell == Vector2i(11, 8)), "Memory does not show where the rock belongs")
+	_check(world.remembered("cliff").any(func(o: WorldObject) -> bool: return o.id == "arch"), "Memory at the cliff does not show the arch")
 	_check(session.remembered_mood().wind > 0.0, "Remembered mood is not the intact one")
+	_check(session.mood().wind < 0.0, "Wind does not blow the wrong way in the broken village")
 
 	var result := Solver.check(game)
-	print("village: %d states, solution: %s" % [result.states, ", ".join(result.solution)])
+	print("valley: %d states, solution in %d moves: %s" % [result.states, result.solution.size(), ", ".join(result.solution)])
 	_check(result.complete, "Search through the game was given up")
 	_check(result.solvable, "Game cannot be completed")
 	_check(result.dead_ends == 0, "Game has %d dead ends, for example: %s" % [result.dead_ends, result.dead_end])
 
-	# Doors: the wrong village swaps them, the repaired one leads inside.
-	session.state.cell = Vector2i(4, 7)
-	session.interact("house_west")
-	_check(session.state.world == "village" and session.state.cell == Vector2i(10, 6), "Wrong door does not lead to the other house")
-	session.interact("house_mid")
-	_check(session.state.cell == Vector2i(4, 7), "Wrong door of the other house does not lead back")
-	for world_id: String in ["village", "mill_hill", "spring"]:
-		session.apply([{"restore": world_id}], world_id)
-	session.interact("house_west")
-	_check(session.state.world == "house_inside", "Door of the repaired village does not lead inside")
+	session.state.world = "house_inside"
 	_check(session.world().errors().is_empty(), "Room has data errors: %s" % [session.world().errors()])
-	session.state.cell = Vector2i(3, 2)
-	_check(session.interact("old_man")[0].get("say") == "old_man.first", "Old man does not greet the player")
-	_check(_use(session, "old_man")[0].get("say") == "old_man.take_it", "Old man does not point to the notebook")
-	session.state.cell = Vector2i(4, 2)
-	_check("notebook" not in session.state.items, "Player has the notebook before taking it")
-	session.interact("table")
-	_check("notebook" in session.state.items and session.world().get_object("table").state == "", "Notebook cannot be taken from the table")
-	_check(session.interact("table").is_empty(), "Notebook can be taken twice")
-	_check(session.world().differences().is_empty(), "Taking the notebook counts as something the break changed")
-	_check(_use(session, "old_man")[0].get("say") == "old_man.whole", "Old man does not notice the repaired village")
-	for world_id: String in ["village", "mill_hill", "spring"]:
-		session.apply([{"break": world_id}], world_id)
-	_check(_use(session, "old_man")[0].get("say") == "old_man.hint_wind", "Old man gives no hint about the wind")
 	_check(session.mood().wind < 0.0, "Room does not share the mood of the village")
 	session.enter(Vector2i(2, 5))
 	_check(session.state.world == "village" and session.state.cell == Vector2i(4, 7), "Leaving the room does not lead back in front of the door")
@@ -545,3 +699,4 @@ func _test_village_game() -> void:
 		_check(intact.world().errors().is_empty(), "World '%s' has data errors: %s" % [world_id, intact.world().errors()])
 		_check(intact.open_faults().is_empty(), "Intact world '%s' has open faults: %s" % [world_id, intact.open_faults()])
 		_check(intact.world().differences().is_empty(), "Intact world '%s' differs from itself" % world_id)
+		_check(session.world(world_id).errors().is_empty(), "Broken world '%s' has data errors: %s" % [world_id, session.world(world_id).errors()])

@@ -11,6 +11,7 @@ extends RefCounted
 ##   {"item": id, "is": bool}         the player carries the item
 ##   {"note": id, "is": bool}         the notebook has the entry
 ##   {"fixed": fault, "world": id, "is": bool}   the fault of a world is fixed
+##   {"whole": world, "is": bool}     the world has faults and all of them are fixed
 ##   {"object": id, "world": id, "cell": [x, y], "state": s, "mirrored": b, "hidden": b}
 ##                                    the object has all the given properties
 ##   {"not": condition}, {"any": [conditions]}
@@ -22,10 +23,22 @@ extends RefCounted
 ##   {"change": object, "world": id, "cell": [x, y], "state": s, "mirrored": b, "hidden": b}
 ##   {"break": world}                 turns a world into its broken version
 ##   {"restore": world}               turns a world back into the intact one
-##   {"go": world, "cell": [x, y]}    moves the player to another world (default: its start cell)
+##   {"go": world, "cell": [x, y], "by": object, "with": [objects]}
+##                                    moves the player to another world (default: its start cell).
+##                                    "by" and "with" only tell the view how: aboard that object
+##                                    of the world the player leaves, which this rule also moves,
+##                                    together with those others. What a rule says before "go"
+##                                    is said before leaving, what it says after it on arrival
+##   {"remember": memory}             changes nothing; the view lets the part of the world that
+##                                    belongs to this place of memory (see World.memories) show
+##                                    through as it was, until the player moves again
 ##   {"say": text, "who": person}     changes nothing; the view shows the lines of the text, with
 ##                                    the text "name.<person>" as the speaker. Without "who" the
 ##                                    player talks to themselves ("name.self")
+##
+## Besides the effects of the rules, the returned list tells what came of them:
+##   {"whole": world}                 the last open fault of a world has just been fixed
+## Rules cannot have this as an effect.
 ##
 ## A rule only fires if its conditions hold and its effects are possible. Of several rules for
 ## the same trigger, only the first one that can fire does.
@@ -39,7 +52,9 @@ const WORLD_DIR := "res://data/worlds/"
 const REACTION_LIMIT := 20
 
 var state := GameState.new()
-## The game definition: "start" (world id), "worlds" (all world ids) and "on_start" (effects).
+## The game definition: "start" (world id), "worlds" (all world ids), "on_start" (effects) and
+## "complete_if" (conditions under which the game is complete; without them it is complete once
+## no world has an open fault).
 var definition := {}
 
 var _worlds := {}
@@ -86,6 +101,13 @@ func load_state(saved: Variant) -> bool:
 	if not world().is_walkable(state.cell):
 		state.cell = world().start
 	return true
+
+
+## Replaces the state by one that belongs to this game, without checking it.
+func restore(saved: GameState) -> void:
+	state = saved
+	for world_id: String in _worlds:
+		_worlds[world_id].apply(state.objects.get(world_id, {}))
 
 
 func world_ids() -> Array:
@@ -198,8 +220,18 @@ func open_faults(world_id := "") -> Array[String]:
 	return open
 
 
-## The game is complete once no world has an open fault.
+## Ids of the worlds that have faults, all of them fixed.
+func whole_worlds() -> Array[String]:
+	var whole: Array[String] = []
+	for world_id: String in world_ids():
+		if _holds({"whole": world_id}, world_id):
+			whole.append(world_id)
+	return whole
+
+
 func is_complete() -> bool:
+	if definition.has("complete_if"):
+		return holds(definition["complete_if"], definition.get("start", ""))
 	for world_id: String in world_ids():
 		if not open_faults(world_id).is_empty():
 			return false
@@ -238,8 +270,12 @@ func _fire(rule: Dictionary) -> Array:
 	var effects: Array = rule.get("do", []).duplicate()
 	if effects.is_empty():
 		return effects
+	var whole_before := whole_worlds()
 	apply(effects, state.world)
 	effects.append_array(_react())
+	for world_id in whole_worlds():
+		if world_id not in whole_before:
+			effects.append({"whole": world_id})
 	return effects
 
 
@@ -290,6 +326,9 @@ func _holds(condition: Dictionary, home: String) -> bool:
 		return (condition["note"] in state.notes) == expected
 	if condition.has("fixed"):
 		return is_fixed(where, condition["fixed"]) == expected
+	if condition.has("whole"):
+		var asked: String = condition["whole"]
+		return (not world(asked).faults.is_empty() and open_faults(asked).is_empty()) == expected
 	if condition.has("object"):
 		var thing := world(where).get_object(condition["object"])
 		return thing != null and thing.matches(World.read_properties(condition))

@@ -6,8 +6,11 @@ extends Node2D
 const SHADOW_OPACITY := 0.3
 ## Objects as the player remembers them show through in this colour.
 const GHOST_COLOR := Color(1.15, 1.1, 1.0, 0.6)
-const GHOST_FADE_IN := 1.2
 const GHOST_FADE_OUT := 0.8
+## Seconds something takes to appear that was not there before.
+const APPEAR_DURATION := 2.5
+## Where those aboard a vehicle stand, relative to its foot: the player first, then the others.
+const SEATS: Array[Vector2] = [Vector2(-18, 1), Vector2(18, 2), Vector2(0, 3)]
 
 var world: World
 var player: Player
@@ -67,10 +70,14 @@ func sync() -> void:
 		var view: ObjectView = _views[object.id]
 		if view.is_current(object) or view.follow(object):
 			continue
+		var was_visible := view.visible
 		if view.shadow:
 			view.shadow.queue_free()
 		view.queue_free()
 		_add_object(object)
+		if not was_visible and not object.hidden:
+			_views[object.id].modulate.a = 0.0
+			create_tween().tween_property(_views[object.id], "modulate:a", 1.0, APPEAR_DURATION).set_trans(Tween.TRANS_SINE)
 
 
 ## The object under the point that is_usable (a function taking an object id) accepts: the one
@@ -91,6 +98,25 @@ func object_at(point: Vector2, is_usable: Callable) -> String:
 	return found
 
 
+## Lets an object carry the player, and the given other objects with them, to the cell the
+## world already has it on. Returns the movement, which takes the given number of seconds.
+func ride(vehicle_id: String, passenger_ids: Array, duration: float) -> Tween:
+	var vehicle: ObjectView = _views[vehicle_id]
+	var way := vehicle.point_of(world.get_object(vehicle_id).cell) - vehicle.position
+	var aboard: Array[Node2D] = [player]
+	for passenger_id: String in passenger_ids:
+		aboard.append(_views[passenger_id])
+	player.shadow.visible = false
+	var crossing := create_tween().set_parallel().set_trans(Tween.TRANS_SINE)
+	crossing.tween_property(vehicle, "position", vehicle.position + way, duration)
+	for number in aboard.size():
+		var seat := vehicle.position + SEATS[number % SEATS.size()]
+		# Standing a little in front of its foot, they are drawn over the vehicle.
+		aboard[number].position = seat
+		crossing.tween_property(aboard[number], "position", seat + way, duration)
+	return crossing
+
+
 ## Brief feedback for a tap on a point of the world.
 func mark(point: Vector2) -> void:
 	_marker.show_at(point)
@@ -105,11 +131,11 @@ func set_mood(light: float, shadow_cast: Vector2) -> void:
 		view.set_shadow_cast(shadow_cast)
 
 
-## Lets everything the break changed show through as it was. Returns false if nothing differs.
-func remember() -> bool:
-	var remembered := world.differences()
-	if remembered.is_empty() or is_remembering():
-		return false
+## Lets the given objects show through as they were, appearing over the given number of seconds.
+func remember(remembered: Array[WorldObject], fade_in: float) -> void:
+	forget()
+	if remembered.is_empty():
+		return
 	_appear = create_tween().set_parallel()
 	for object in remembered:
 		var ghost := ObjectView.new()
@@ -119,12 +145,7 @@ func remember() -> bool:
 		ghost.z_index = 1
 		_layer.add_child(ghost)
 		_ghosts.append(ghost)
-		_appear.tween_property(ghost, "modulate:a", GHOST_COLOR.a, GHOST_FADE_IN).set_trans(Tween.TRANS_SINE)
-	return true
-
-
-func is_remembering() -> bool:
-	return not _ghosts.is_empty()
+		_appear.tween_property(ghost, "modulate:a", GHOST_COLOR.a, fade_in).set_trans(Tween.TRANS_SINE)
 
 
 ## Lets the memory fade again.

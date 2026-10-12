@@ -10,6 +10,9 @@ const CLOSE_SIZE := 76.0
 ## Item the player has to carry for the notebook to be there.
 const ITEM := "notebook"
 const BUTTON_COLOR := Color(0.09, 0.1, 0.14, 0.6)
+## Dots that show the condition of a piece of the world.
+const DOT_RADIUS := 11.0
+const DOT_SPACING := 36.0
 
 var session: Session
 
@@ -171,6 +174,8 @@ func _fill() -> void:
 			continue
 		_detail.add_child(_label(Texts.text("note.%s.title" % entry.id), &"PaperHeading"))
 		_detail.add_child(_label("%s · %s" % [Texts.text("kind." + entry.kind), Texts.text("world." + entry.world)], &"PaperSmall"))
+		if entry.kind == "piece":
+			_add_condition(entry.world)
 		_detail.add_child(_label(Texts.text("note.%s.text" % entry.id), &"PaperText"))
 		if entry.links.is_empty():
 			continue
@@ -180,6 +185,35 @@ func _fill() -> void:
 				_detail.add_child(_note_button("–  " + Texts.text("note.%s.title" % link.id), &"PaperLink", link.id))
 			else:
 				_detail.add_child(_label("–  " + Texts.text("notebook.unknown"), &"PaperMissing"))
+
+
+## Shows how a piece of the world is doing: one dot per fault, filled once it is fixed, and
+## whether the piece is whole. The dots tell how much is wrong without telling what.
+func _add_condition(world_id: String) -> void:
+	var faults := session.world(world_id).faults.size()
+	if faults == 0:
+		return
+	var fixed := faults - session.open_faults(world_id).size()
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 20)
+	var dots := Control.new()
+	dots.custom_minimum_size = Vector2(faults * DOT_SPACING, DOT_SPACING)
+	dots.draw.connect(_draw_dots.bind(dots, faults, fixed))
+	row.add_child(dots)
+	var condition := _label(Texts.text("notebook.whole" if fixed == faults else "notebook.broken"), &"PaperSmall")
+	condition.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	row.add_child(condition)
+	_detail.add_child(row)
+
+
+func _draw_dots(dots: Control, faults: int, fixed: int) -> void:
+	var color := _theme_color(&"PaperLink")
+	for number in faults:
+		var centre := Vector2((number + 0.5) * DOT_SPACING, dots.size.y * 0.5)
+		if number < fixed:
+			dots.draw_circle(centre, DOT_RADIUS, color)
+		else:
+			dots.draw_arc(centre, DOT_RADIUS - 1.5, 0.0, TAU, 24, color, 3.0, true)
 
 
 func _label(text: String, variation: StringName) -> Label:

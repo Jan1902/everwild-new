@@ -11,42 +11,49 @@ Spielspeicher, Regeln je Welt, Stimmung aus dem Zustand, Lösbarkeitsprüfung un
 1. **Speicherung in Google Play.** Spielstand über Google Play Games (Saved Games) sichern und zwischen Geräten abgleichen, mit Regel für Konflikte zwischen lokalem und entferntem Stand.
 2. **Alte Spielstände nach Änderungen am Inhalt.** Ein Stand mit anderer Formatversion wird beiseitegelegt und das Spiel beginnt neu; eine Umwandlung alter Stände gibt es noch nicht. Ändert sich eine Welt, liegen alte Abweichungen ungeprüft über der neuen Fassung (nur verschwundene Welten und Objekte fallen weg). Braucht vor dem ersten Bau für andere Spieler eine Inhaltsversion und eine Regel, was mit einem Stand aus einer älteren Fassung geschieht.
 3. **Strengere Prüfung des Codes.** Regeln, Folgen und Bedingungen sind weiterhin untypisierte Dictionaries (geprüft von `RuleCheck`). Offen sind strengere GDScript-Warnungen in `project.godot`, ein Formatierer oder Linter (gdtoolkit) und ein Testlauf, der vor jedem Commit von selbst startet.
-4. **Sonderfälle je Objektart in der Ansicht.** Das Notizbuch auf dem Tisch und die Platzhalter-Zeichnungen stehen noch als Sonderfälle in `ObjectView`.
-5. **Tests der Geschichte.** `_test_story` und `_test_village_game` hängen an festen Zellen und Textschlüsseln und müssen mit der Überarbeitung der Geschichte neu geschrieben werden.
+4. **Kapiteldatei prüfen lassen.** Die Blöcke in `docs/chapters/valley.md` liest noch kein Werkzeug. Gedacht ist eines, das sie durchspielt (keine Sackgasse, jeder Hinweis rechtzeitig, kein Schritt überspringbar, Spielzeit) und mit den Regeln der Weltdateien vergleicht. Bis dahin müssen Datei und Welten von Hand übereinstimmen.
+5. **Lösbarkeitsprüfung beschleunigen.** Sie braucht für das Tal etwa eine halbe Minute (knapp 7000 Zustände) und läuft bei jedem Test mit. Wächst der Inhalt, braucht sie einen eigenen Lauf oder eine Suche, die unabhängige Schritte nicht in jeder Reihenfolge durchgeht.
+6. **Weltdateien werden von Hand gepflegt.** Die Dateien des Tals sind einmalig aus einem Skript entstanden und stehen deshalb mit einer Regel je Zeile da. Ein Werkzeug, das sie aus der Kapiteldatei erzeugt, gibt es nicht.
 
 ## Spielinhalt
 
-### Rückmeldung von Jan nach dem ersten Durchspielen auf dem Handy
+### Das Tal als Probefassung
 
-Insgesamt ist der Ablauf zu schnell, zu simpel und zu vorhersehbar. Im Einzelnen:
+Das erste Kapitel (`docs/chapters/valley.md`) ist von Anfang bis Ende spielbar: der Abend vor dem Riss, Dorf, Mühlenhügel, Quelle, Weiher, Warte. Alles Neue ist mit einfachen Flächen gezeichnet. Jan spielt es durch und entscheidet, ob es so bleibt.
 
-- **Wissen gehört zu Figuren.** Wer etwas weiß, muss dazu passen. Dass die Kurbel im Schrank liegt, kann nur der alte Mann wissen (oder das Notizbuch), nicht der Müller. Jeden Hinweis darauf prüfen, wer ihn glaubhaft geben kann.
-- **Widerspruch bei den Laternen.** Die Frau schickt den Spieler zum alten Mann, weil der zu den Laternen Rat wissen soll. Man muss die Laternen aber anzünden, um überhaupt zu ihm zu kommen. Reihenfolge und Begründung neu ordnen.
-- **Kein Überspringen.** Schritte lassen sich auslassen (zum Beispiel die Kurbel holen, ohne mit dem alten Mann gesprochen zu haben). Die Regeln müssen die gedachte Reihenfolge strenger erzwingen, wo sie für die Geschichte zählt.
-- **Klar erkennbar, wann eine Welt heil ist.** Man kann die Mühle in Gang setzen und erst danach ihre Laterne anzünden. Es ist oft nicht offensichtlich, ob eine Welt fertig ist. Braucht einen deutlichen Moment, wenn der letzte Fehler einer Welt behoben ist, und eine sichtbare Anzeige des Zustands (im Notizbuch oder in der Welt selbst).
-- **NPCs reagieren strenger auf den Zustand.** Was eine Figur sagt, muss genau zu dem passen, was schon getan ist und was noch fehlt, auch bei Teilzuständen.
-- **Figuren verwirrter und mysteriöser.** Weniger Auskunft, mehr Andeutung. Es fehlen Denkpausen, Satzfetzen, Abschweifungen und Dinge, die nichts zur Lösung beitragen. Hinweise sollen sich nicht wie Anweisungen lesen.
-- **Mehr Widerstand.** Rätsel brauchen mehr als einen Schritt und Momente, in denen man selbst kombinieren muss. Das Notizbuch soll dafür nötig werden.
+1. **Jans Urteil einholen.** Vor allem: Trägt die Geschichte, sind die Rätsel zu leicht oder zu undurchsichtig, dauert es lang genug? Die offenen Punkte stehen am Ende der Kapiteldatei.
+2. **Was Jan nach dem ersten Durchspielen der alten Fassung bemängelt hat, am Tal prüfen:**
+   - Wissen gehört zu Figuren (jeder Hinweis nennt in der Kapiteldatei, wer ihn glaubhaft geben kann).
+   - Kein Überspringen von Schritten, die für die Geschichte zählen. Bekannte Lücken: Die Frau am Bach muss man nie ansprechen, und die Wetterfahne lässt sich ohne Erinnerung durchprobieren.
+   - Figuren reagieren genau auf den Zustand, auch auf Teilzustände.
+   - Figuren verwirrter und mysteriöser, Hinweise nicht als Anweisung.
+   - Mehr Widerstand, das Notizbuch soll nötig sein.
+3. **Bilder und Musik für das Tal.** Erst nach Jans Urteil und auf seine Anweisung. Der Bedarf steht in der Kapiteldatei.
+4. **Niedriges Wasser sichtbar machen.** Der trockene Bach im Dorf und der fast leere Weiher sehen aus wie Wasser, das falsch fließt. Dass der Stand sinkt, zeigen nur die Trittsteine und die Texte.
+5. **Der Riss als Szene (Jan).** Er ist bisher ein Text über der Blende, wenn der Spieler aus der Tür tritt. Gewünscht: Der Bildschirm wackelt, dazu ein Geräusch, das Bild wird dunkel, dann langsam heller, und die Figur liegt in der kaputten Welt.
+6. **Neubeginn sichtbar machen (Jan).** Nach „Neu beginnen“ steht die Figur im Haus des Alten. Wer vorher schon dort stand, sieht fast dasselbe Bild und hält den Knopf für kaputt. Braucht eine Blende oder ein anderes Zeichen, dass ein neues Spiel läuft.
+7. **Man bleibt oft stecken (Jan, erstes Anspielen).** Bisher hing es an drei Stellen, die behoben sind: Ein Stein rollte hinter einen Baum, der Platz des Müllers war nicht zu finden (jetzt gilt überall: neben die Figur stellen und warten), und der Alte gab die Kurbel nur über den Schrank heraus, nicht im Gespräch. Offen bleibt das Muster dahinter:
+   - Nichts in der Welt zeigt, wo man verweilen kann und dass gerade etwas geschieht, solange man wartet.
+   - Jeder Schritt muss über alles gehen, was ein Spieler naheliegend versucht (die Figur ansprechen statt das Ding antippen und umgekehrt).
+   - Sagt eine Figur zweimal dasselbe, obwohl der Spieler inzwischen mehr weiß, wirkt das wie eine Sackgasse.
+   - Jan hat das Dorf erst mit Erklärung gelöst. Das zweite Antippen der Steine und der Windschatten erklären sich nicht von selbst.
+8. **Platzhalter in der Ansicht.** Die Zeichnungen für alles ohne Bild stehen als Sonderfälle je Objektart in `ObjectView`, ebenso das Notizbuch auf dem Tisch. Sie fallen weg, sobald es Bilder gibt.
 
 ### Weitere Punkte
 
 1. **Laufanimation abstimmen.** Die Figur hat je Ansicht (vorn, hinten, jeweils auch gespiegelt) ein Standbild und vier Schritt-Bilder aus einem generierten Bogen (`tools/walk_images.py`). Offen ist, ob vier Bilder flüssig genug wirken, ob Tempo (7 Bilder je Sekunde) und Schrittweite zusammenpassen und ob der Schatten mitlaufen soll (er zeigt immer das Standbild). NPCs stehen still.
-2. **NPCs und Dialoge ausbauen.** Figuren sind Objekte der Welt, was sie sagen, hängt über Regeln am Spielstand, die Texte stehen je Sprache in `data/texts/`. Es gibt drei Figuren (alter Mann im Haus, Frau am Bach, Müller), die den Spieler leiten. Es fehlen die eigentlichen Figuren und Texte der Geschichte und, falls gewünscht, Antworten zur Auswahl.
-3. **Weitere Welten.** Der Wechsel zwischen Welten steht (Türen und Portale sind Regeln mit einem Ziel, das vom Zustand abhängt, dazwischen eine Blende). Es gibt das Dorf mit dem Raum im Haus, den Mühlenhügel und die Quelle, jeweils mit eigenem Musikstück, verbunden durch Steinbögen und mit Abhängigkeiten untereinander. Es fehlen weitere Weltstücke, mehr Fehler je Welt (das Konzept will vier bis sechs, es sind zwei bis drei) und Portale, die man erst finden muss.
-4. **Notizbuch ausbauen.** Das Notizbuch sammelt Erinnerungen, Weltstücke und Hinweise (`data/notes.json`) und zeigt zu jedem Eintrag, womit er zusammenhängt. Noch nicht gefundene Verwandte erscheinen als Lücke. Es fehlt eine Darstellung der Beziehungen als Bild (Karte der Weltstücke statt Liste) und die Gestaltung im gemalten Stil.
-5. **Verweilen einschränken und in die Geschichte einbetten.** Bisher scheint die Erinnerung überall nach 3,5 Sekunden Stillstand durch. Das ist zu stark und kommt zu früh (Jan). Neu:
-   - Die Erinnerung zeigt sich nur an bestimmten Orten, die in der Weltdatei stehen, und erst, nachdem die Geschichte sie eingeführt hat.
-   - Eine Figur führt sie ein: Sie steht am Abhang, erzählt, dass sie jeden Tag dort steht und sich manchmal an die Welt von früher zu erinnern meint. Stellt man sich daneben und wartet, scheint langsam die alte Welt durch. Figur, Ort und Text gehören in den neuen Entwurf des Dorfs.
-   - Technisch: Das Durchscheinen wird eine Folge von Verweil-Regeln (die es mit `cells` und `zone` schon gibt) statt eines festen Verhaltens in `game.gd`. Ob ein Ort die ganze Welt zeigt oder nur einen Ausschnitt, ist offen.
-   - Weiter offen ist das Gefühl: Wartezeit, wie langsam die Erinnerung kommt, wie deutlich sie sein darf und ob sie ein eigenes Geräusch bekommt.
-6. **Tutorial-Dorf als fertiger Abschnitt.** Heile Fassung mit den Aufgaben für den alten Mann, der Bruch, das Aufwachen, die kaputte Fassung mit vier bis sechs Fehlern. Die drei Fehler, die das Dorf jetzt hat (Stein vor der Brücke, Stein im Osten mit gespiegeltem Baum, dunkle Laternen), sind nur ein Probelauf für die Mechanik, und das Spiel beginnt vorläufig direkt im kaputten Dorf.
-7. **Rückmeldung bei Interaktionen.** Man sieht bisher nicht, was sich benutzen lässt und ob ein Tipp etwas bewirkt hat. Offen ist, wie deutlich das sein darf, ohne das Entdecken zu verderben.
+2. **Antworten zur Auswahl.** Figuren sprechen, der Spieler antwortet nie. Falls gewünscht, braucht der Dialog Auswahl.
+3. **Notizbuch ausbauen.** Das Notizbuch sammelt Erinnerungen, Weltstücke, Hinweise und Bruchstücke über den Riss (`data/notes.json`) und zeigt zu jedem Eintrag, womit er zusammenhängt. Noch nicht gefundene Verwandte erscheinen als Lücke. Es fehlt eine Darstellung der Beziehungen als Bild (Karte der Weltstücke statt Liste) und die Gestaltung im gemalten Stil.
+4. **Verweilen abstimmen.** Das Kind am Abhang führt es ein, vier weitere Orte nutzen es. Offen ist das Gefühl: Wartezeit (3,5 s), wie langsam die Erinnerung kommt (3 s), wie deutlich sie sein darf, wie weit sich die Musik neigt und ob sie ein eigenes Geräusch bekommt. Bisher zeigt nichts in der Welt, wo man stehen muss; das sagen nur die Figuren.
+5. **Der Moment „Welt ist heil“ abstimmen.** Wird der letzte Fehler einer Welt behoben, erscheint ihr Name als Schriftzug, warmes Licht schwillt über das Bild und das Notizbuch zeigt je Weltstück einen Punkt pro Fehler. Offen ist das Gefühl: Stärke und Dauer des Lichts, Wortlaut, ob der Moment einen Klang bekommt und ob er warten soll, bis ein offener Dialog zu Ende ist. Das Ende des Kapitels hat noch keinen eigenen Moment.
+6. **Rückmeldung bei Interaktionen.** Man sieht bisher nicht, was sich benutzen lässt und ob ein Tipp etwas bewirkt hat. Offen ist, wie deutlich das sein darf, ohne das Entdecken zu verderben.
+7. **Geführte Szenen (Idee von Jan, erst einmal Nebensache).** Abschnitte, in denen das Spiel dem Spieler die Steuerung abnimmt: eine Zwischenszene, ein Stück Weg, auf dem die Figur von selbst einer anderen folgt, oder ein Rückblick. Dafür fehlt alles: Figuren, die laufen können (NPCs stehen bisher still), eine Abfolge von Schritten als Daten (gehe dorthin, sag das, warte, blende), die Sperre der Eingabe währenddessen und eine Regel, wie sich eine Szene überspringen lässt. Ein Rückblick könnte die heile Fassung einer Welt zeigen, die es als Daten schon gibt. Ein erstes Stück gibt es: Ein Ortswechsel wartet, bis ausgesprochen ist, was davor gesagt wird, und kann eine Fahrt sein (die Figur und andere gleiten an Bord eines Objekts hinüber, wie im Boot der Fischerin). Die Fahrt ist sehr schlicht: Die Figuren stehen vor dem Boot statt darin, und es fährt in gerader Linie.
 
 ## Rahmen
 
 1. **Titelbildschirm.** Der Startbildschirm mit dem Hinweis auf Kopfhörer steht und erscheint nur beim allerersten Start; die Pause-Seite mit Lautstärke, Sprache und „Neu beginnen“ steht auch. Es fehlt ein Titel, sobald der Name feststeht.
-2. **Pause-Seite abstimmen.** Auf dem Handy prüfen: Zurück-Geste (öffnet die Seite, die zweite verlässt das Spiel), Schieberegler mit dem Finger, Größe und Lage des Knopfes. Ein Regler für Geräusche kommt dazu, sobald es welche gibt. Wird die Sprache gewechselt, während ein Dialog offen ist, bleiben dessen schon begonnene Zeilen in der alten Sprache.
-3. **Android weiter prüfen.** Offen sind noch das App-Symbol und ein Blick auf Schriftgrößen und Ränder bei anderen Bildschirmformaten. Der Notizbuch-Knopf sitzt fest 36 Pixel vom Rand und beachtet den sicheren Bereich des Bildschirms (Kamera-Aussparung, runde Ecken) nicht. Nach dem Umbau der Oberfläche auf Controls müssen Dialog, Notizbuch und Startbildschirm einmal auf dem Handy durchgetippt werden; geprüft sind sie bisher nur im Fenster mit nachgestellten Fingertipps.
+2. **Pause-Seite ergänzen.** Ein Regler für Geräusche kommt dazu, sobald es welche gibt. Wird die Sprache gewechselt, während ein Dialog offen ist, bleiben dessen schon begonnene Zeilen in der alten Sprache.
+3. **Android weiter prüfen.** Der Testbau läuft auf Jans Handy einwandfrei, auch die Oberfläche aus Controls, die Pause-Seite und die Zurück-Geste. Offen sind noch das App-Symbol und andere Bildschirmformate: Die Knöpfe in den Ecken sitzen fest 36 Pixel vom Rand und beachten den sicheren Bereich des Bildschirms (Kamera-Aussparung, runde Ecken) nicht.
 4. **Renderer vergleichen.** Das Spiel läuft mit „mobile“ (Vulkan). Für reines 2D auf Android ist „compatibility“ üblicher. Einmal auf dem Handy nebeneinander ansehen.
 
 ## Grafik und Ton
@@ -65,4 +72,4 @@ Insgesamt ist der Ablauf zu schnell, zu simpel und zu vorhersehbar. Im Einzelnen
 - Name: „Everwild“ ist durch Rare belegt und bleibt Arbeitstitel. Ein eigener Name muss stehen, bevor der Eintrag im Play Store angelegt wird (die Paket-ID lässt sich danach nicht mehr ändern).
 - Bleibt `.vscode/settings.json` im Repository?
 - Soll die Figur stehen bleiben, wenn beim Betreten einer Zelle ein Dialog aufgeht? Bisher läuft sie weiter zum Ziel, während der Text erscheint.
-- Umfang der ersten Fassung: wie viele Welten.
+- Umfang der ersten Fassung: wie viele Kapitel.

@@ -3,11 +3,7 @@
 	"start": [2, 4],
 	"mood_from": "village",
 	"music": "res://assets/music/room_theme.mp3",
-	"ground_image": {
-		"path": "res://assets/worlds/house_inside_ground.png",
-		"scale": 1.567,
-		"origin": [-490.1, -238.78]
-	},
+	"ground_image": {"path": "res://assets/worlds/house_inside_ground.png", "scale": 1.567, "origin": [-490.1, -238.78]},
 	"ground": [
 		"      ",
 		" ____ ",
@@ -20,51 +16,37 @@
 	"objects": [
 		{"id": "old_man", "kind": "old_man", "cell": [3, 1]},
 		{"id": "cupboard", "kind": "cupboard", "cell": [1, 2], "access": [[2, 2]]},
-		{"id": "table", "kind": "table", "cell": [4, 3], "state": "notebook"}
+		{"id": "table", "kind": "table", "cell": [4, 3], "state": "notebook"},
+		{"id": "music_box", "kind": "music_box", "cell": [4, 1], "access": [[4, 2]], "state": "playing"}
 	],
+	"broken": {
+		"music_box": {"state": "silent"}
+	},
 	"rules": [
-		{
-			"on": "interact", "object": "old_man",
-			"if": [{"fact": "met_old_man", "is": false}],
-			"do": [{"say": "old_man.first", "who": "old_man"}, {"set": "met_old_man"}, {"note": "old_man"}]
-		},
-		{
-			"on": "interact", "object": "old_man",
-			"if": [{"item": "notebook", "is": false}],
-			"do": [{"say": "old_man.take_it", "who": "old_man"}]
-		},
-		{
-			"on": "interact", "object": "old_man",
-			"if": [{"fixed": "brook", "world": "village"}, {"fixed": "wind", "world": "village"}],
-			"do": [{"say": "old_man.whole", "who": "old_man"}]
-		},
-		{
-			"on": "interact", "object": "old_man",
-			"if": [{"fact": "crank_known"}, {"fact": "crank_taken", "is": false}],
-			"do": [{"say": "old_man.crank", "who": "old_man"}]
-		},
-		{
-			"on": "interact", "object": "old_man",
-			"if": [{"fixed": "wind", "world": "village"}],
-			"do": [{"say": "old_man.hint_brook", "who": "old_man"}]
-		},
-		{
-			"on": "interact", "object": "cupboard",
-			"if": [{"fact": "crank_known"}, {"fact": "crank_taken", "is": false}],
-			"do": [{"give": "crank"}, {"set": "crank_taken"}, {"say": "cupboard.crank"}]
-		},
-		{
-			"on": "interact", "object": "table",
-			"if": [{"fact": "met_old_man"}, {"object": "table", "state": "notebook"}],
-			"do": [{"change": "table", "state": ""}, {"give": "notebook"}, {"say": "notebook.taken"}]
-		},
-		{
-			"on": "interact", "object": "old_man",
-			"do": [{"say": "old_man.hint_wind", "who": "old_man"}]
-		},
-		{
-			"on": "enter", "cells": [[2, 5]],
-			"do": [{"go": "village", "cell": [4, 7]}]
-		}
+		{"on": "interact", "object": "old_man", "if": [{"fact": "rift", "is": false}, {"fact": "evening_asked", "is": false}], "do": [{"say": "old_man.before", "who": "old_man"}, {"set": "evening_asked"}]},
+		{"on": "interact", "object": "old_man", "if": [{"fact": "rift", "is": false}, {"object": "music_box", "state": "playing"}], "do": [{"say": "old_man.leaving", "who": "old_man"}]},
+		{"on": "interact", "object": "old_man", "if": [{"fact": "rift", "is": false}], "do": [{"say": "old_man.before_again", "who": "old_man"}]},
+		{"on": "interact", "object": "old_man", "if": [{"fact": "met_old_man", "is": false}], "do": [{"say": "old_man.first", "who": "old_man"}, {"set": "met_old_man"}]},
+		{"on": "interact", "object": "old_man", "if": [{"item": "notebook", "is": false}], "do": [{"say": "old_man.take_it", "who": "old_man"}]},
+		{"on": "interact", "object": "old_man", "if": [{"fact": "watch_told"}], "do": [{"say": "old_man.go", "who": "old_man"}]},
+		{"on": "interact", "object": "old_man", "if": [{"whole": "village"}, {"note": "big_light"}], "do": [{"say": "old_man.above", "who": "old_man"}, {"note": "watch"}, {"give": "wick"}, {"note": "rift_old_man"}, {"set": "watch_told"}]},
+		{"on": "interact", "object": "old_man", "if": [{"whole": "village"}], "do": [{"say": "old_man.humming", "who": "old_man"}]},
+		{"on": "interact", "object": "old_man", "if": [{"fact": "crank_taken", "is": false}, {"note": "millers_crank"}], "do": [{"give": "crank"}, {"set": "crank_taken"}, {"note": "lent_thing"}, {"say": "old_man.yours", "who": "old_man"}, {"say": "cupboard.crank"}]},
+		{"on": "interact", "object": "old_man", "if": [{"fact": "crank_taken", "is": false}], "do": [{"say": "old_man.borrowed", "who": "old_man"}, {"note": "lent_thing"}]},
+		{"on": "interact", "object": "old_man", "if": [{"item": "crank"}, {"object": "mill", "world": "mill_hill", "state": "turning"}], "do": [{"say": "old_man.wind_it", "who": "old_man"}]},
+		{"on": "interact", "object": "old_man", "if": [{"item": "crank"}], "do": [{"say": "old_man.carry", "who": "old_man"}]},
+		{"on": "interact", "object": "old_man", "do": [{"say": "old_man.waiting", "who": "old_man"}]},
+		{"on": "interact", "object": "music_box", "if": [{"object": "music_box", "state": "playing"}], "do": [{"say": "music_box.playing"}]},
+		{"on": "interact", "object": "music_box", "if": [{"fact": "rift", "is": false}, {"fact": "evening_asked"}, {"object": "lantern_west", "state": "lit", "world": "village"}, {"object": "lantern_bridge", "state": "lit", "world": "village"}, {"object": "lantern_east", "state": "lit", "world": "village"}], "do": [{"change": "music_box", "state": "playing"}, {"say": "music_box.evening"}]},
+		{"on": "interact", "object": "music_box", "if": [{"fact": "rift", "is": false}], "do": [{"say": "music_box.later"}]},
+		{"on": "interact", "object": "music_box", "if": [{"item": "crank"}, {"fixed": "lanterns", "world": "village"}, {"fixed": "arch", "world": "village"}, {"fixed": "wind", "world": "village"}, {"fixed": "brook", "world": "village"}, {"fixed": "stones", "world": "village"}], "do": [{"change": "music_box", "state": "playing"}, {"say": "music_box.plays"}]},
+		{"on": "interact", "object": "music_box", "if": [{"item": "crank"}], "do": [{"say": "music_box.wrong"}]},
+		{"on": "interact", "object": "music_box", "do": [{"say": "music_box.silent"}]},
+		{"on": "interact", "object": "table", "if": [{"fact": "rift", "is": false}], "do": [{"say": "table.before"}]},
+		{"on": "interact", "object": "table", "if": [{"fact": "met_old_man"}, {"object": "table", "state": "notebook"}], "do": [{"change": "table", "state": ""}, {"give": "notebook"}, {"note": "village"}, {"say": "notebook.taken"}]},
+		{"on": "interact", "object": "cupboard", "if": [{"fact": "rift"}, {"fact": "crank_taken", "is": false}, {"note": "millers_crank"}], "do": [{"give": "crank"}, {"set": "crank_taken"}, {"note": "lent_thing"}, {"say": "old_man.yours", "who": "old_man"}, {"say": "cupboard.crank"}]},
+		{"on": "interact", "object": "cupboard", "if": [{"fact": "rift"}, {"fact": "crank_taken", "is": false}], "do": [{"say": "cupboard.guarded", "who": "old_man"}]},
+		{"on": "enter", "cells": [[2, 5]], "if": [{"fact": "rift", "is": false}, {"object": "music_box", "state": "playing"}], "do": [{"say": "rift.comes"}, {"set": "rift"}, {"break": "village"}, {"break": "house_inside"}, {"break": "mill_hill"}, {"break": "spring"}, {"break": "pond"}, {"break": "watch"}, {"go": "village", "cell": [6, 11]}, {"say": "rift.wake"}]},
+		{"on": "enter", "cells": [[2, 5]], "do": [{"go": "village", "cell": [4, 7]}]}
 	]
 }
