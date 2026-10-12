@@ -75,7 +75,7 @@ Die verbindliche Fassung steht in `docs/chapters/valley.md`. In Kürze:
 - **Über den Riss erfährt er nur fünf Bruchstücke,** eines je Figur, und sie passen nicht zusammen.
 - **Das Kapitel beginnt mit dem Abend vor dem Riss:** Der Spieler zündet im heilen Dorf die Laternen an und zieht dem Alten die Spieluhr auf.
 
-Das Kapitel ist als Probefassung gebaut: Was es an Neuem braucht, ist mit einfachen Flächen gezeichnet, damit Jan es im Spiel beurteilen kann, bevor Bilder und Musik entstehen.
+Das Kapitel entstand zuerst als Probefassung, in der alles Neue mit einfachen Flächen gezeichnet war. Jan hat sie im Spiel beurteilt, danach wurden Bilder und Musik generiert. So soll es bei jedem Kapitel laufen.
 
 ## 4. Spieldesign
 

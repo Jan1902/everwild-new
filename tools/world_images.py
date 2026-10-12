@@ -19,6 +19,20 @@ from image_gen import openai_image
 from style import ground_prompt
 
 GROUND_SIZE = (2560, 1440)
+# What is special about the ground of a world, added to the prompt.
+PLACES = {
+    "pond": (
+        "About this place: the large blue area in the middle is a still, shallow pond with soft "
+        "reedy banks, fed by a narrow brook that enters at the upper right edge and leaves at the lower left edge. The "
+        "small green patch inside the blue area is a tiny grassy island. Keep the water one calm "
+        "flat surface; do not paint stones, planks or a bridge in it."
+    ),
+    "watch": (
+        "About this place: this small island is the highest point of a valley, a bare windswept "
+        "hilltop. Paint the green area as short, pale mountain grass with a few flat patches of "
+        "grey rock showing through and a faint ring of worn flagstones in the middle."
+    ),
+}
 
 
 def main(world, command):
@@ -37,7 +51,7 @@ def main(world, command):
             print("Ground image already exists, no call.")
             return
         usage = openai_image(
-            ground_prompt(), target, size="%dx%d" % GROUND_SIZE, transparent=True, references=[raw / "plan.png"]
+            ground_prompt(PLACES.get(world, "")), target, size="%dx%d" % GROUND_SIZE, transparent=True, references=[raw / "plan.png"]
         )
         print("Ground:", target, json.dumps(usage))
     elif command == "grid":

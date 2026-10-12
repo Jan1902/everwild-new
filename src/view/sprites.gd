@@ -24,6 +24,9 @@ extends RefCounted
 ##     image   name of the image file if it is not the kind
 ##     sails   windmill sails that turn in the plane of the right wall: "hub" is their centre
 ##             relative to the foot, "size" their diameter in world pixels
+##     arrow   an arrow that lies in the ground plane above the object and points where the
+##             state of the object says: "hub" is its centre relative to the foot, "size" the
+##             width of its image in world pixels
 ## An object in a certain state uses the image "<name>_<state>.png" if there is one.
 
 const PATH := "res://data/sprites.json"

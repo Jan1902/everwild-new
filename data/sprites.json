@@ -17,6 +17,16 @@
 		"mill": {"width": 190.0, "foot": [0.5, 0.865], "base": 80.0, "sails": {"hub": [60, -126], "size": 250.0}},
 		"arch": {"width": 104.0, "foot": [0.516, 0.827], "wall": true, "light": [0, -36]},
 		"sluice": {"width": 90.0, "foot": [0.5, 0.82], "wall": true},
-		"miller": {"width": 60.0, "foot": [0.5, 0.96], "base": 22.0}
+		"miller": {"width": 60.0, "foot": [0.5, 0.96], "base": 22.0},
+		"child": {"width": 30.0, "foot": [0.5, 0.97], "base": 14.0},
+		"fisher": {"width": 46.0, "foot": [0.5, 0.97], "base": 20.0},
+		"vane": {"width": 30.0, "foot": [0.5, 0.95], "base": 16.0, "arrow": {"hub": [0, -108], "size": 120.0}},
+		"music_box": {"width": 44.0, "foot": [0.5, 0.95], "base": 20.0},
+		"field": {"width": 256.0, "foot": [0.5, 0.62]},
+		"steps": {"width": 110.0, "foot": [0.5, 0.7]},
+		"boat": {"width": 120.0, "foot": [0.5, 0.75]},
+		"stepping_stones": {"width": 200.0, "foot": [0.5, 0.5]},
+		"big_light": {"width": 84.0, "foot": [0.5, 0.93], "base": 34.0, "light": [0, -100]},
+		"beacon": {"width": 30.0, "foot": [0.5, 0.93], "base": 13.0, "light": [0, -44]}
 	}
 }

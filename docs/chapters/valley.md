@@ -1,6 +1,6 @@
 # Kapitel: Das Tal
 
-Stand: als Probefassung gebaut (2026-10-12). Alles Neue ist mit Platzhaltern gezeichnet, generiert ist nichts. Die Blöcke beschreiben, was die Weltdateien tun; ein Werkzeug, das die Blöcke selbst liest und durchspielt, gibt es noch nicht. Ziel: 40 Minuten beim ersten Durchspielen.
+Stand: gebaut und bebildert (2026-10-12). Die Blöcke beschreiben, was die Weltdateien tun; ein Werkzeug, das die Blöcke selbst liest und durchspielt, gibt es noch nicht. Ziel: 40 Minuten beim ersten Durchspielen.
 
 **Was das Kapitel von der großen Geschichte preisgibt:** fünf Bruchstücke davon, wie der Moment des Risses aussah. Sie passen nicht zusammen.
 
@@ -775,14 +775,19 @@ order: lookout, light_big_light
 
 Zur Warte geht der Spieler einmal durch das ganze heile Tal: Dorf, Mühlenhügel, Quelle, Weiher. Zusammen 51 Minuten.
 
-## Bedarf
+## Bilder und Musik
 
-Für die fertige Fassung. Nichts davon ist beauftragt; die Probefassung zeichnet all das mit einfachen Flächen.
+Generiert am 2026-10-12 (`tools/valley_images.py`, `tools/world_images.py`), Rohdaten in `styletest/valley`, `styletest/pond` und `styletest/watch`:
 
 - **Bodenbilder (2):** Weiher, Warte.
-- **Objektbilder (12):** Kind, Fischerin, Wetterfahne, Spieluhr, Boot, Trittsteine, Stufen, Feld verdorrt, Feld gewachsen, großes Licht dunkel, großes Licht brennend, kleines Licht der Warte.
-- **Musik (3):** Weiher, Warte, die Spieluhr als Leitmotiv. Bis dahin spielt am Weiher das Stück der Quelle und auf der Warte das des Mühlenhügels.
-- **Darstellung:** Der trockene Bach und der niedrige Weiher sehen noch aus wie Wasser, das falsch fließt. Dass der Wasserstand sinkt, zeigen bisher nur die Trittsteine und die Texte.
+- **Objektbilder (14):** Kind, Fischerin, Pfahl und Pfeil der Wetterfahne, Spieluhr zu und offen, Feld gewachsen und verdorrt, Stufen, Boot, Trittsteine, großes Licht dunkel und brennend, kleines Licht der Warte.
+- **Musik (2):** Weiher, Warte.
+
+Es fehlt noch:
+
+- **Die Spieluhr als Klang.** Sie hat ein Bild, aber das Leitmotiv ist nicht zu hören; das Spiel kann bisher nur ein Musikstück je Welt abspielen.
+- **Das ferne Licht am Weiher** ist ein gezeichneter Schein.
+- **Niedriges Wasser:** Der trockene Bach und der niedrige Weiher sehen noch aus wie Wasser, das falsch fließt. Dass der Stand sinkt, zeigen nur die Trittsteine und die Texte.
 - **Geführte Szenen** für den Riss (siehe Backlog).
 
 ## Offen

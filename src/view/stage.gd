@@ -10,7 +10,7 @@ const GHOST_FADE_OUT := 0.8
 ## Seconds something takes to appear that was not there before.
 const APPEAR_DURATION := 2.5
 ## Where those aboard a vehicle stand, relative to its foot: the player first, then the others.
-const SEATS: Array[Vector2] = [Vector2(-18, 1), Vector2(18, 2), Vector2(0, 3)]
+const SEATS: Array[Vector2] = [Vector2(-20, -8), Vector2(18, 4), Vector2(0, 0)]
 
 var world: World
 var player: Player

@@ -660,7 +660,7 @@ func _test_save_file() -> void:
 	SaveFile.delete(path + SaveFile.UNUSABLE)
 	SaveFile.delete(path)
 
-	for track: String in ["village_theme", "room_theme", "mill_theme", "spring_theme"]:
+	for track: String in ["village_theme", "room_theme", "mill_theme", "spring_theme", "pond_theme", "watch_theme"]:
 		var music: AudioStreamMP3 = load("res://assets/music/%s.mp3" % track)
 		_check(music.loop, "Track '%s' does not loop" % track)
 

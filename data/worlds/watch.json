@@ -11,7 +11,8 @@
 		"   ....   ",
 		"          "
 	],
-	"music": "res://assets/music/mill_theme.mp3",
+	"ground_image": {"path": "res://assets/worlds/watch_ground.png", "scale": 3.375, "origin": [-315.26, 74.67]},
+	"music": "res://assets/music/watch_theme.mp3",
 	"mood": {},
 	"mood_wrong": {"wind": -0.6, "shadow": [-0.3, 0.35], "saturation": 0.4, "tint": [0.8, 0.85, 1.0], "fog": 0.3, "light": 0.25, "pitch": 0.88, "muffle": 0.7},
 	"objects": [

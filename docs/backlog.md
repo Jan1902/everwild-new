@@ -17,9 +17,9 @@ Spielspeicher, Regeln je Welt, Stimmung aus dem Zustand, Lösbarkeitsprüfung un
 
 ## Spielinhalt
 
-### Das Tal als Probefassung
+### Das Tal
 
-Das erste Kapitel (`docs/chapters/valley.md`) ist von Anfang bis Ende spielbar: der Abend vor dem Riss, Dorf, Mühlenhügel, Quelle, Weiher, Warte. Alles Neue ist mit einfachen Flächen gezeichnet. Jan spielt es durch und entscheidet, ob es so bleibt.
+Das erste Kapitel (`docs/chapters/valley.md`) ist von Anfang bis Ende spielbar: der Abend vor dem Riss, Dorf, Mühlenhügel, Quelle, Weiher, Warte. Jan hat die Probefassung mit Platzhaltern für gut befunden; seitdem hat es eigene Bilder und Musik.
 
 1. **Jans Urteil einholen.** Vor allem: Trägt die Geschichte, sind die Rätsel zu leicht oder zu undurchsichtig, dauert es lang genug? Die offenen Punkte stehen am Ende der Kapiteldatei.
 2. **Was Jan nach dem ersten Durchspielen der alten Fassung bemängelt hat, am Tal prüfen:**
@@ -28,7 +28,7 @@ Das erste Kapitel (`docs/chapters/valley.md`) ist von Anfang bis Ende spielbar: 
    - Figuren reagieren genau auf den Zustand, auch auf Teilzustände.
    - Figuren verwirrter und mysteriöser, Hinweise nicht als Anweisung.
    - Mehr Widerstand, das Notizbuch soll nötig sein.
-3. **Bilder und Musik für das Tal.** Erst nach Jans Urteil und auf seine Anweisung. Der Bedarf steht in der Kapiteldatei.
+3. **Bilder und Musik des Tals beurteilen.** Zwei Bodenbilder, vierzehn Objektbilder und zwei Musikstücke sind generiert und eingebaut. Jan beurteilt Stil und Klang. Die Maße der neuen Bilder (`data/sprites.json`) sind nach Augenmaß gesetzt. Die Spieluhr hat noch keinen Klang.
 4. **Niedriges Wasser sichtbar machen.** Der trockene Bach im Dorf und der fast leere Weiher sehen aus wie Wasser, das falsch fließt. Dass der Stand sinkt, zeigen nur die Trittsteine und die Texte.
 5. **Der Riss als Szene (Jan).** Er ist bisher ein Text über der Blende, wenn der Spieler aus der Tür tritt. Gewünscht: Der Bildschirm wackelt, dazu ein Geräusch, das Bild wird dunkel, dann langsam heller, und die Figur liegt in der kaputten Welt.
 6. **Neubeginn sichtbar machen (Jan).** Nach „Neu beginnen“ steht die Figur im Haus des Alten. Wer vorher schon dort stand, sieht fast dasselbe Bild und hält den Knopf für kaputt. Braucht eine Blende oder ein anderes Zeichen, dass ein neues Spiel läuft.
@@ -37,7 +37,7 @@ Das erste Kapitel (`docs/chapters/valley.md`) ist von Anfang bis Ende spielbar: 
    - Jeder Schritt muss über alles gehen, was ein Spieler naheliegend versucht (die Figur ansprechen statt das Ding antippen und umgekehrt).
    - Sagt eine Figur zweimal dasselbe, obwohl der Spieler inzwischen mehr weiß, wirkt das wie eine Sackgasse.
    - Jan hat das Dorf erst mit Erklärung gelöst. Das zweite Antippen der Steine und der Windschatten erklären sich nicht von selbst.
-8. **Platzhalter in der Ansicht.** Die Zeichnungen für alles ohne Bild stehen als Sonderfälle je Objektart in `ObjectView`, ebenso das Notizbuch auf dem Tisch. Sie fallen weg, sobald es Bilder gibt.
+8. **Sonderfälle in der Ansicht.** Das Notizbuch auf dem Tisch, das ferne Licht am Weiher und die Zeichnungen für Objekte ohne Bild stehen als Sonderfälle je Objektart in `ObjectView`.
 
 ### Weitere Punkte
 

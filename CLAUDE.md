@@ -39,7 +39,7 @@ Der Spielinhalt steht je Kapitel in `docs/chapters/` (bisher `valley.md`): Gesch
 - `data/notes.json`: alle Einträge des Notizbuchs mit Art, Welt und Verknüpfungen (immer in beide Richtungen).
 - `data/texts/`: alle sichtbaren Texte je Sprache (`en.json`, `de.json`), mit denselben Schlüsseln in jeder Datei. Regeln nennen nur Schlüssel.
 - `assets/`: Bilder und Musik, die das Spiel lädt (`objects/`, `worlds/`, `music/`), dazu das Theme der Oberfläche (`ui/theme.tres`, erzeugt von `tools/build_theme.gd`).
-- `tools/`: Python-Skripte für Bild- und Musikgenerierung, eigene Umgebung in `tools/.venv` (Pakete in `tools/requirements.txt`). Die Stilvorgabe für alle Bild-Prompts steht in `tools/style.py`. `world_images.py <welt>` (Bodenbild einer Außenwelt), `village_images.py`, `bridge_image.py`, `room_images.py`, `fragment_images.py` und `walk_images.py` erzeugen die Rohbilder (jede Datei höchstens einmal), `crop_sprites.py` schneidet sie zu und legt sie nach `assets/`. Wie ein Bild in der Welt sitzt (Breite, Fußpunkt), steht in `data/sprites.json`.
+- `tools/`: Python-Skripte für Bild- und Musikgenerierung, eigene Umgebung in `tools/.venv` (Pakete in `tools/requirements.txt`). Die Stilvorgabe für alle Bild-Prompts steht in `tools/style.py`. `world_images.py <welt>` (Bodenbild einer Außenwelt), `village_images.py`, `bridge_image.py`, `room_images.py`, `fragment_images.py`, `valley_images.py` und `walk_images.py` erzeugen die Rohbilder (jede Datei höchstens einmal), `crop_sprites.py` schneidet sie zu und legt sie nach `assets/`. Wie ein Bild in der Welt sitzt (Breite, Fußpunkt), steht in `data/sprites.json`.
 - `styletest/`: generierte Rohbilder und Testmusik, von Godot ignoriert.
 
 ## Befehle

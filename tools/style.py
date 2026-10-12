@@ -84,5 +84,6 @@ def sprite_prompt(subject, with_reference=False):
     return "\n\n".join(parts)
 
 
-def ground_prompt():
-    return "\n\n".join([GROUND, VIEW, PAINTED_STYLE])
+def ground_prompt(place=""):
+    """Prompt for a ground image. place says what is special about this world, if anything."""
+    return "\n\n".join(part for part in [GROUND, place, VIEW, PAINTED_STYLE] if part)

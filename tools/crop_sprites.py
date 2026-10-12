@@ -17,6 +17,7 @@ from env import PROJECT, SPRITES
 VILLAGE = PROJECT / "styletest" / "village"
 ROOM = PROJECT / "styletest" / "room"
 FRAGMENTS = PROJECT / "styletest" / "fragments"
+VALLEY = PROJECT / "styletest" / "valley"
 OBJECTS = PROJECT / "assets" / "objects"
 WORLDS = PROJECT / "assets" / "worlds"
 MUSIC = PROJECT / "assets" / "music"
@@ -27,13 +28,30 @@ SOURCES = {
     "table": ROOM, "cupboard": ROOM,
     "mill": FRAGMENTS, "sails": FRAGMENTS, "arch": FRAGMENTS, "miller": FRAGMENTS,
     "sluice": FRAGMENTS, "sluice_open": FRAGMENTS,
+    "child": VALLEY, "fisher": VALLEY, "vane": VALLEY, "vane_arrow": VALLEY,
+    "music_box": VALLEY, "music_box_playing": VALLEY, "field": VALLEY, "field_withered": VALLEY,
+    "steps": VALLEY, "boat": VALLEY, "stepping_stones": VALLEY,
+    "big_light": VALLEY, "big_light_lit": VALLEY, "beacon": VALLEY,
 }
+# Images that turn around their centre in the game. They keep their frame, so the centre stays
+# the centre.
+UNCROPPED = ["vane_arrow"]
 # Images of the same object in different states are cut to the same frame, so the object does
 # not jump when its state changes.
-SAME_FRAME = [("sluice", "sluice_open")]
+SAME_FRAME = [
+    ("sluice", "sluice_open"), ("music_box", "music_box_playing"), ("field", "field_withered"),
+    ("big_light", "big_light_lit"),
+]
 # Worlds whose ground image and music are taken over as they are.
-GROUNDS = {"village": VILLAGE, "house_inside": ROOM, "mill_hill": PROJECT / "styletest" / "mill_hill", "spring": PROJECT / "styletest" / "spring"}
-TRACKS = {"room_theme": ROOM, "mill_theme": FRAGMENTS, "spring_theme": FRAGMENTS}
+GROUNDS = {
+    "village": VILLAGE, "house_inside": ROOM, "mill_hill": PROJECT / "styletest" / "mill_hill",
+    "spring": PROJECT / "styletest" / "spring", "pond": PROJECT / "styletest" / "pond",
+    "watch": PROJECT / "styletest" / "watch",
+}
+TRACKS = {
+    "room_theme": ROOM, "mill_theme": FRAGMENTS, "spring_theme": FRAGMENTS, "pond_theme": VALLEY,
+    "watch_theme": VALLEY,
+}
 # Below this opacity a pixel counts as empty. Hides faint haze around the object.
 THRESHOLD = 24
 # Margin per side as a fraction of the content width.
@@ -63,6 +81,8 @@ def crop(name):
     alpha = alpha.point(lambda a: 0 if a < THRESHOLD else min(255, round(a * 255 / peak)))
     image.putalpha(alpha)
     box = alpha.getbbox()
+    if name in UNCROPPED:
+        box = (0, 0) + image.size
     for group in SAME_FRAME:
         if name in group:
             box = _shared_box(group)
