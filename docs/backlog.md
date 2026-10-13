@@ -17,6 +17,17 @@ Spielspeicher, Regeln je Welt, Stimmung aus dem Zustand, Lösbarkeitsprüfung un
 
 ## Spielinhalt
 
+### Werkzeugkasten
+
+`docs/toolbox.md` ist ein Entwurf: Leitplanken, Bausteine, 17 Regeln für Rätsel mit Beispielen aus dem Tal, Ablauf vom Einfall zum Kapitel, Prüflisten und eine erste Durchsicht des Tals.
+
+1. **Jan sieht den Entwurf durch** und beantwortet die fünf offenen Fragen an seinem Ende (Schwierigkeit, Hinweise in Stufen, drei Hinweise, Breite, fehlende Leitplanken).
+2. **Prüfbare Regeln in ein Werkzeug.** Viele Regeln sind als „prüfbar“ markiert. Zusammen mit dem Prüfer für die Kapiteldatei (Fundament, Punkt 4) ergibt das ein Werkzeug, das Kapiteldatei und Welten gegen den Werkzeugkasten prüft und das Abhängigkeitsdiagramm zeichnet.
+   Ein Fall dafür ist beim Versetzen der Heuwagen aufgefallen: Liegt der Zielplatz eines Wagens direkt neben seinem jetzigen Platz, kann die Figur genau dort stehen, und der Tipp bewirkt dann nichts. Die Lösbarkeitsprüfung hat es gefunden; besser wäre eine Meldung der Regelprüfung, die sagt, woran es liegt.
+3. **Blinder Spieltester.** Ein Agent ohne Kenntnis der Lösung spielt das Tal über Bildschirmfotos und Tipps und führt das Protokoll aus dem Werkzeugkasten. Probe: Findet er, was Jan am 13.10. gefunden hat?
+4. **Rollen für Agents** erst danach: ein Autor, der Kapitel entwirft und baut, und der blinde Tester, mit Jan an drei festen Stellen.
+5. **Was die Durchsicht des Tals ergeben hat,** steht in Abschnitt 9 des Werkzeugkastens. Das Größte: Das Tal ist fast eine einzige Kette, und wichtige Hinweise hängen an je einer Figur.
+
 ### Das Tal
 
 Das erste Kapitel (`docs/chapters/valley.md`) ist von Anfang bis Ende spielbar: der Abend vor dem Riss, Dorf, Mühlenhügel, Quelle, Weiher, Warte. Jan hat die Probefassung mit Platzhaltern für gut befunden; seitdem hat es eigene Bilder und Musik.
@@ -35,7 +46,7 @@ Das erste Kapitel (`docs/chapters/valley.md`) ist von Anfang bis Ende spielbar: 
    - Nichts in der Welt zeigt, wo man verweilen kann und dass gerade etwas geschieht, solange man wartet.
    - Jeder Schritt muss über alles gehen, was ein Spieler naheliegend versucht (die Figur ansprechen statt das Ding antippen und umgekehrt).
    - Sagt eine Figur zweimal dasselbe, obwohl der Spieler inzwischen mehr weiß, wirkt das wie eine Sackgasse.
-   - Jan hat das Dorf erst mit Erklärung gelöst. Das zweite Antippen der Steine und der Windschatten erklären sich nicht von selbst.
+   - Jan hat das Dorf erst mit Erklärung gelöst. Der Windschatten erklärte sich nicht von selbst. Seitdem sind die Steine Heuwagen und der Wind ist sichtbar; ob das reicht, zeigt das nächste Durchspielen. Das zweite Antippen des Wagens erklärt sich weiterhin nicht.
 7. **Sonderfälle in der Ansicht.** Das Notizbuch auf dem Tisch, das ferne Licht am Weiher und die Zeichnungen für Objekte ohne Bild stehen als Sonderfälle je Objektart in `ObjectView`.
 
 ### Weitere Punkte
@@ -44,7 +55,7 @@ Das erste Kapitel (`docs/chapters/valley.md`) ist von Anfang bis Ende spielbar: 
 2. **Antworten zur Auswahl.** Figuren sprechen, der Spieler antwortet nie. Falls gewünscht, braucht der Dialog Auswahl.
 3. **Notizbuch ausbauen.** Das Notizbuch sammelt Erinnerungen, Weltstücke, Hinweise und Bruchstücke über den Riss (`data/notes.json`) und zeigt zu jedem Eintrag, womit er zusammenhängt. Noch nicht gefundene Verwandte erscheinen als Lücke. Es fehlt eine Darstellung der Beziehungen als Bild (Karte der Weltstücke statt Liste) und die Gestaltung im gemalten Stil.
 4. **Verweilen abstimmen.** Das Kind am Abhang führt es ein, vier weitere Orte nutzen es. Offen ist das Gefühl: Wartezeit (3,5 s), wie langsam die Erinnerung kommt (3 s), wie deutlich sie sein darf, wie weit sich die Musik neigt und ob sie ein eigenes Geräusch bekommt. Bisher zeigt nichts in der Welt, wo man stehen muss; das sagen nur die Figuren.
-5. **Der Moment „Welt ist heil“ abstimmen.** Wird der letzte Fehler einer Welt behoben, erscheint ihr Name als Schriftzug, warmes Licht schwillt über das Bild und das Notizbuch zeigt je Weltstück einen Punkt pro Fehler. Offen ist das Gefühl: Stärke und Dauer des Lichts, Wortlaut, ob der Moment einen Klang bekommt und ob er warten soll, bis ein offener Dialog zu Ende ist. Das Ende des Kapitels hat noch keinen eigenen Moment.
+5. **Der Moment „Welt ist heil“ abstimmen.** Wird der letzte Fehler einer Welt behoben, schwillt warmes Licht über das Bild, die Figuren stehen wieder an ihren Abendplätzen, und jemand im Stück sagt, dass es wie früher ist. Offen ist das Gefühl: Stärke und Dauer des Lichts, der Wortlaut der vier Sätze, ob der Moment einen Klang bekommt. Der Alte, der Müller und die Fischerin haben noch keinen Abendplatz. Das Ende des Kapitels hat noch keinen eigenen Moment.
 6. **Rückmeldung bei Interaktionen.** Wer etwas einsteckt oder abgibt, sieht das jetzt als Randnotiz im Dialogfeld („+ Kurbel“). Sonst sieht man bisher nicht, was sich benutzen lässt und ob ein Tipp etwas bewirkt hat. Was die Figur bei sich trägt, lässt sich nirgends nachsehen. Offen ist, wie deutlich das sein darf, ohne das Entdecken zu verderben.
 7. **Geführte Szenen (Idee von Jan, erst einmal Nebensache).** Abschnitte, in denen das Spiel dem Spieler die Steuerung abnimmt: eine Zwischenszene, ein Stück Weg, auf dem die Figur von selbst einer anderen folgt, oder ein Rückblick. Dafür fehlt alles: Figuren, die laufen können (NPCs stehen bisher still), eine Abfolge von Schritten als Daten (gehe dorthin, sag das, warte, blende), die Sperre der Eingabe währenddessen und eine Regel, wie sich eine Szene überspringen lässt. Ein Rückblick könnte die heile Fassung einer Welt zeigen, die es als Daten schon gibt. Ein erstes Stück gibt es: Ein Ortswechsel wartet, bis ausgesprochen ist, was davor gesagt wird, und kann eine Fahrt sein (die Figur und andere gleiten an Bord eines Objekts hinüber, wie im Boot der Fischerin). Die Fahrt ist sehr schlicht: Die Figuren stehen vor dem Boot statt darin, und es fährt in gerader Linie. Ein zweites Stück ist der Riss, eine fest gebaute Szene, die ein Ortswechsel mit `"as": "quake"` auslöst.
 
@@ -63,8 +74,9 @@ Das erste Kapitel (`docs/chapters/valley.md`) ist von Anfang bis Ende spielbar: 
 5. **Bodenbilder einpassen.** Das Bildmodell hält sich nicht immer genau an den Plan (der Raum kam 3 % größer und etwas höher heraus). Bisher wird die Lage von Hand an den gemalten Ecken ausgerichtet. Bei mehr Welten lohnt ein Schritt im Werkzeug, der das selbst misst.
 6. **Schatten auf Höhenunterschieden.** Der Schatten der Laterne fällt über Brücke und Bach, als wäre alles flach.
 7. **Gespiegelte Objekte.** Das gemalte Licht sitzt nach dem Spiegeln auf der falschen Seite. Für die heile Welt eigene Varianten statt Spiegelung, die Spiegelung bleibt den falschen Welten vorbehalten.
-8. **Geräusche.** Schritte je Untergrund, Wasser, Wind, Interaktionen.
-9. **Musik in Schichten.** Stücke je Welt, die sich mit der Reparatur schrittweise zusammensetzen, statt nur Tonhöhe und Filter zu ändern. Modellwahl und Lizenz sind noch offen.
+8. **Sichtbaren Wind abstimmen.** Dichte, Deckkraft und Länge der Streifen, die Länge des Windschattens und ob Häuser ihn auch werfen sollen (`src/view/wind_view.gd`). Am Mühlenhügel, wo es windstill ist, gibt es keine Streifen.
+9. **Geräusche.** Schritte je Untergrund, Wasser, Wind, Interaktionen.
+10. **Musik in Schichten.** Stücke je Welt, die sich mit der Reparatur schrittweise zusammensetzen, statt nur Tonhöhe und Filter zu ändern. Modellwahl und Lizenz sind noch offen.
 
 ## Zu klären
 

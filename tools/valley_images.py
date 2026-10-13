@@ -1,7 +1,7 @@
 """Generates the objects, figures and music the valley chapter adds: pond, watch and what is new
 in the village, the house and on the mill hill.
 
-    python tools/valley_images.py sprites    generate the objects and figures (11 calls)
+    python tools/valley_images.py sprites    generate the objects and figures (12 calls)
     python tools/valley_images.py variants   generate second states from the first ones (3 calls)
     python tools/valley_images.py music      generate the two music tracks (2 calls)
 
@@ -73,6 +73,14 @@ SPRITES = {
     "beacon": (
         "A small way marker: a knee-high rough grey stone with a little iron-framed glass lantern "
         "set on top of it. The glass of the lantern is a warm pale yellow."
+    ),
+    "cart": (
+        "A small two-wheeled wooden farm cart piled high with a big rounded load of golden hay. "
+        "The load is much taller than the cart itself: the whole stands about one and a half "
+        "times as tall as a person, tall enough to shelter something behind it from the wind. "
+        "Two large wooden wheels with a few thick spokes, low plank sides in warm brown wood, and "
+        "a single wooden shaft that rests on the ground and points to the lower left. No horse, "
+        "no ropes, no people, no tools."
     ),
 }
 

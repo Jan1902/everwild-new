@@ -18,7 +18,6 @@
 	"item.crank": "Kurbel",
 	"item.wick": "Docht",
 	"item.notebook": "Notizbuch",
-	"banner.whole": "%s ist wieder heil",
 	"kind.memory": "Erinnerung",
 	"kind.piece": "Weltstück",
 	"kind.hint": "Hinweis",
@@ -88,12 +87,12 @@
 	"stranger.wind": [
 		"Du kommst über die Brücke. Das hat lange niemand getan.",
 		"Seit dem Riss fängt hier kein Docht mehr Feuer. Der Wind ist ein anderer.",
-		"Als Kind saß ich immer hinter dem großen Stein, wenn es zog. Dahinter war es still. Man konnte dort sogar … ach, das gehört nicht hierher.",
+		"Als Kind saß ich immer hinter dem Heuwagen, wenn es zog. Dahinter war es still. Man konnte dort sogar … ach, das gehört nicht hierher.",
 		"Beim Alten ist es dunkel vor der Tür. Dunkel heißt bei uns: niemand daheim. Dann klopft man auch nicht."
 	],
 	"stranger.house_lit": [
 		"Beim Alten brennt Licht. Dann ist er daheim.",
-		"Hinter einem Stein, sagst du? Ja. Dahinter zog es nie. Das wusste ich schon als Kind.",
+		"Hinter dem Wagen, sagst du? Ja. Dahinter zog es nie. Das wusste ich schon als Kind.",
 		"Der Wind ist trotzdem ein anderer. Er war nicht immer so."
 	],
 	"stranger.evening": [
@@ -123,7 +122,7 @@
 		"Er steht wieder da."
 	],
 	"memory.bridge": [
-		"Der Stein lag neben der Brücke, im Gras. Nicht auf dem Weg.",
+		"Der Heuwagen stand neben der Brücke, im Gras. Nicht auf dem Weg.",
 		"Und die Laterne brannte."
 	],
 	"arch.dark": [
@@ -286,11 +285,31 @@
 	],
 	"sluice.unknown_below": [
 		"Ein Wehr. Dahinter staut sich das Wasser, das Bett darunter liegt trocken.",
-		"Wenn ich es öffne, läuft das Bett voll. Am Rand führen Stufen dort hinunter. Ich sollte erst sehen, wohin."
+		"Wohin das Wasser liefe, weiß ich nicht. Ich lasse es zu."
 	],
-	"sluice.dark_below": [
-		"Wenn ich das Wehr öffne, läuft das Bett voll, und unten im Weiher gehen die Trittsteine unter.",
-		"Auf der Insel dort ist es noch dunkel. Erst das."
+	"sluice.ask_below": [
+		"Wenn ich es öffne, läuft das Bett voll, bis hinunter zum Weiher.",
+		"Dort unten steht jemand bei einem Boot. Ich weiß nicht, was das Wasser für sie heißt."
+	],
+	"sluice.light_first": [
+		"Die Fischerin wartet auf Wasser. Aber sie fährt nicht ohne ihr Licht auf der Insel.",
+		"Und zur Insel kommt man nur, solange das Wasser niedrig steht."
+	],
+	"whole.village": [
+		"Eins, zwei, drei. Alle drei brennen!",
+		"So war es immer. Ich weiß es wieder: Du bist abends hier vorbeigekommen, mit dem Buch."
+	],
+	"whole.mill_hill": [
+		"Hörst du? Sie mahlt. Und das Feld steht wie früher.",
+		"Jetzt fällt es mir wieder ein. Jeden Abend stand ich hier und sah dem Wetter zu."
+	],
+	"whole.spring": [
+		"Das Wasser läuft. Das Floß liegt am Ufer, die Laterne brennt.",
+		"So war es hier. Ich bin mir sicher."
+	],
+	"whole.pond": [
+		"Das Haus. Mein Haus. Die Tür klemmt noch wie früher.",
+		"Ich weiß wieder, wie der Abend geht: Licht an, hinüber, heim."
 	],
 	"sluice.opens": [
 		"Das Wehr gibt nach. Das Wasser läuft ab, den Bach hinunter.",
@@ -411,8 +430,8 @@
 	"note.pond.text": "Ein Stück, von dem oben niemand mehr sprach. Seit es in diesem Buch steht, führt der Bogen der Quelle hierher.",
 	"note.watch.title": "Die Warte",
 	"note.watch.text": "Der höchste Ort des Tals. Hier brannte jeden Abend das große Licht. Der Alte hat es angezündet.",
-	"note.lee_of_stone.title": "Hinter dem Stein",
-	"note.lee_of_stone.text": "Die Frau am Bach saß als Kind hinter dem großen Stein, wenn es zog. Dahinter war es still.",
+	"note.lee_of_cart.title": "Hinter dem Heuwagen",
+	"note.lee_of_cart.text": "Die Frau am Bach saß als Kind hinter dem Heuwagen, wenn es zog. Dahinter war es still.",
 	"note.light_means_home.title": "Licht vor der Tür",
 	"note.light_means_home.text": "Im Dorf heißt ein dunkles Haus: niemand daheim. Dann klopft man auch nicht.",
 	"note.lent_thing.title": "Etwas Geliehenes",
@@ -433,8 +452,8 @@
 	"note.fishers_evening.text": "Die Fischerin saß jeden Abend auf dem Steg vor ihrem Haus. Von dort sah man über dem Wasser ein großes Licht.",
 	"note.arch_village.title": "Der Bogen im Dorf",
 	"note.arch_village.text": "Am Ostrand stand ein Steinbogen. Als ich mich an ihn erinnerte, stand er wieder da.",
-	"note.stone_places.title": "Der Stein an der Brücke",
-	"note.stone_places.text": "Er lag neben der Brücke im Gras. Nicht auf dem Weg und nicht vor dem Haus.",
+	"note.cart_places.title": "Der Wagen an der Brücke",
+	"note.cart_places.text": "Er stand neben der Brücke im Gras. Nicht auf dem Weg und nicht vor dem Haus.",
 	"note.vane_direction.title": "Die Wetterfahne",
 	"note.vane_direction.text": "Vom Platz des Müllers aus sah ich die Mühle, wie sie war. Die Fahne zeigte zur Mühle hin.",
 	"note.big_light.title": "Das große Licht",

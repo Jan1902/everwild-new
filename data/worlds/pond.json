@@ -51,6 +51,7 @@
 		{"id": "level", "fixed_if": [{"object": "sluice", "world": "spring", "state": "open"}], "restores": ["water", "level"]},
 		{"id": "boat", "fixed_if": [{"object": "fisher_home", "hidden": false}], "restores": ["saturation"]}
 	],
+	"whole_says": {"if": [{"fact": "rift"}], "say": "whole.pond", "who": "fisher"},
 	"rules": [
 		{"on": "always", "if": [{"fact": "rift"}, {"object": "sluice", "world": "spring", "state": "closed"}, {"object": "stones", "hidden": true}], "do": [{"change": "stones", "hidden": false}]},
 		{"on": "always", "if": [{"object": "sluice", "world": "spring", "state": "open"}, {"object": "stones", "hidden": false}], "do": [{"change": "stones", "hidden": true}]},
@@ -65,7 +66,7 @@
 		{"on": "interact", "object": "arch_on", "do": [{"say": "arch.dark"}]},
 		{"on": "interact", "object": "pond_lantern", "if": [{"object": "pond_lantern", "state": "out"}], "do": [{"change": "pond_lantern", "state": "lit"}]},
 		{"on": "interact", "object": "fisher", "if": [{"object": "pond_lantern", "state": "lit"}, {"object": "sluice", "world": "spring", "state": "open"}], "do": [{"say": "fisher.row", "who": "fisher"}, {"change": "fisher", "hidden": true}, {"change": "fisher_home", "hidden": false}, {"change": "boat", "cell": [10, 6]}, {"go": "pond", "cell": [10, 5], "by": "boat", "with": ["fisher"]}]},
-		{"on": "interact", "object": "fisher", "if": [{"object": "pond_lantern", "state": "lit"}], "do": [{"say": "fisher.light_on", "who": "fisher"}]},
+		{"on": "interact", "object": "fisher", "if": [{"object": "pond_lantern", "state": "lit"}], "do": [{"say": "fisher.light_on", "who": "fisher"}, {"note": "island_light"}, {"note": "morning_water"}]},
 		{"on": "interact", "object": "fisher", "if": [{"object": "sluice", "world": "spring", "state": "open"}], "do": [{"say": "fisher.no_light", "who": "fisher"}, {"note": "island_light"}, {"note": "morning_water"}]},
 		{"on": "interact", "object": "fisher", "do": [{"say": "fisher.mud", "who": "fisher"}, {"note": "island_light"}, {"note": "morning_water"}]},
 		{"on": "interact", "object": "boat", "if": [{"object": "fisher", "hidden": false}, {"object": "pond_lantern", "state": "lit"}, {"object": "sluice", "world": "spring", "state": "open"}], "do": [{"say": "fisher.row", "who": "fisher"}, {"change": "fisher", "hidden": true}, {"change": "fisher_home", "hidden": false}, {"change": "boat", "cell": [10, 6]}, {"go": "pond", "cell": [10, 5], "by": "boat", "with": ["fisher"]}]},

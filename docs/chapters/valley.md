@@ -60,10 +60,10 @@ Der Spieler bringt das Tal wieder in Gang und zündet am Ende das große Licht a
 
 1. **Licht hält zusammen.** Ein Bogen führt vorwärts nur, wenn die Laterne seines Stücks brennt. Zurück führt jeder Bogen immer.
 2. **Bögen kennen nur, was im Notizbuch steht.** Ein Stück, an das sich niemand erinnert, wird übersprungen. Steht es im Buch, führt der Bogen dorthin.
-3. **Der falsche Wind bläst Flammen aus.** Er weht, solange die Mühle nicht richtig läuft. Eine Laterne hält dann nur im Windschatten eines Steins. Am Mühlenhügel selbst ist es still.
+3. **Der falsche Wind bläst Flammen aus.** Er weht, solange die Mühle nicht richtig läuft. Eine Laterne hält dann nur im Windschatten eines Heuwagens. Den Wind sieht man als feine Streifen in der Luft; hinter Wagen und Häusern reißen sie ab. Am Mühlenhügel selbst ist es still.
 4. **Erinnern geht dort, wo jemand jeden Tag steht.** Wer sich neben die Figur stellt und still wartet, sieht, was dort war. Auf der Warte ist es der Platz neben dem großen Licht, weil der Alte nicht mehr hinaufkommt. Der Spieler lernt das vom Kind und kann es erst danach.
 5. **Das Wasser folgt dem Wehr.** Ist es zu, sind Bachbett und Weiher fast leer. Ist es offen, fließt der Bach, das Feld wächst, das Boot schwimmt.
-6. **Steine haben feste Liegeplätze.** Ein angetippter Stein rollt zuerst dorthin, wo er einmal lag, und danach zwischen diesem Platz und einem zweiten hin und her. Deshalb kann nie einer endgültig im Weg liegen.
+6. **Die Heuwagen haben feste Plätze.** Ein angetippter Wagen rollt zuerst dorthin, wo er einmal stand, und danach zwischen diesem Platz und einem zweiten hin und her. Deshalb kann nie einer endgültig im Weg stehen.
 
 ## Orte
 
@@ -109,7 +109,7 @@ hint: old_man.leaving
 ```place
 id: village
 music: village_theme
-faults: lanterns, arch, wind, brook, stones, music_box
+faults: lanterns, arch, wind, brook, carts, music_box
 gives: note.village
 ```
 
@@ -130,14 +130,14 @@ music: room_theme
 | `arch` | Am Ostrand steht eine einzelne Laterne vor dem Nichts. |
 | `wind` | Bäume und Gras biegen sich in die falsche Richtung. |
 | `brook` | Das Bachbett ist trocken. |
-| `stones` | Die zwei Steine liegen nicht dort, wo sie lagen: Einer versperrt die Brücke, einer liegt weit im Osten. |
+| `carts` | Der Heuwagen an der Brücke steht nicht dort, wo er stand: Er versperrt den Weg. Der Wagen im Osten zählt nicht dazu; er darf bleiben, wo der Spieler ihn hinschiebt, weil nichts im Spiel zeigt, wo er einmal stand. |
 | `music_box` | Die Spieluhr im Haus spielt nicht oder schief. |
 
 ```way
 from: village
 to: village.east
 by: Brücke
-needs: not fact.rock_bridge=bridge
+needs: not fact.cart_bridge=bridge
 back: same
 ```
 
@@ -158,18 +158,18 @@ back: always
 ```
 
 ```step
-id: roll_rock_bridge
+id: roll_cart_bridge
 at: village, village.east
-does: Den Stein an der Brücke antippen. `lee` ist der Platz auf der Windseite der Laterne vor dem Haus.
-rolls: fact.rock_bridge = bridge, home, lee
+does: Den Heuwagen an der Brücke antippen. `lee` ist der Platz auf der Windseite der Laterne vor dem Haus.
+rolls: fact.cart_bridge = bridge, home, lee
 hint: sight
 ```
 
 ```step
-id: roll_rock_east
+id: roll_cart_east
 at: village.east
-does: Den Stein im Osten antippen. `lee` ist der Platz auf der Windseite der Laterne am Bogen.
-rolls: fact.rock_east = astray, home, lee
+does: Den Heuwagen im Osten antippen. `lee` ist der Platz auf der Windseite der Laterne am Bogen.
+rolls: fact.cart_east = astray, home, lee
 hint: sight
 ```
 
@@ -177,24 +177,24 @@ hint: sight
 id: light_house_lantern
 at: village
 does: Die Laterne vor dem Haus des Alten anzünden. Ohne Windschatten flackert sie kurz und geht aus.
-while: any(fact.rock_bridge=lee, fact.wind_right)
+while: any(fact.cart_bridge=lee, fact.wind_right)
 gives: fact.house_lantern
-hint: stranger.lee_of_stone, stranger.light_means_home
+hint: stranger.lee_of_cart, stranger.light_means_home
 ```
 
 ```step
 id: light_arch_lantern
 at: village.east
 does: Die Laterne am Bogen anzünden.
-while: any(fact.rock_east=lee, fact.wind_right)
+while: any(fact.cart_east=lee, fact.wind_right)
 gives: fact.arch_lantern
-hint: stranger.lee_of_stone
+hint: stranger.lee_of_cart
 ```
 
 ```step
 id: light_bridge_lantern
 at: village
-does: Die Laterne an der Brücke anzünden. Kein Stein kann sie schützen.
+does: Die Laterne an der Brücke anzünden. Kein Wagen kann sie schützen.
 while: fact.wind_right
 gives: fact.bridge_lantern
 hint: sight
@@ -222,7 +222,7 @@ hint: old_man.lent_thing, miller.millers_crank
 id: wind_music_box
 at: house_inside
 does: Die Spieluhr aufziehen. Solange im Dorf noch etwas falsch ist, spielt sie schief.
-needs: item.crank, fixed.village.lanterns, fixed.village.arch, fixed.village.wind, fixed.village.brook, fixed.village.stones
+needs: item.crank, fixed.village.lanterns, fixed.village.arch, fixed.village.wind, fixed.village.brook, fixed.village.carts
 fixes: village.music_box
 hint: old_man.music_box
 ```
@@ -231,7 +231,7 @@ hint: old_man.music_box
 id: cliff
 at: village.east
 why: Das Kind steht hier jeden Tag.
-shows: den Steinbogen am Ostrand, der jetzt fehlt, und die brennende Laterne daneben. Der Stein im Osten liegt außerhalb des Ausschnitts, damit sein alter Platz nicht mit dem Windschatten verwechselt wird.
+shows: den Steinbogen am Ostrand, der jetzt fehlt, und die brennende Laterne daneben. Der Heuwagen im Osten erscheint hier nie (`without`), auch wenn sein alter Platz im Ausschnitt liegt: Er bleibt, wo der Spieler ihn hingeschoben hat, damit sein alter Platz nicht mit dem Windschatten verwechselt wird.
 needs: note.still_place
 gives: fact.arch_back, note.arch_village
 fixes: village.arch
@@ -241,9 +241,9 @@ fixes: village.arch
 id: brook_walk
 at: village.east
 why: Die Frau ging hier jeden Abend am Bach entlang.
-shows: die Brücke mit dem Stein an seinem Platz und der brennenden Laterne
+shows: die Brücke mit dem Heuwagen an seinem Platz, der brennenden Laterne und der Frau am Bach
 needs: note.still_place, note.evening_walk
-gives: note.stone_places
+gives: note.cart_places
 ```
 
 ```rule
@@ -253,9 +253,9 @@ fixes: village.lanterns
 ```
 
 ```rule
-id: stones_home
-when: fact.rock_bridge=home, fact.rock_east=home
-fixes: village.stones
+id: carts_home
+when: fact.cart_bridge=home
+fixes: village.carts
 ```
 
 ### Mühlenhügel
@@ -404,8 +404,8 @@ hint: sight
 ```step
 id: open_sluice
 at: spring.far
-does: Das Wehr öffnen. Es lässt sich erst öffnen, wenn die Laterne auf der Insel im Weiher brennt: Vorher würde das Wasser nur den Weg dorthin versperren, und die Figur sagt, warum sie es lässt.
-needs: fact.island_lantern
+does: Das Wehr öffnen. Es lässt sich erst öffnen, wenn die Fischerin von ihrem Licht erzählt hat und die Laterne auf der Insel brennt: Vorher würde das Wasser nur den Weg dorthin versperren. Was die Figur am Wehr bis dahin sagt, gibt nur wieder, was sie von der Fischerin weiß.
+needs: fact.island_lantern, note.island_light
 gives: fact.water
 fixes: spring.sluice
 undo: close_sluice
@@ -536,12 +536,16 @@ hint: old_man.watch, memory.lookout
 
 ## Figuren
 
+**Wenn ein Stück heil wird,** sagt dort jemand, dass es wie früher ist: im Dorf das Kind („Alle drei brennen!“), am Mühlenhügel der Müller, am Weiher die Fischerin vor ihrem Haus, an der Quelle die eigene Figur. Der Satz fällt beim ersten Mal, das der Spieler im heilen Stück steht.
+
+**Abendplatz und Platz der Erinnerung.** Am Abend vor dem Riss leben die Figuren im Dorf ihren Abend: Die Frau steht am Ostufer des Bachs bei der Brücke, das Kind an der Wegkreuzung zwischen den Häusern und zählt die Lichter. Nach dem Riss stehen beide dort, wo für sie etwas zurückkommt: die Frau weiter östlich abseits des Bachs, das Kind am Abhang. Wird das Dorf heil, kehren sie an ihre Abendplätze zurück. Die Erinnerung an der Brücke zeigt die Frau am Bach.
+
 Alle reden in Bruchstücken, mit Pausen und Abschweifungen, und nie als Anweisung. Im Dialog steht zuerst die Beschreibung („Frau am Bach“); ein Name erscheint erst, wenn die Figur sich an ihn erinnert.
 
 | Figur | Ort | Weiß | Weiß nicht |
 |---|---|---|---|
 | `old_man` | `house_inside` | `evening_task`, `book_on_table`, `lent_thing`, `music_box`, `watch` (erst am Ende) | von wem die Kurbel ist, wohin er abends ging |
-| `stranger` (Frau am Bach) | `village.east` | `lee_of_stone`, `light_means_home`, `evening_walk` | alles über Mühle und Kurbel |
+| `stranger` (Frau am Bach) | `village.east` | `lee_of_cart`, `light_means_home`, `evening_walk` | alles über Mühle und Kurbel |
 | `miller` | `mill_hill` | `millers_crank`, `vane_decides`, `field_thirsty` | an wen er die Kurbel verlieh, wo sie ist, wohin die Fahne zeigte |
 | `child` | `village.east` | `still_place` | fast alles andere |
 | `fisher` | `pond`, später `pond.far` | `island_light`, `morning_water`, `fishers_evening` | den Weg zur Warte |
@@ -604,9 +608,9 @@ gives: note.watch, item.wick, note.rift_old_man
 id: stranger.wind
 who: stranger
 when: not fact.wind_right
-knows: lee_of_stone, light_means_home
-says: Seit dem Riss fängt kein Docht mehr Feuer, der Wind ist anders. Als Kind saß sie hinter dem großen Stein, da zog es nie. Und beim Alten sei wohl niemand daheim, vor seinem Haus ist es dunkel.
-gives: note.lee_of_stone, note.light_means_home
+knows: lee_of_cart, light_means_home
+says: Seit dem Riss fängt kein Docht mehr Feuer, der Wind ist anders. Als Kind saß sie hinter dem Heuwagen, da zog es nie. Und beim Alten sei wohl niemand daheim, vor seinem Haus ist es dunkel.
+gives: note.lee_of_cart, note.light_means_home
 ```
 
 ```talk
@@ -703,7 +707,7 @@ Was der Spieler erfährt, bevor er das Buch hat, steht darin, sobald er es nimmt
 |---|---|---|---|
 | `village`, `mill_hill`, `spring`, `pond` | Weltstück | beim ersten Betreten | den Nachbarn im Kreis |
 | `watch` | Weltstück | `old_man.above` | `pond`, `big_light` |
-| `lee_of_stone` | Hinweis | `stranger.wind` | `village` |
+| `lee_of_cart` | Hinweis | `stranger.wind` | `village` |
 | `light_means_home` | Hinweis | `stranger.wind` | `village` |
 | `lent_thing` | Hinweis | `old_man.borrowed` | `millers_crank` |
 | `millers_crank` | Hinweis | `miller.crank` | `lent_thing`, `mill_hill` |
@@ -711,11 +715,11 @@ Was der Spieler erfährt, bevor er das Buch hat, steht darin, sobald er es nimmt
 | `field_thirsty` | Hinweis | `miller.dry` | `morning_water`, `spring` |
 | `morning_water` | Hinweis | `fisher.mud` | `field_thirsty`, `spring` |
 | `island_light` | Hinweis | `fisher.mud` | `pond` |
-| `evening_walk` | Hinweis | `stranger.evening` | `stone_places` |
+| `evening_walk` | Hinweis | `stranger.evening` | `cart_places` |
 | `fishers_evening` | Hinweis | `fisher.home` | `big_light` |
 | `arch_village` | Erinnerung | `cliff` | `village`, `mill_hill` |
 | `vane_direction` | Erinnerung | `millers_seat` | `mill_hill` |
-| `stone_places` | Erinnerung | `brook_walk` | `village`, `evening_walk` |
+| `cart_places` | Erinnerung | `brook_walk` | `village`, `evening_walk` |
 | `big_light` | Erinnerung | `jetty` | `watch`, `fishers_evening` |
 | `lookout` | Erinnerung | `lookout` | `watch` |
 | `rift_old_man`, `rift_stranger`, `rift_miller`, `rift_child`, `rift_fisher` | Riss (nur Geschichte) | je eine Figur | einander. Bleibt über das Kapitel hinaus offen. |
@@ -733,10 +737,10 @@ order: old_man.before, p_light_lanterns, p_wind_music_box, old_man.leaving, p_ri
 ```path
 part: Dorf
 minutes: 11
-order: roll_rock_bridge, stranger.wind, roll_rock_bridge, light_house_lantern, old_man.first, take_notebook, old_man.borrowed, child.still, cliff, roll_rock_east, light_arch_lantern
+order: roll_cart_bridge, stranger.wind, roll_cart_bridge, light_house_lantern, old_man.first, take_notebook, old_man.borrowed, child.still, cliff, roll_cart_east, light_arch_lantern
 ```
 
-Der Stein gibt die Brücke frei. Die erste Laterne geht im Wind aus, bis der Stein im Windschatten liegt. Das Licht vor dem Haus öffnet die Tür, das Buch bringt das Kind zum Reden, die Erinnerung bringt den Bogen zurück.
+Der Heuwagen gibt die Brücke frei. Die erste Laterne geht im Wind aus, bis sie im Windschatten des Wagens steht. Das Licht vor dem Haus öffnet die Tür, das Buch bringt das Kind zum Reden, die Erinnerung bringt den Bogen zurück.
 
 ```path
 part: Mühlenhügel und Quelle, erster Besuch
@@ -765,7 +769,7 @@ Hinunter zum Weiher geht es zuerst nur durch das trockene Bett, also bei geschlo
 ```path
 part: Das Dorf wird heil
 minutes: 8
-order: stranger.evening, brook_walk, roll_rock_bridge, roll_rock_east, light_bridge_lantern, miller.grain, wind_music_box, old_man.above
+order: stranger.evening, brook_walk, roll_cart_bridge, roll_cart_east, light_bridge_lantern, miller.grain, wind_music_box, old_man.above
 ```
 
 ```path
@@ -781,6 +785,7 @@ Zur Warte geht der Spieler einmal durch das ganze heile Tal: Dorf, Mühlenhügel
 Generiert am 2026-10-12 (`tools/valley_images.py`, `tools/world_images.py`), Rohdaten in `styletest/valley`, `styletest/pond` und `styletest/watch`:
 
 - **Bodenbilder (2):** Weiher, Warte.
+- **Heuwagen (1 Bild):** nachträglich generiert. Er hat die Steine ersetzt, die zu klein waren, um eine Laterne glaubhaft vor dem Wind zu schützen.
 - **Objektbilder (14):** Kind, Fischerin, Pfahl und Pfeil der Wetterfahne, Spieluhr zu und offen, Feld gewachsen und verdorrt, Stufen, Boot, Trittsteine, großes Licht dunkel und brennend, kleines Licht der Warte.
 - **Musik (2):** Weiher, Warte.
 
@@ -794,9 +799,9 @@ Es fehlt noch:
 
 1. **Wehr wieder schließen:** Feld und Weiher folgen dem Wehr (Regel 5). Mühlenhügel, Quelle und Weiher können deshalb kurz heil sein und es wieder verlieren.
 2. **Wetterfahne:** Sie bewegt sich erst mit dem Eintrag `vane_direction` und dann mit einem Tipp in die richtige Stellung. Das ist kein Rätsel mehr, nur noch ein Schritt; schwerer wäre, dass der Spieler die Richtung selbst wählt.
-3. **Steine:** Der Windschatten ist nach zwei Tipps gefunden. Das schützt vor Sackgassen, ist aber kaum ein Rätsel. Schwerer wäre, dass der Spieler die Richtung selbst wählt.
+3. **Heuwagen:** Der Windschatten ist nach zwei Tipps gefunden. Das schützt vor Sackgassen, ist aber kaum ein Rätsel. Schwerer wäre, dass der Spieler die Richtung selbst wählt.
 4. **Prolog:** Das Buch liegt schon auf dem Tisch und lässt sich nicht nehmen. Ob der Spieler es im Prolog selbst hinlegt, entscheidet die große Geschichte.
 5. **Wenige Fehler:** Quelle und Weiher haben je drei, die Warte einen. Das Konzept will vier bis sechs.
 6. **Der Weg zur Warte:** vier Weltwechsel ohne Aufgabe. Gedacht als Gang durch das heile Tal; kann sich auch lang anfühlen.
 7. **Ton des Alten:** Er vergisst und wiederholt sich. Das ist nah an Demenz und sollte zart bleiben.
-8. **Hinweise der Frau sind entbehrlich:** Wer die Laternen selbst hinter einen Stein bringt, braucht sie nie anzusprechen. Ihre Erinnerung an den Riss bekommt er dann erst spät.
+8. **Hinweise der Frau sind entbehrlich:** Wer die Laternen selbst in den Windschatten eines Wagens bringt, braucht sie nie anzusprechen. Ihre Erinnerung an den Riss bekommt er dann erst spät.

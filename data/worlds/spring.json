@@ -51,10 +51,12 @@
 		{"id": "raft", "fixed_if": [{"object": "raft", "cell": [7, 7]}], "restores": ["wind"]},
 		{"id": "sluice", "fixed_if": [{"object": "sluice", "state": "open"}], "restores": ["water", "level"]}
 	],
+	"whole_says": {"if": [{"fact": "rift"}], "say": "whole.spring"},
 	"rules": [
 		{"on": "always", "if": [{"object": "mill", "world": "mill_hill", "state": "turning"}, {"object": "raft", "cell": [9, 3]}], "do": [{"change": "raft", "cell": [7, 7]}]},
-		{"on": "interact", "object": "sluice", "if": [{"fact": "rift"}, {"object": "sluice", "state": "closed"}, {"object": "pond_lantern", "world": "pond", "state": "lit"}], "do": [{"change": "sluice", "state": "open"}, {"say": "sluice.opens"}]},
-		{"on": "interact", "object": "sluice", "if": [{"fact": "rift"}, {"object": "sluice", "state": "closed"}, {"note": "pond"}], "do": [{"say": "sluice.dark_below"}]},
+		{"on": "interact", "object": "sluice", "if": [{"fact": "rift"}, {"object": "sluice", "state": "closed"}, {"note": "island_light"}, {"object": "pond_lantern", "world": "pond", "state": "lit"}], "do": [{"change": "sluice", "state": "open"}, {"say": "sluice.opens"}]},
+		{"on": "interact", "object": "sluice", "if": [{"fact": "rift"}, {"object": "sluice", "state": "closed"}, {"note": "island_light"}], "do": [{"say": "sluice.light_first"}]},
+		{"on": "interact", "object": "sluice", "if": [{"fact": "rift"}, {"object": "sluice", "state": "closed"}, {"note": "pond"}], "do": [{"say": "sluice.ask_below"}]},
 		{"on": "interact", "object": "sluice", "if": [{"fact": "rift"}, {"object": "sluice", "state": "closed"}], "do": [{"say": "sluice.unknown_below"}]},
 		{"on": "interact", "object": "sluice", "if": [{"fact": "rift"}, {"object": "sluice", "state": "open"}], "do": [{"change": "sluice", "state": "closed"}, {"say": "sluice.closes"}]},
 		{"on": "interact", "object": "steps", "if": [{"object": "sluice", "world": "spring", "state": "closed"}], "do": [{"go": "pond", "cell": [4, 1]}, {"note": "pond"}]},

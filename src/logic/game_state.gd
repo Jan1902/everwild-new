@@ -19,6 +19,9 @@ var objects := {}
 var items: Array[String] = []
 ## Ids of the notebook entries, in the order they were found.
 var notes: Array[String] = []
+## Ids of the worlds whose becoming whole someone there has already remarked on. Nothing in
+## the rules depends on it; it only keeps them from saying it twice.
+var whole_greeted: Array[String] = []
 ## Whether the player has seen the start screen with the advice on headphones. It only shows on
 ## the very first start, so this outlasts a new game.
 var start_screen_seen := false
@@ -58,6 +61,7 @@ func copy() -> GameState:
 	twin.objects = objects.duplicate(true)
 	twin.items = items.duplicate()
 	twin.notes = notes.duplicate()
+	twin.whole_greeted = whole_greeted.duplicate()
 	twin.start_screen_seen = start_screen_seen
 	return twin
 
@@ -80,6 +84,7 @@ func to_data() -> Dictionary:
 		"objects": changed,
 		"items": items.duplicate(),
 		"notes": notes.duplicate(),
+		"whole_greeted": whole_greeted.duplicate(),
 		"start_screen_seen": start_screen_seen,
 	}
 
@@ -114,6 +119,9 @@ static func from_data(data: Variant) -> GameState:
 	state.items.assign(saved_items)
 	state.items.sort()
 	state.notes.assign(saved_notes)
+	var saved_greeted: Variant = data.get("whole_greeted", [])
+	if _is_texts(saved_greeted):
+		state.whole_greeted.assign(saved_greeted)
 	state.start_screen_seen = data.get("start_screen_seen", false) == true
 	return state
 

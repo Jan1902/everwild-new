@@ -31,7 +31,7 @@ SOURCES = {
     "child": VALLEY, "fisher": VALLEY, "vane": VALLEY, "vane_arrow": VALLEY,
     "music_box": VALLEY, "music_box_playing": VALLEY, "field": VALLEY, "field_withered": VALLEY,
     "steps": VALLEY, "boat": VALLEY, "stepping_stones": VALLEY,
-    "big_light": VALLEY, "big_light_lit": VALLEY, "beacon": VALLEY,
+    "big_light": VALLEY, "big_light_lit": VALLEY, "beacon": VALLEY, "cart": VALLEY,
 }
 # Images that turn around their centre in the game. They keep their frame, so the centre stays
 # the centre.

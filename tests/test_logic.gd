@@ -365,10 +365,16 @@ func _test_texts() -> void:
 				if effect.has("say"):
 					needed[effect["say"]] = true
 					needed["name." + effect.get("who", "self")] = true
+				for change: String in ["give", "take"]:
+					if effect.has(change):
+						needed["item." + effect[change]] = true
+		if not world.whole_says.is_empty():
+			needed[world.whole_says.get("say", "")] = true
+			needed["name." + world.whole_says.get("who", "self")] = true
 		needed["world." + world_id] = true
 	for key: String in ["start.advice", "start.begin", "notebook.title", "notebook.empty", "notebook.links", "notebook.unknown",
 		"pause.title", "pause.volume", "pause.language", "pause.new_game", "pause.continue", "pause.confirm",
-		"pause.confirm_yes", "pause.confirm_no", "notebook.whole", "notebook.broken", "banner.whole",
+		"pause.confirm_yes", "pause.confirm_no", "notebook.whole", "notebook.broken",
 	]:
 		needed[key] = true
 	var notes := Notebook.read()
@@ -476,20 +482,20 @@ func _test_story() -> void:
 	var village := session.world()
 	_check(village.find_path(village.start, Vector2i(16, 9)).is_empty(), "Rock does not block the bridge")
 	_check(_said(_use(session, "lantern_bridge"), "lantern.blown"), "Lantern burns in the wrong wind")
-	_use(session, "rock_bridge")
+	_use(session, "cart_bridge")
 	_check(not village.find_path(village.start, Vector2i(16, 9)).is_empty(), "Rolled rock still blocks the bridge")
 	_check(_said(_use(session, "stranger"), "stranger.wind"), "Woman does not tell about the wind")
 	_check(_said(_use(session, "lantern_west"), "lantern.blown"), "Lantern burns without shelter")
 	_use(session, "house_west")
 	_check(session.state.world == "village" and session.state.cell == Vector2i(10, 6), "Door of the dark house leads inside")
-	_use(session, "rock_bridge")
-	_check(village.get_object("rock_bridge").cell == Vector2i(5, 7), "Rock does not roll to the windward side of the lantern")
+	_use(session, "cart_bridge")
+	_check(village.get_object("cart_bridge").cell == Vector2i(5, 7), "Rock does not roll to the windward side of the lantern")
 	_use(session, "lantern_west")
 	_check(village.get_object("lantern_west").state == "lit", "Lantern does not burn behind the rock")
-	_use(session, "rock_bridge")
+	_use(session, "cart_bridge")
 	_check(village.get_object("lantern_west").state == "out", "Lantern keeps burning when the rock rolls away")
-	_check(village.get_object("rock_bridge").cell == Vector2i(11, 8), "Rock rolls back onto the path instead of to its place")
-	_use(session, "rock_bridge")
+	_check(village.get_object("cart_bridge").cell == Vector2i(11, 10), "Cart rolls back onto the path instead of to its place")
+	_use(session, "cart_bridge")
 	_use(session, "lantern_west")
 	_use(session, "house_west")
 	_check(session.state.world == "house_inside", "Door of the lit house does not lead inside")
@@ -499,7 +505,7 @@ func _test_story() -> void:
 	_check("crank" not in session.state.items, "Crank can be taken without knowing whose it is")
 	_use(session, "table")
 	_check("notebook" in session.state.items, "Notebook cannot be taken from the table")
-	_check("lee_of_stone" in session.state.notes, "What the player learned before is not in the notebook")
+	_check("lee_of_cart" in session.state.notes, "What the player learned before is not in the notebook")
 	_check(_said(_use(session, "old_man"), "old_man.borrowed"), "Old man does not tell about the borrowed thing")
 	_check(_said(_use(session, "cupboard"), "cupboard.plain"), "Crank is found before the player knows what to look for")
 	_check(_said(_use(session, "music_box"), "music_box.silent"), "Music box plays without a crank")
@@ -512,8 +518,8 @@ func _test_story() -> void:
 	_check({"remember": "cliff"} in remembered, "Standing still by the child shows no memory")
 	_check(not village.get_object("arch").hidden, "Remembering does not bring the arch back")
 	_check(_said(_use(session, "arch"), "arch.dark"), "Arch carries without its lantern")
-	_use(session, "rock_east")
-	_use(session, "rock_east")
+	_use(session, "cart_east")
+	_use(session, "cart_east")
 	_use(session, "lantern_east")
 	_check(village.get_object("arch").state == "open", "Arch does not shine when its lantern burns")
 	_use(session, "arch")
@@ -565,7 +571,7 @@ func _test_story() -> void:
 	_check(_said(_use(session, "fisher"), "fisher.mud"), "Fisherwoman does not tell about the mud")
 	_check(_said(_use(session, "boat"), "boat.hers"), "Boat goes in the mud")
 	session.state.world = "spring"
-	_check(_said(_use(session, "sluice"), "sluice.dark_below"), "Sluice opens while the island in the pond is still dark")
+	_check(_said(_use(session, "sluice"), "sluice.light_first"), "Sluice opens while the island in the pond is still dark")
 	session.state.world = "pond"
 	_use(session, "pond_lantern")
 	_check(_said(_use(session, "fisher"), "fisher.light_on"), "Fisherwoman does not see the light")
@@ -592,8 +598,8 @@ func _test_story() -> void:
 	# The village becomes whole.
 	_check(_said(_use(session, "stranger"), "stranger.evening"), "Woman does not notice the wind")
 	_check(_said(_linger(session, Vector2i(16, 10)), "memory.bridge"), "Woman's walk shows no memory")
-	_use(session, "rock_bridge")
-	_use(session, "rock_east")
+	_use(session, "cart_bridge")
+	_use(session, "cart_east")
 	_check(session.world().get_object("lantern_west").state == "lit", "Lantern goes out in the right wind")
 	_use(session, "lantern_bridge")
 	_check(session.open_faults("village") == ["music_box"], "Village has other open faults than the music box")
@@ -607,6 +613,9 @@ func _test_story() -> void:
 	_check("wick" in session.state.items and "watch" in session.state.notes, "Old man does not hand over the wick")
 	session.state.world = "village"
 	_check(_linger(session, Vector2i(13, 15)).is_empty(), "Whole village still shows a memory")
+	var whole_village := session.world()
+	_check(whole_village.get_object("stranger").cell == Vector2i(14, 8), "Woman does not return to the brook when the village is whole")
+	_check(whole_village.get_object("child").cell == Vector2i(7, 8), "Child does not return to the houses when the village is whole")
 
 	# The watch.
 	session.state.world = "pond"
@@ -683,8 +692,9 @@ func _test_village_game() -> void:
 	_check(session.open_faults().size() == world.faults.size(), "Not every fault is open in the broken village")
 	var remembered := world.differences()
 	_check(remembered.size() == world.broken.size(), "Memory does not show every changed object")
-	_check(remembered.any(func(o: WorldObject) -> bool: return o.id == "rock_bridge" and o.cell == Vector2i(11, 8)), "Memory does not show where the rock belongs")
+	_check(remembered.any(func(o: WorldObject) -> bool: return o.id == "cart_bridge" and o.cell == Vector2i(11, 10)), "Memory does not show where the cart belongs")
 	_check(world.remembered("cliff").any(func(o: WorldObject) -> bool: return o.id == "arch"), "Memory at the cliff does not show the arch")
+	_check(not world.remembered("cliff").any(func(o: WorldObject) -> bool: return o.id == "cart_east"), "Memory at the cliff shows the cart, which stays where the player put it")
 	_check(session.remembered_mood().wind > 0.0, "Remembered mood is not the intact one")
 	_check(session.mood().wind < 0.0, "Wind does not blow the wrong way in the broken village")
 

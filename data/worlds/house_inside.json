@@ -39,7 +39,7 @@
 		{"on": "interact", "object": "music_box", "if": [{"object": "music_box", "state": "playing"}], "do": [{"say": "music_box.playing"}]},
 		{"on": "interact", "object": "music_box", "if": [{"fact": "rift", "is": false}, {"fact": "evening_asked"}, {"object": "lantern_west", "state": "lit", "world": "village"}, {"object": "lantern_bridge", "state": "lit", "world": "village"}, {"object": "lantern_east", "state": "lit", "world": "village"}], "do": [{"change": "music_box", "state": "playing"}, {"say": "music_box.evening"}]},
 		{"on": "interact", "object": "music_box", "if": [{"fact": "rift", "is": false}], "do": [{"say": "music_box.later"}]},
-		{"on": "interact", "object": "music_box", "if": [{"item": "crank"}, {"fixed": "lanterns", "world": "village"}, {"fixed": "arch", "world": "village"}, {"fixed": "wind", "world": "village"}, {"fixed": "brook", "world": "village"}, {"fixed": "stones", "world": "village"}], "do": [{"change": "music_box", "state": "playing"}, {"say": "music_box.plays"}]},
+		{"on": "interact", "object": "music_box", "if": [{"item": "crank"}, {"fixed": "lanterns", "world": "village"}, {"fixed": "arch", "world": "village"}, {"fixed": "wind", "world": "village"}, {"fixed": "brook", "world": "village"}, {"fixed": "carts", "world": "village"}], "do": [{"change": "music_box", "state": "playing"}, {"say": "music_box.plays"}]},
 		{"on": "interact", "object": "music_box", "if": [{"item": "crank"}], "do": [{"say": "music_box.wrong"}]},
 		{"on": "interact", "object": "music_box", "do": [{"say": "music_box.silent"}]},
 		{"on": "interact", "object": "table", "if": [{"fact": "rift", "is": false}], "do": [{"say": "table.before"}]},

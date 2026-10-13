@@ -38,10 +38,6 @@ func _init() -> void:
 	_slider(theme)
 	_scroll_bar(theme)
 
-	_label(theme, &"Banner", 56, PALE)
-	theme.set_color(&"font_outline_color", &"Banner", Color(NIGHT, 0.55))
-	theme.set_constant(&"outline_size", &"Banner", 10)
-
 	_label(theme, &"StartAdvice", 44, CREAM)
 	_label(theme, &"StartHint", 30, Color(CREAM, 0.55))
 

@@ -41,6 +41,13 @@ var broken := {}
 ## while the player remembers there. Where the player has to stand for it is up to the rule that
 ## has the effect "remember".
 var memories := {}
+## Memory id -> ids of objects that never show through there, even if they stood in that part
+## of the world: what the player moves about themselves would only mislead as a memory.
+var memory_omits := {}
+## What someone says the first time the player is here once the world is whole: "say" (a text),
+## "who" (the speaker, the player without one) and "if" (conditions that have to hold as well).
+## Empty if nobody does.
+var whole_says := {}
 ## Path of the music track, empty for none.
 var music := ""
 ## Mood of the intact world and of its wrong version.
@@ -99,6 +106,7 @@ static func from_data(data: Dictionary, world_id := "") -> World:
 		world._by_id[thing.id] = thing
 		world._intact[thing.id] = thing.copy()
 	world.rules.assign(data.get("rules", []))
+	world.whole_says = data.get("whole_says", {})
 	world.faults.assign(data.get("faults", []))
 	for memory: Dictionary in data.get("memories", []):
 		var zone: Variant = memory.get("zone")
@@ -107,6 +115,7 @@ static func from_data(data: Dictionary, world_id := "") -> World:
 			world._errors.append("Memory '%s' has no id of its own" % memory_id)
 		if zone is Array and zone.size() == 4:
 			world.memories[memory_id] = Rect2i(int(zone[0]), int(zone[1]), int(zone[2]), int(zone[3]))
+			world.memory_omits[memory_id] = memory.get("without", [])
 		else:
 			world._errors.append("Memory '%s' has a zone that is not [x, y, w, h]" % memory_id)
 	var broken_data: Dictionary = data.get("broken", {})
@@ -140,7 +149,10 @@ func differences() -> Array[WorldObject]:
 ## What shows through at a place of memory: the differences that stand in its part of the world.
 func remembered(memory_id: String) -> Array[WorldObject]:
 	var zone: Rect2i = memories.get(memory_id, Rect2i())
-	return differences().filter(func(thing: WorldObject) -> bool: return zone.intersects(Rect2i(thing.cell, thing.size)))
+	var omitted: Array = memory_omits.get(memory_id, [])
+	return differences().filter(func(thing: WorldObject) -> bool:
+		return thing.id not in omitted and zone.intersects(Rect2i(thing.cell, thing.size))
+	)
 
 
 ## Puts all objects back to the intact world and lays the given changes over it
@@ -175,6 +187,10 @@ func errors() -> Array[String]:
 	for object_id: String in broken:
 		if not _by_id.has(object_id):
 			list.append("Broken version names unknown object '%s'" % object_id)
+	for memory_id: String in memory_omits:
+		for object_id: Variant in memory_omits[memory_id]:
+			if not _by_id.has(object_id):
+				list.append("Memory '%s' leaves out unknown object '%s'" % [memory_id, object_id])
 	for fault in faults:
 		for dial: String in fault.get("restores", []):
 			if dial not in Mood.DIALS:

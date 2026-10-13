@@ -20,6 +20,7 @@ var _flat := Node2D.new()
 var _shadows := CanvasGroup.new()
 var _marker := TargetMarker.new()
 var _layer := Node2D.new()
+var _wind: WindView
 ## Object id -> its view.
 var _views := {}
 var _ghosts: Array[ObjectView] = []
@@ -57,6 +58,10 @@ func _init(shown: World, sprites: Sprites, player_cell: Vector2i) -> void:
 	_layer.add_child(player)
 	_shadows.add_child(player.shadow)
 
+	# The wind is in the air, above everything that stands.
+	_wind = WindView.new(_views)
+	add_child(_wind)
+
 
 ## Takes the stage down. The character stops at once, so it reports no more cells.
 func retire() -> void:
@@ -71,10 +76,14 @@ func sync() -> void:
 		if view.is_current(object) or view.follow(object):
 			continue
 		var was_visible := view.visible
+		var was_lit := view.is_lit()
 		if view.shadow:
 			view.shadow.queue_free()
 		view.queue_free()
 		_add_object(object)
+		# A light that has just been lit comes on, it does not snap on.
+		if was_visible and not was_lit:
+			_views[object.id].light_up()
 		if not was_visible and not object.hidden:
 			_views[object.id].modulate.a = 0.0
 			create_tween().tween_property(_views[object.id], "modulate:a", 1.0, APPEAR_DURATION).set_trans(Tween.TRANS_SINE)
@@ -125,10 +134,12 @@ func mark(point: Vector2) -> void:
 	_marker.show_at(point)
 
 
-## Brightness of the lights and the shadow cast, from the mood of the world.
-func set_mood(light: float, shadow_cast: Vector2) -> void:
+## Brightness of the lights, the shadow cast and the wind, from the mood of the world.
+func set_mood(light: float, shadow_cast: Vector2, wind: float) -> void:
 	_light = light
 	_shadow_cast = shadow_cast
+	# Indoors the air stands still.
+	_wind.wind = wind if world.mood_from.is_empty() else 0.0
 	for view: ObjectView in _views.values():
 		view.light = light
 		view.set_shadow_cast(shadow_cast)

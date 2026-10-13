@@ -10,6 +10,9 @@ const SAILS_SPEED := 0.7
 const SAILS_TURNING := {"turning": 1.0, "backwards": -1.0}
 ## Placeholders that hang in the sky: a tap never means them.
 const UNTOUCHABLE := ["distant_light"]
+## The area of a placeholder that takes taps, around its foot: about one cell wide and a person
+## tall.
+const PLACEHOLDER_AREA := Rect2(-40, -84, 80, 96)
 ## How far an arrow is turned that points along the grid, by the state of its object. Its image
 ## points along the x axis of the grid.
 const ARROW_TURNS := {"east": 0.0, "south": 0.25, "west": 0.5, "north": 0.75}
@@ -26,6 +29,10 @@ const UNLIT := Color(0.62, 0.66, 0.78)
 const NOTEBOOK_SPOT := Vector2(-12, -38)
 ## Seconds an object takes to slide to another cell.
 const MOVE_DURATION := 0.45
+## Seconds a light takes to come on: a flame catches quickly, the light in an open way to another
+## world rises slowly.
+const KINDLE_DURATION := 0.5
+const SHIMMER_RISE := 1.8
 
 var kind := ""
 var size := Vector2i.ONE
@@ -42,6 +49,8 @@ var _box_shadow: BoxShadow
 var _glow: Sprite2D
 var _sails: Sprite2D
 var _flicker := 0.0
+## How far the light has come on, from 0 to 1.
+var _lit := 1.0
 
 
 ## Sets the object up. The node sits at the centre of its footprint so that depth sorting by y
@@ -138,6 +147,24 @@ func _build_notebook() -> Node2D:
 	return book
 
 
+## Whether the object has a light that is on.
+func is_lit() -> bool:
+	return _glow != null
+
+
+## Lets the light come on from dark instead of being there at once.
+func light_up() -> void:
+	if _glow == null:
+		return
+	var duration := SHIMMER_RISE if _layout.get("shimmer", false) else KINDLE_DURATION
+	_lit = 0.0
+	_glow.modulate.a = 0.0
+	_image.modulate = UNLIT
+	var rise := create_tween().set_parallel().set_trans(Tween.TRANS_SINE)
+	rise.tween_property(self, "_lit", 1.0, duration)
+	rise.tween_property(_image, "modulate", Color.WHITE, duration)
+
+
 ## Whether the view shows the object as it is now.
 func is_current(object: WorldObject) -> bool:
 	return _shown.matches(object.properties())
@@ -164,8 +191,7 @@ func covers(point: Vector2) -> bool:
 	if not visible:
 		return false
 	if _image == null:
-		# Placeholders are drawn about one cell wide and a person tall.
-		return kind not in UNTOUCHABLE and Rect2(-40, -84, 80, 96).has_point(point - position)
+		return kind not in UNTOUCHABLE and PLACEHOLDER_AREA.has_point(point - position)
 	var pixel := Vector2i((point - position - _image.position) / _image.scale - _image.offset)
 	if _image.flip_h:
 		pixel.x = _image.texture.get_width() - 1 - pixel.x
@@ -220,11 +246,11 @@ func _process(delta: float) -> void:
 	if _layout.get("shimmer", false):
 		# It shines the same in every mood, so an open way shows even where all lamps are dim.
 		var breath := 0.5 + 0.5 * sin(_flicker * TAU * SHIMMER_SPEED)
-		_glow.modulate = Color(SHIMMER_COLOR, SHIMMER_OPACITY * (0.7 + 0.3 * breath))
+		_glow.modulate = Color(SHIMMER_COLOR, SHIMMER_OPACITY * (0.7 + 0.3 * breath) * _lit)
 		_glow.scale = Vector2.ONE * SHIMMER_SIZE * (0.92 + 0.08 * breath)
 		return
 	var jitter := 0.88 + 0.08 * sin(_flicker * 9.0) + 0.04 * sin(_flicker * 23.0)
-	_glow.modulate = Color(LIGHT_COLOR, 0.45 * light * jitter)
+	_glow.modulate = Color(LIGHT_COLOR, 0.45 * light * jitter * _lit)
 	_glow.scale = Vector2.ONE * (1.0 + 0.06 * sin(_flicker * 6.0))
 
 

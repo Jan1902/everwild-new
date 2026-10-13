@@ -23,6 +23,7 @@
 		"vane": {"width": 30.0, "foot": [0.5, 0.95], "base": 16.0, "arrow": {"hub": [0, -108], "size": 120.0}},
 		"music_box": {"width": 44.0, "foot": [0.5, 0.95], "base": 20.0},
 		"field": {"width": 256.0, "foot": [0.5, 0.62]},
+		"cart": {"width": 150.0, "foot": [0.6, 0.84], "base": 46.0},
 		"steps": {"width": 110.0, "foot": [0.5, 0.7]},
 		"steps_down": {"image": "steps", "width": 110.0, "foot": [0.5, 0.7], "offset": [-46, 52]},
 		"boat": {"width": 120.0, "foot": [0.5, 0.75]},

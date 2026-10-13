@@ -18,7 +18,6 @@
 	"item.crank": "crank",
 	"item.wick": "wick",
 	"item.notebook": "notebook",
-	"banner.whole": "%s is whole again",
 	"kind.memory": "Memory",
 	"kind.piece": "Piece of the world",
 	"kind.hint": "Hint",
@@ -88,12 +87,12 @@
 	"stranger.wind": [
 		"You come across the bridge. Nobody has done that for a long time.",
 		"Since the Rift no wick here will catch. The wind is a different one.",
-		"As a child I always sat behind the big stone when it blew. It was still behind it. You could even … oh, that does not belong here.",
+		"As a child I always sat behind the hay cart when it blew. It was still behind it. You could even … oh, that does not belong here.",
 		"It is dark in front of the old man's door. Dark means: nobody home. Then you do not knock either."
 	],
 	"stranger.house_lit": [
 		"There is light at the old man's. Then he is home.",
-		"Behind a stone, you say? Yes. It never blew behind it. I knew that as a child.",
+		"Behind the cart, you say? Yes. It never blew behind it. I knew that as a child.",
 		"The wind is a different one all the same. It was not always like this."
 	],
 	"stranger.evening": [
@@ -123,7 +122,7 @@
 		"It stands there again."
 	],
 	"memory.bridge": [
-		"The stone lay beside the bridge, in the grass. Not on the path.",
+		"The hay cart stood beside the bridge, in the grass. Not on the path.",
 		"And the lantern was burning."
 	],
 	"arch.dark": [
@@ -286,11 +285,31 @@
 	],
 	"sluice.unknown_below": [
 		"A sluice. Behind it the water is held back, the bed below lies dry.",
-		"If I open it, the bed will fill. At the edge, steps lead down there. I should see where to first."
+		"Where the water would run, I do not know. I leave it shut."
 	],
-	"sluice.dark_below": [
-		"If I open the sluice, the bed will fill, and down in the pond the stepping stones will go under.",
-		"On the island there it is still dark. That first."
+	"sluice.ask_below": [
+		"If I open it, the bed will fill, all the way down to the pond.",
+		"Down there someone stands by a boat. I do not know what the water means for her."
+	],
+	"sluice.light_first": [
+		"The fisherwoman is waiting for water. But she will not go out without her light on the island.",
+		"And the island can only be reached while the water is low."
+	],
+	"whole.village": [
+		"One, two, three. All three are burning!",
+		"It was always like this. I know it again: you came by here in the evenings, with the book."
+	],
+	"whole.mill_hill": [
+		"Do you hear? She is grinding. And the field stands as it used to.",
+		"Now it comes back to me. Every evening I stood here and watched the weather."
+	],
+	"whole.spring": [
+		"The water runs. The raft lies by the bank, the lantern burns.",
+		"This is how it was here. I am sure of it."
+	],
+	"whole.pond": [
+		"The house. My house. The door still sticks as it used to.",
+		"I know again how the evening goes: light on, across, home."
 	],
 	"sluice.opens": [
 		"The sluice gives way. The water runs off, down the brook.",
@@ -411,8 +430,8 @@
 	"note.pond.text": "A piece nobody up there spoke of any more. Since it stands in this book, the arch at the spring leads here.",
 	"note.watch.title": "The watch",
 	"note.watch.text": "The highest place of the valley. The great light burned here every evening. The old man lit it.",
-	"note.lee_of_stone.title": "Behind the stone",
-	"note.lee_of_stone.text": "As a child the woman by the brook sat behind the big stone when it blew. It was still behind it.",
+	"note.lee_of_cart.title": "Behind the hay cart",
+	"note.lee_of_cart.text": "As a child the woman by the brook sat behind the hay cart when it blew. It was still behind it.",
 	"note.light_means_home.title": "Light at the door",
 	"note.light_means_home.text": "In the village a dark house means: nobody home. Then you do not knock either.",
 	"note.lent_thing.title": "Something borrowed",
@@ -433,8 +452,8 @@
 	"note.fishers_evening.text": "The fisherwoman sat on the jetty by her house every evening. From there you could see a great light above the water.",
 	"note.arch_village.title": "The arch in the village",
 	"note.arch_village.text": "A stone arch stood at the eastern edge. When I remembered it, it stood there again.",
-	"note.stone_places.title": "The stone by the bridge",
-	"note.stone_places.text": "It lay beside the bridge in the grass. Not on the path and not in front of the house.",
+	"note.cart_places.title": "The cart by the bridge",
+	"note.cart_places.text": "It stood beside the bridge in the grass. Not on the path and not in front of the house.",
 	"note.vane_direction.title": "The weather vane",
 	"note.vane_direction.text": "From the miller's place I saw the mill as it was. The vane pointed towards the mill.",
 	"note.big_light.title": "The great light",

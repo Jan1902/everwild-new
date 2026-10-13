@@ -77,7 +77,6 @@ var _curtain: ColorRect
 var _dialogue := DialogueBox.new()
 var _notebook := NotebookView.new()
 var _pause := PauseView.new()
-var _banner := Banner.new()
 var _settings: Settings
 var _travelling := false
 ## The scene a change of worlds is making, if it is one, and its sound.
@@ -139,7 +138,6 @@ func _ready() -> void:
 		_rumble.stream = load(QUAKE_SOUND)
 	add_child(_rumble)
 	_music.set_volume(_settings.music_volume)
-	add_child(_banner)
 	add_child(_notebook)
 	add_child(_dialogue)
 	_pause.set_volume(_settings.music_volume)
@@ -454,6 +452,7 @@ func _show(effects: Array) -> void:
 	else:
 		stage.sync()
 		_change_mood()
+		_greet_whole()
 	save()
 
 
@@ -462,10 +461,10 @@ func _say(effect: Dictionary, mark := "") -> void:
 	_dialogue.say(Texts.text("name." + effect.get("who", "self")), Texts.lines(effect["say"]), mark)
 
 
-## Marks the moment a world has become whole: its name appears for a while, the notebook has
-## something new to show, and if the player is there, warm light swells over the picture.
+## Marks the moment a world has become whole: the notebook has something new to show, and if
+## the player is there, warm light swells over the picture. What it means is for those who live
+## there to say (see _greet_whole).
 func _celebrate(world_id: String) -> void:
-	_banner.show_text(Texts.text("banner.whole") % Texts.text("world." + world_id))
 	_notebook.mark_unread()
 	var here := stage.world
 	if world_id != here.id and world_id != here.mood_from:
@@ -473,6 +472,20 @@ func _celebrate(world_id: String) -> void:
 	var glow := create_tween()
 	glow.tween_method(_set_glow, 0.0, WHOLE_GLOW, WHOLE_GLOW_IN).set_trans(Tween.TRANS_SINE)
 	glow.tween_method(_set_glow, WHOLE_GLOW, 0.0, WHOLE_GLOW_OUT).set_trans(Tween.TRANS_SINE)
+
+
+## The first time the player is in a world that has become whole, someone there says so: that
+## it is suddenly as it used to be, and that they remember. A world that became whole while the
+## player was elsewhere greets them when they come back.
+func _greet_whole() -> void:
+	var here := stage.world
+	if here.whole_says.is_empty() or here.id in session.state.whole_greeted:
+		return
+	if here.id not in session.whole_worlds() or not session.holds(here.whole_says.get("if", []), here.id):
+		return
+	session.state.whole_greeted.append(here.id)
+	_say(here.whole_says)
+	save()
 
 
 func _set_glow(amount: float) -> void:
@@ -507,6 +520,7 @@ func _travel(go: Dictionary, afterwards: Array) -> void:
 	for effect: Dictionary in afterwards:
 		if effect.has("say"):
 			_say(effect)
+	_greet_whole()
 	# A player lying on the ground gets up once they have come to, which is what they say there.
 	if stage.player.is_lying():
 		if _dialogue.is_open():
@@ -595,7 +609,7 @@ func _apply_mood() -> void:
 	RenderingServer.global_shader_parameter_set(&"water", m.water)
 	RenderingServer.global_shader_parameter_set(&"water_level", m.level)
 	RenderingServer.global_shader_parameter_set(&"shadow", m.shadow)
-	stage.set_mood(m.light, m.shadow)
+	stage.set_mood(m.light, m.shadow, m.wind)
 	_grading.set_shader_parameter("saturation", m.saturation)
 	_grading.set_shader_parameter("tint", Vector3(m.tint.r, m.tint.g, m.tint.b))
 	_grading.set_shader_parameter("fog", m.fog)

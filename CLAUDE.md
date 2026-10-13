@@ -6,6 +6,8 @@ Alle Entscheidungen zu Spieldesign, Stil, Technik und Arbeitsteilung stehen in `
 
 Was noch zu bauen ist, steht in `docs/backlog.md`. Erledigtes dort löschen, Neues eintragen.
 
+Wie Spielinhalte entstehen (Bausteine, Regeln für Rätsel, Figuren und Welten, Ablauf, Prüflisten), steht in `docs/toolbox.md`. Bisher ein Entwurf, den Jan noch nicht durchgesehen hat. Wer ein Kapitel entwirft oder ändert, prüft es dagegen.
+
 Der Spielinhalt steht je Kapitel in `docs/chapters/` (bisher `valley.md`): Geschichte, Orte, Figuren, Rätsel und Zusammenhänge, als Text und als feste Blöcke. Wer Welten, Regeln oder Texte eines Kapitels ändert, ändert auch seine Datei.
 
 ## Sprache
@@ -27,16 +29,16 @@ Der Spielinhalt steht je Kapitel in `docs/chapters/` (bisher `valley.md`): Gesch
 - `src/view/`: alles Sichtbare, Shader in `src/view/shaders/`. Die Hauptszene `scenes/game.tscn` baut ihre Knoten per Code auf.
   - `game.gd`: verbindet Session, Eingabe und Ansicht und entscheidet, was wann passiert (Laufen, Verweilen, Weltwechsel, Stimmung, Speichern). Ein Weltwechsel ist eine kurze Blende, eine Fahrt (`"by"`) oder eine Szene (`"as"`, bisher nur `quake`, der Riss).
   - `Stage`: eine Welt auf dem Bildschirm (Boden, Wasser, Schatten, `ObjectView` je Objekt (ohne Bild als gezeichneter Platzhalter), `Player`, die durchscheinende Erinnerung). Wird bei jedem Weltwechsel neu gebaut.
+  - `WindView`: der sichtbare Wind einer Welt, feine Streifen in Richtung und Stärke der Stimmung. Hinter hohen Dingen (Heuwagen, Haus, Mühle) liegt ihr Windschatten ohne Streifen.
   - `Music`: spielt das Stück der Welt und blendet über. Der Bus „Music“ mit dem Dämpfungsfilter steht in `default_bus_layout.tres`, die Schleife in den Import-Einstellungen der Stücke.
   - `Sprites`: liest `data/sprites.json` und hält, was alle Ansichten teilen (Materialien, Lichtflecken, Treffer-Masken). Gehört dem laufenden Spiel und wird an jede Ansicht übergeben; es gibt keinen statischen Zustand in der Ansicht.
-  - `Banner`: ein Schriftzug, der für seltene Momente kurz erscheint, etwa wenn eine Welt heil wird (`Session` meldet das als Folge `{"whole": welt}`).
   - `PauseView`: der Pause-Knopf oben links und die Pause-Seite (Lautstärke, Sprache, neu beginnen). Solange sie offen ist, steht der ganze Baum still (`get_tree().paused`); nur sie selbst und die Musik laufen weiter. Die Zurück-Geste des Handys öffnet sie, eine zweite verlässt das Spiel.
   - `RoundButton`: der runde Knopf in einer Bildschirmecke (dunkle Scheibe mit hellem Rand), den Pause und Notizbuch teilen. Sein Bild zeichnet, wem er gehört.
   - `DialogueBox` zeigt neben dem Namen eine blasse Randnotiz, wenn die Figur etwas einsteckt oder abgibt (Folgen `give` und `take` vor einem `say`). Die Namen der Dinge stehen als `item.<id>` in den Texten.
   - `DialogueBox`, `NotebookView`, `PauseView`, `StartScreen`: Oberfläche aus echten Controls. Was offen ist, deckt den Bildschirm mit einem Control ab, das alle Tipps schluckt. Flächen reagieren auf die Berührung des ersten Fingers, Knöpfe sind `Button`. Aussehen (Schriftgrößen, Farben, Flächen) kommt aus `assets/ui/theme.tres`; die Ansichten nennen nur die Variante (`theme_type_variation`).
   - Wind, Wasser und Schatten lesen ihre Richtung aus globalen Shader-Werten (`[shader_globals]` in `project.godot`), die `game.gd` aus der Stimmung setzt. Dasselbe gilt für den Wasserstand: `WaterView` legt bei gesunkenem Stand das Bett frei, vom Ufer nach innen.
 - `data/game.json`: Startwelt, Liste aller Welten, was beim Start eines neuen Spiels passiert und wann das Spiel zu Ende ist (`complete_if`).
-- `data/worlds/`: Welten als JSON. Der Boden ist ein Zeichenraster (` ` Leere, `.` Gras, `=` Weg, `~` Wasser, `#` Brücke, `_` Boden eines Innenraums). `objects` beschreibt die heile Fassung (Objekte stehen auf festem Boden; Brücke, Floß und Trittsteine liegen auf `#`, Stufen stehen im Wasser), `broken` die Abweichungen der kaputten, `faults` die Fehler (jeder stellt bestimmte Stimmungsregler wieder her), `memories` die Orte der Erinnerung (jeder nennt den Ausschnitt der Welt, der dort durchscheint), `rules` was bei Interaktionen, beim Betreten von Zellen und beim Verweilen passiert.
+- `data/worlds/`: Welten als JSON. Der Boden ist ein Zeichenraster (` ` Leere, `.` Gras, `=` Weg, `~` Wasser, `#` Brücke, `_` Boden eines Innenraums). `objects` beschreibt die heile Fassung (Objekte stehen auf festem Boden; Brücke, Floß und Trittsteine liegen auf `#`, Stufen stehen im Wasser), `broken` die Abweichungen der kaputten, `faults` die Fehler (jeder stellt bestimmte Stimmungsregler wieder her), `memories` die Orte der Erinnerung (jeder nennt den Ausschnitt der Welt, der dort durchscheint, und mit `without` Objekte, die dort nie durchscheinen), `rules` was bei Interaktionen, beim Betreten von Zellen und beim Verweilen passiert, `whole_says` was jemand sagt, wenn der Spieler zum ersten Mal im heilen Stück steht (`Session` meldet das Heilwerden als Folge `{"whole": welt}`).
 - `data/sprites.json`: wie jedes Bild in der Welt sitzt (Breite, Fußpunkt, Schatten, Licht) und die Maße, die Spiel und Bildwerkzeuge teilen (Rand, Laufbilder). Die Schlüssel sind in `src/view/sprites.gd` beschrieben.
 - `data/notes.json`: alle Einträge des Notizbuchs mit Art, Welt und Verknüpfungen (immer in beide Richtungen).
 - `data/texts/`: alle sichtbaren Texte je Sprache (`en.json`, `de.json`), mit denselben Schlüsseln in jeder Datei. Regeln nennen nur Schlüssel.

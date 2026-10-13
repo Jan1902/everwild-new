@@ -56,6 +56,7 @@
 		{"id": "sails", "fixed_if": [{"object": "mill", "state": "turning"}], "restores": ["wind", "pitch"]},
 		{"id": "field", "fixed_if": [{"object": "field", "state": "grown"}], "restores": ["saturation"]}
 	],
+	"whole_says": {"if": [{"fact": "rift"}], "say": "whole.mill_hill", "who": "miller"},
 	"rules": [
 		{"on": "interact", "object": "arch_village", "do": [{"go": "village", "cell": [15, 13]}]},
 		{"on": "always", "if": [{"object": "mill_lantern", "state": "lit"}, {"object": "arch_spring", "state": "closed"}], "do": [{"change": "arch_spring", "state": "open"}]},
