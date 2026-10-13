@@ -10,8 +10,6 @@ signal language_changed(language: String)
 signal new_game_requested
 signal closed
 
-const BUTTON_SIZE := 92.0
-const BUTTON_COLOR := Color(0.09, 0.1, 0.14, 0.6)
 ## Height of everything that is tapped, for fingers.
 const ROW_HEIGHT := 76.0
 ## Languages by their own names.
@@ -21,7 +19,7 @@ var _volume := 1.0
 var _open := false
 ## Whether the page asks if the player really wants to start over.
 var _asking := false
-var _button := Button.new()
+var _button := RoundButton.new()
 ## Dims everything behind the page and catches every tap beside it.
 var _page := ColorRect.new()
 var _column := VBoxContainer.new()
@@ -32,12 +30,6 @@ func _ready() -> void:
 	# Everything else stands still while the page is open.
 	process_mode = Node.PROCESS_MODE_ALWAYS
 
-	_button.theme_type_variation = &"IconButton"
-	_button.focus_mode = Control.FOCUS_NONE
-	_button.offset_left = 36.0
-	_button.offset_right = 36.0 + BUTTON_SIZE
-	_button.offset_top = 36.0
-	_button.offset_bottom = 36.0 + BUTTON_SIZE
 	_button.draw.connect(_draw_button)
 	_button.pressed.connect(open)
 	add_child(_button)
@@ -183,10 +175,7 @@ func _spacer() -> Control:
 	return spacer
 
 
-## Two upright bars on a dark disc.
+## Two upright bars with round ends.
 func _draw_button() -> void:
-	var centre := Vector2.ONE * BUTTON_SIZE * 0.5
-	var paper: StyleBoxFlat = _page.get_theme_stylebox(&"panel", &"Paper")
-	_button.draw_circle(centre, BUTTON_SIZE * 0.5, BUTTON_COLOR)
 	for side: float in [-1.0, 1.0]:
-		_button.draw_rect(Rect2(centre + Vector2(side * 12.0 - 6.0, -19.0), Vector2(12, 38)), paper.bg_color)
+		_button.draw_stroke(Vector2(side * 10.0, -14.0), Vector2(side * 10.0, 14.0), _button.light, 10.0)

@@ -35,6 +35,7 @@ func _init() -> void:
 	# Buttons that draw their own picture.
 	_text_button(theme, &"IconButton", 34, INK)
 	_slider(theme)
+	_scroll_bar(theme)
 
 	_label(theme, &"Banner", 56, PALE)
 	theme.set_color(&"font_outline_color", &"Banner", Color(NIGHT, 0.55))
@@ -88,6 +89,20 @@ func _slider(theme: Theme) -> void:
 	var knob := ImageTexture.create_from_image(image)
 	for state: StringName in [&"grabber", &"grabber_highlight", &"grabber_disabled"]:
 		theme.set_icon(state, &"HSlider", knob)
+
+
+## A thin, faint bar at the edge of a column that scrolls. It only shows how far the column goes;
+## scrolling is done by swiping.
+func _scroll_bar(theme: Theme) -> void:
+	var track := StyleBoxEmpty.new()
+	track.content_margin_left = 4
+	track.content_margin_right = 4
+	theme.set_stylebox(&"scroll", &"VScrollBar", track)
+	var bar := StyleBoxFlat.new()
+	bar.bg_color = Color(INK, 0.25)
+	bar.set_corner_radius_all(4)
+	for state: StringName in [&"grabber", &"grabber_highlight", &"grabber_pressed"]:
+		theme.set_stylebox(state, &"VScrollBar", bar)
 
 
 ## A button that is nothing but its text, in the same colour whatever is done to it.

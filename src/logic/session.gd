@@ -31,7 +31,9 @@ extends RefCounted
 ##                                    is said before leaving, what it says after it on arrival
 ##   {"remember": memory}             changes nothing; the view lets the part of the world that
 ##                                    belongs to this place of memory (see World.memories) show
-##                                    through as it was, until the player moves again
+##                                    through as it was, until the player moves again. Not
+##                                    possible once there is nothing left to show: the world has
+##                                    no open fault and nothing in that part of it is different
 ##   {"say": text, "who": person}     changes nothing; the view shows the lines of the text, with
 ##                                    the text "name.<person>" as the speaker. Without "who" the
 ##                                    player talks to themselves ("name.self")
@@ -354,6 +356,11 @@ func _is_possible(effect: Dictionary, home: String) -> bool:
 		var target := world(effect["go"])
 		var cell: Vector2i = World.read_properties(effect).get("cell", target.start)
 		return effect["go"] in world_ids() and target.is_walkable(cell)
+	elif effect.has("remember"):
+		# Colours and music are those of the world whose mood this one shares.
+		var here := world(home)
+		var open := open_faults(home if here.mood_from.is_empty() else here.mood_from)
+		return not open.is_empty() or not here.remembered(effect["remember"]).is_empty()
 	return true
 
 

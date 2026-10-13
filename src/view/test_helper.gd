@@ -8,9 +8,10 @@ extends Node
 ## --tap=x,y          taps the cell
 ## --touch=x,y        taps a point of the screen, in pixels of the base resolution (1920x1080),
 ##                    to reach the notebook button or the dialogue
+## --swipe=x1,y1,x2,y2  swipes a finger from one point of the screen to another
 ## --notebook[=note]  opens the notebook, on this note if one is given
 ## --back             does what the back gesture of a phone does
-##                    (these four may be given several times and happen in the order given,
+##                    (these five may be given several times and happen in the order given,
 ##                    with --wait seconds after each)
 ## --wait=s           waiting time after each step, default 1
 ## --mouse            taps come from the mouse, as on a computer, instead of a finger
@@ -39,6 +40,8 @@ func _ready() -> void:
 			steps.append(_tap_cell.bind(game, _pair(argument)))
 		elif argument.begins_with("--touch="):
 			steps.append(_tap.bind(Vector2(_pair(argument))))
+		elif argument.begins_with("--swipe="):
+			steps.append(_swipe.bind(argument.get_slice("=", 1).split_floats(",")))
 		elif argument.begins_with("--notebook"):
 			steps.append(game.open_notebook.bind(argument.trim_prefix("--notebook").trim_prefix("=")))
 		elif argument == "--back":
@@ -98,3 +101,25 @@ func _tap(point: Vector2) -> void:
 			touch.position = spot
 			touch.pressed = pressed
 			Input.parse_input_event(touch)
+
+
+## Drags a finger from one point of the screen to another, given in pixels of the base resolution.
+func _swipe(points: PackedFloat64Array) -> void:
+	var to_window := get_viewport().get_final_transform()
+	var from := to_window * Vector2(points[0], points[1])
+	var to := to_window * Vector2(points[2], points[3])
+	var steps := 12
+	var touch := InputEventScreenTouch.new()
+	touch.position = from
+	touch.pressed = true
+	Input.parse_input_event(touch)
+	for step in range(1, steps + 1):
+		await get_tree().process_frame
+		var drag := InputEventScreenDrag.new()
+		drag.position = from.lerp(to, float(step) / steps)
+		drag.relative = (to - from) / steps
+		drag.velocity = drag.relative * 60.0
+		Input.parse_input_event(drag)
+	touch = InputEventScreenTouch.new()
+	touch.position = to
+	Input.parse_input_event(touch)

@@ -109,11 +109,14 @@ func ride(vehicle_id: String, passenger_ids: Array, duration: float) -> Tween:
 	player.shadow.visible = false
 	var crossing := create_tween().set_parallel().set_trans(Tween.TRANS_SINE)
 	crossing.tween_property(vehicle, "position", vehicle.position + way, duration)
+	if vehicle.shadow:
+		crossing.tween_property(vehicle.shadow, "position", vehicle.shadow.position + way, duration)
 	for number in aboard.size():
 		var seat := vehicle.position + SEATS[number % SEATS.size()]
-		# Standing a little in front of its foot, they are drawn over the vehicle.
-		aboard[number].position = seat
-		crossing.tween_property(aboard[number], "position", seat + way, duration)
+		# Standing a little in front of its foot, they are drawn over the vehicle. The crossing
+		# starts from the seat whatever happens before its first step: a player who walked up to
+		# the vehicle is still put on the cell they arrived on once more.
+		crossing.tween_property(aboard[number], "position", seat + way, duration).from(seat)
 	return crossing
 
 

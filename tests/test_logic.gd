@@ -600,6 +600,8 @@ func _test_story() -> void:
 	_check({"whole": "village"} in _use(session, "music_box"), "Music box does not make the village whole")
 	_check(_said(_use(session, "old_man"), "old_man.above"), "Old man does not remember the watch")
 	_check("wick" in session.state.items and "watch" in session.state.notes, "Old man does not hand over the wick")
+	session.state.world = "village"
+	_check(_linger(session, Vector2i(13, 15)).is_empty(), "Whole village still shows a memory")
 
 	# The watch.
 	session.state.world = "pond"

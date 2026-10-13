@@ -2,14 +2,22 @@ class_name NotebookView
 extends CanvasLayer
 ## The notebook: a small button in the corner that opens a page with everything the player has
 ## found. The button only shows once the player carries the notebook. While the page is open it
-## takes all taps. It closes with the cross in its corner or a tap beside the page.
+## takes all taps. It closes with the cross in its corner or a tap beside the page. Both columns
+## scroll by swiping up and down when they are longer than the page.
 
-const BUTTON_SIZE := 92.0
 ## Size of the area that reacts to a tap on the cross. Larger than the cross itself, for fingers.
 const CLOSE_SIZE := 76.0
+## The cross itself: how far its strokes reach from the centre, and how thick they are.
+const CLOSE_REACH := 15.0
+const CLOSE_STROKE := 5.0
 ## Item the player has to carry for the notebook to be there.
 const ITEM := "notebook"
-const BUTTON_COLOR := Color(0.09, 0.1, 0.14, 0.6)
+## The open book on the button: half its width, the height of a page at its outer edge, how
+## much higher the pages lie at the spine, and how far the cover shows below them.
+const BOOK_WIDTH := 25.0
+const BOOK_HEIGHT := 31.0
+const BOOK_RISE := 5.0
+const BOOK_COVER := 4.0
 ## Dots that show the condition of a piece of the world.
 const DOT_RADIUS := 11.0
 const DOT_SPACING := 36.0
@@ -21,26 +29,20 @@ var _entries: Array[Dictionary] = []
 var _selected := ""
 var _unread := false
 var _open := false
-var _button := Button.new()
+var _button := RoundButton.new(true)
 ## Dims the world behind the page and catches every tap beside it.
 var _page := ColorRect.new()
 var _close := Button.new()
 var _list := VBoxContainer.new()
 var _detail := VBoxContainer.new()
+var _list_scroll := ScrollContainer.new()
+var _detail_scroll := ScrollContainer.new()
 
 
 func _ready() -> void:
 	layer = 15
 	_notes = Notebook.read()
 
-	_button.theme_type_variation = &"IconButton"
-	_button.focus_mode = Control.FOCUS_NONE
-	_button.anchor_left = 1.0
-	_button.anchor_right = 1.0
-	_button.offset_left = -BUTTON_SIZE - 36.0
-	_button.offset_right = -36.0
-	_button.offset_top = 36.0
-	_button.offset_bottom = 36.0 + BUTTON_SIZE
 	_button.draw.connect(_draw_button)
 	_button.pressed.connect(open)
 	add_child(_button)
@@ -80,12 +82,16 @@ func _ready() -> void:
 	var columns := HBoxContainer.new()
 	columns.add_theme_constant_override("separation", 64)
 	paper.add_child(columns)
-	_list.custom_minimum_size.x = 460.0
+	_list_scroll.custom_minimum_size.x = 460.0
 	_list.add_theme_constant_override("separation", 18)
-	columns.add_child(_list)
-	_detail.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_detail_scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_detail.add_theme_constant_override("separation", 20)
-	columns.add_child(_detail)
+	# A column longer than the page scrolls by swiping up and down.
+	for column: Array in [[_list_scroll, _list], [_detail_scroll, _detail]]:
+		column[0].horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+		column[1].size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		column[0].add_child(column[1])
+		columns.add_child(column[0])
 
 
 func is_open() -> bool:
@@ -108,6 +114,8 @@ func open(note := "") -> void:
 	_open = true
 	_page.visible = true
 	_fill()
+	_detail_scroll.scroll_vertical = 0
+	_show_selected.call_deferred()
 	_button.queue_redraw()
 
 
@@ -151,8 +159,16 @@ func _hide_page() -> void:
 
 func _select(note: String) -> void:
 	_selected = note
+	_detail_scroll.scroll_vertical = 0
 	# The button that was pressed is one of those the page is built from anew.
 	_fill.call_deferred()
+
+
+## Scrolls the list so far that the selected entry is on the page.
+func _show_selected() -> void:
+	for entry: Control in _list.get_children():
+		if entry.theme_type_variation == &"PaperEntrySelected":
+			_list_scroll.ensure_control_visible(entry)
 
 
 func _fill() -> void:
@@ -232,33 +248,48 @@ func _note_button(text: String, variation: StringName, note: String) -> Button:
 	button.focus_mode = Control.FOCUS_NONE
 	button.alignment = HORIZONTAL_ALIGNMENT_LEFT
 	button.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	# A swipe that starts on the button still reaches the column and scrolls it.
+	button.mouse_filter = Control.MOUSE_FILTER_PASS
 	button.pressed.connect(_select.bind(note))
 	return button
 
 
+## A cross of two strokes with round ends. Its colour is the ink as it looks on the paper, mixed
+## beforehand: drawn with see-through ink, the strokes would be darker where they cross.
 func _draw_close() -> void:
-	var color := _theme_color(&"PaperSmall")
-	var inset := CLOSE_SIZE * 0.3
-	var far := CLOSE_SIZE - inset
-	_close.draw_line(Vector2(inset, inset), Vector2(far, far), color, 5.0, true)
-	_close.draw_line(Vector2(far, inset), Vector2(inset, far), color, 5.0, true)
-
-
-## A little book on a dark disc, with a dot while there is something unread.
-func _draw_button() -> void:
-	var centre := Vector2.ONE * BUTTON_SIZE * 0.5
-	_button.draw_circle(centre, BUTTON_SIZE * 0.5, BUTTON_COLOR)
+	var ink := _theme_color(&"PaperSmall")
 	var paper: StyleBoxFlat = _page.get_theme_stylebox(&"panel", &"Paper")
+	var color := paper.bg_color.lerp(Color(ink, 1.0), ink.a)
+	var centre := Vector2.ONE * CLOSE_SIZE * 0.5
+	for arm: Vector2 in [Vector2(1, 1), Vector2(1, -1)]:
+		var from := centre - arm * CLOSE_REACH
+		var to := centre + arm * CLOSE_REACH
+		_close.draw_line(from, to, color, CLOSE_STROKE, true)
+		for end: Vector2 in [from, to]:
+			_close.draw_circle(end, CLOSE_STROKE * 0.5, color, true, -1.0, true)
+
+
+## An open book: two pages that rise towards the spine, a few lines of writing on them and the
+## cover showing below. A dot at the rim while there is something unread.
+func _draw_button() -> void:
+	var mark := _theme_color(&"PaperLink")
+	var top := -BOOK_HEIGHT * 0.5 - 1.0
 	for side: float in [-1.0, 1.0]:
-		_button.draw_colored_polygon(
-			PackedVector2Array([
-				centre + Vector2(side * 3, -17), centre + Vector2(side * 27, -22),
-				centre + Vector2(side * 27, 16), centre + Vector2(side * 3, 21),
-			]),
-			paper.bg_color
-		)
+		var spine := Vector2(side * 1.5, top + BOOK_RISE)
+		var edge := Vector2(side * BOOK_WIDTH, top)
+		var down := Vector2(0, BOOK_HEIGHT)
+		_button.draw_area([spine, edge, edge + down, spine + down], _button.light)
+		# The cover is a band along the lower edge of the page.
+		var below := Vector2(0, BOOK_COVER)
+		_button.draw_area([spine + down, edge + down, edge + down + below, spine + down + below], mark)
+		for line in 3:
+			var from := Vector2(side * 6.0, top + 12.0 + line * 6.5)
+			var to := Vector2(side * (BOOK_WIDTH - 5.0), top + 8.0 + line * 6.5)
+			_button.draw_stroke(from, to, _button.light.lerp(mark, 0.55), 2.0)
 	if _unread:
-		_button.draw_circle(Vector2(BUTTON_SIZE - 14, 14), 11.0, _theme_color(&"PaperLink"))
+		var spot := Vector2(RoundButton.SIZE - 13.0, 13.0)
+		_button.draw_circle(spot, 13.0, _button.light, true, -1.0, true)
+		_button.draw_circle(spot, 9.5, mark, true, -1.0, true)
 
 
 ## Font colour of a variation in the theme.

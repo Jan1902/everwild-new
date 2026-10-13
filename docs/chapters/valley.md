@@ -15,7 +15,7 @@ Der Text ist zum Lesen und Diskutieren. Die Blöcke sind die verbindliche Fassun
 | `place` | ein Ort. Ein Punkt im Namen (`pond.island`) ist ein Teil derselben Welt, den man nicht immer erreicht. |
 | `way` | ein Weg von einem Ort zum anderen. `back` sagt, wann er zurück offen ist. |
 | `step` | etwas, das der Spieler tut. |
-| `memory` | ein Ort der Erinnerung. Wirkt, wenn der Spieler dort stehen bleibt. |
+| `memory` | ein Ort der Erinnerung. Wirkt, wenn der Spieler dort stehen bleibt, solange das Stück noch einen offenen Fehler hat oder im Ausschnitt etwas anders ist als früher. |
 | `talk` | ein Gesprächsstand einer Figur. `says` ist der Kern der Aussage, nicht der Wortlaut. |
 | `rule` | eine Folge, die von selbst eintritt und wieder vergeht, wenn `when` nicht mehr gilt. |
 | `path` | ein Abschnitt des gedachten Wegs, in dieser Reihenfolge spielbar. |
