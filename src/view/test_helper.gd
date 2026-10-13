@@ -21,6 +21,7 @@ extends Node
 ##                    arguments neither load nor save)
 ## --settings=path    the same for the settings of the pause page
 ## --start-screen     shows the start screen, which runs with arguments skip otherwise
+## --fade-in          lets the picture fade in at the start, which runs with arguments skip too
 ## --language=code    shows the texts in this language instead of the one of the device
 ## Afterwards the character's cell, the open faults, whether a dialogue is open, whether the game
 ## is paused, the music position and the language are printed and the game quits.

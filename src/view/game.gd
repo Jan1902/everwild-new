@@ -23,6 +23,10 @@ const QUAKE_DARKENING := 0.9
 const QUAKE_DARK := 1.6
 const QUAKE_DAWN := 4.5
 const QUAKE_SOUND := "res://assets/sounds/quake.wav"
+## The start of the app: the picture comes out of the colour the engine's splash screen and the
+## start screen have, after staying in it for a moment, in this many seconds.
+const START_DARK := 0.25
+const START_DAWN := 1.6
 ## A new game: seconds the picture takes to go dark, stays dark and takes to come back.
 const NEW_GAME_FADE := 0.5
 const NEW_GAME_DARK := 0.7
@@ -156,6 +160,9 @@ func _ready() -> void:
 		start.dismissed.connect(_on_start_dismissed)
 		add_child(start)
 	_build_stage()
+	# Runs driven by the test helper start at once, unless they ask for the fade.
+	if _started and (_arguments.is_empty() or "--fade-in" in _arguments):
+		_fade_in()
 
 	if not _arguments.is_empty():
 		add_child(TestHelper.new())
@@ -642,6 +649,21 @@ func _build_grading() -> void:
 	canvas.layer = 10
 	canvas.add_child(rect)
 	add_child(canvas)
+
+
+## Lets the picture come out of the colour of the splash screen, so the game does not cut in.
+## While it does, nothing can be done.
+func _fade_in() -> void:
+	_travelling = true
+	_curtain.color = StartScreen.BACKGROUND
+	_scene = create_tween()
+	_scene.tween_interval(START_DARK)
+	_scene.tween_property(_curtain, "color:a", 0.0, START_DAWN).set_trans(Tween.TRANS_SINE)
+	# Every other fade goes to black.
+	_scene.tween_callback(func() -> void:
+		_curtain.color = Color(0, 0, 0, 0)
+		_travelling = false
+	)
 
 
 func _build_curtain() -> void:

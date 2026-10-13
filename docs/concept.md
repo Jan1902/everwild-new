@@ -198,6 +198,15 @@ Ausgeschieden: Suno (keine offizielle API, Download-Limits), Udio (kein Export m
 
 **Zu den Stems:** Die Stem-Trennung stammt aus einer Suchzusammenfassung, nicht aus der geprüften Doku, und ihre Qualität bei ruhiger Ambient-Musik ist ungetestet. Ein Teil der „falschen“ Wirkung braucht keine Stems: Verstimmen, Filtern oder Rückwärtslaufen geht in Godot direkt auf dem ganzen Stück.
 
+### Nutzungsrechte (geprüft am 2026-10-13, keine Rechtsberatung)
+
+Tatsächlich benutzt sind: für alle Bilder OpenAI GPT Image über die API, für alle sechs Musikstücke Google Lyria über die Gemini API (nicht ElevenLabs, anders als oben empfohlen). Das Grollen des Risses und das App-Symbol sind selbst errechnet oder aus eigenen Bildern zusammengesetzt.
+
+- **Bilder (OpenAI):** Nach dem Services Agreement (Stand 1. Januar 2026) gehört die Ausgabe dem Kunden, OpenAI tritt eigene Rechte daran ab. Kommerzielle Nutzung ist damit erlaubt. Die Service Terms stellen API-Kunden von Ansprüchen Dritter wegen der Ausgabe frei, mit Ausnahmen (unter anderem, wenn die Ausgabe verändert oder mit Fremdem kombiniert wurde; unsere Bilder sind zugeschnitten und nachbearbeitet). Ausgaben sind nicht exklusiv.
+- **Musik (Google Lyria):** Die Zusatzbedingungen der Gemini API (Stand 23. März 2026) sagen, dass Google kein Eigentum an erzeugten Inhalten beansprucht und der Nutzer für deren Verwendung verantwortlich ist. Eine ausdrückliche Erlaubnis zur kommerziellen Nutzung und eine Freistellung stehen dort nicht. Jedes Stück trägt ein unhörbares SynthID-Wasserzeichen. Wer Nutzer im EWR bedient, darf nur die bezahlte Stufe der API verwenden.
+- **Schutz der eigenen Inhalte:** Rein generierte Bilder und Musik sind nach heutigem Stand in Deutschland nur geschützt, soweit ein Mensch sie erkennbar gestaltet hat; die Gerichte sind sich über die Schwelle nicht einig. Andere könnten einzelne Bilder oder Stücke also womöglich übernehmen, ohne dass sich das verbieten lässt. Code, Texte und Weltdateien sind davon nicht betroffen.
+- **Offen:** ob der Google-Schlüssel auf der bezahlten Stufe lief (Jan), die genauen Store-Regeln zur Kennzeichnung generierter Inhalte zum Zeitpunkt der Veröffentlichung, und vor einem öffentlichen Verkauf ein Blick einer Fachperson auf die Musik-Bedingungen.
+
 ### Benötigte Zugänge
 
 - OpenAI-API-Key
@@ -220,6 +229,7 @@ Keys gehören in eine lokale `.env`-Datei, die nicht ins Repository kommt.
 - **Ein offener Weg leuchtet von selbst:** Das Licht in einem offenen Bogen folgt nicht der Stimmung der Welt wie das der Laternen. Es ist heller, größer und atmet langsam, damit man auch im dunklen, kaputten Stück sieht, dass der Bogen trägt (`shimmer` in `data/sprites.json`).
 - **Eine Aufgabe je Gespräch (Jan, 2026-10-13):** Eine Figur gibt nicht zwei Aufgaben auf einmal. Der Müller spricht zuerst nur von der Kurbel; von der Wetterfahne und seinem Platz erst, wenn die Mühle rückwärts läuft. Bis dahin lässt sich die Fahne nicht drehen und sein Platz zeigt keine Erinnerung.
 - **Der Wasserstand ist ein Regler (Jan, 2026-10-13):** Neben der Fließrichtung hat das Wasser einen Stand (`level`, 1 voll, 0 trocken). Sinkt er, legt ein Shader das Bett frei, vom Ufer nach innen: Ein schmaler Bach ist längst trocken, wenn in der Mitte eines Weihers noch Wasser steht. Der Boden bleibt dabei dasselbe Bild. Das Wehr an der Quelle bringt den Stand in Dorf, Quelle und Weiher zurück.
+- **Die App beginnt mit einer Blende (Jan, 2026-10-13):** Der Startbildschirm der Engine, der Hinweis auf Kopfhörer und die erste Blende haben dieselbe dunkle Farbe. Das Spiel kommt daraus langsam hervor, statt hart einzusetzen.
 - **Ein neues Spiel beginnt mit einer Blende:** Das Bild wird dunkel und kommt zurück, die Musik setzt neu ein. Ohne das sah ein Neubeginn im Haus des Alten aus, als sei nichts geschehen.
 - **Das App-Symbol kommt aus dem Spiel:** die schwebende Warte mit einem offenen, leuchtenden Bogen unter einem Abendhimmel, zusammengesetzt aus vorhandenen Bildern, nicht eigens generiert.
 - **Was den Besitzer wechselt, wird gezeigt (Jan, 2026-10-13):** Steckt die Figur etwas ein oder gibt sie etwas ab, steht das als blasse Randnotiz in der Ecke des Dialogfelds, neben dem Namen: „+ Kurbel“ oder „− Kurbel“, solange der Satz dazu zu sehen ist. Der Text allein hat nicht klargemacht, dass man die Kurbel jetzt hat. Ein eigenes Schild am oberen Rand war zu aufdringlich und sah nach Inventar aus, das es nicht gibt. Das gilt für jede Regel mit `give` oder `take`, auf die ein `say` folgt.
@@ -300,7 +310,7 @@ Die gesamte kreative und aufwändige Arbeit:
 - **Stil-Konsistenz:** Für fünf Objekte und ein Bodenbild bestätigt (Abschnitt 7). Offen ist, ob sie über 30 und mehr Objekte und über mehrere Welten hält.
 - **Verdeckung:** Hohe Objekte wie Häuser verdecken Wege und die Figur dahinter. Braucht eine Lösung, etwa Objekte durchscheinend machen, wenn die Figur dahinter steht.
 - **Figuren-Animation:** Der schwierigste Teil bei generierter Grafik. Lösung offen (wenige Frames, kleine Figur).
-- **Modellauswahl:** Recherchiert (Abschnitt 7), aber noch nicht entschieden. Ungeprüft sind: Kosten pro Bild bei GPT Image 2.5, Nutzungsrechte an den Bildern bei allen Bildanbietern, die Stem-Trennung von ElevenLabs und ihre Lizenz.
+- **Modellauswahl:** Recherchiert (Abschnitt 7), aber noch nicht entschieden. Die Nutzungsrechte der tatsächlich benutzten Dienste (OpenAI für Bilder, Google Lyria für Musik) sind geprüft, siehe Abschnitt 7. Ungeprüft sind die Stem-Trennung von ElevenLabs und ihre Lizenz, falls die Musik später in Schichten entstehen soll.
 - **Story:** Das Grundgerüst steht (Abschnitt 3). Offen sind: was den Bruch auslöst, wer der Spieler ist und warum ihn Fremde kennen (hat er selbst etwas vergessen?), ob der alte Mann beim Bruch eine Rolle spielt, wie das Spiel endet und welche Bruchstücke es gibt.
 - **Umfang:** Anzahl der Welten für eine erste Version.
 

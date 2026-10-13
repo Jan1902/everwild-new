@@ -16,6 +16,7 @@ run/main_scene="res://scenes/game.tscn"
 config/quit_on_go_back=false
 config/features=PackedStringArray("4.7", "Mobile")
 config/icon="res://assets/icon/icon.png"
+boot_splash/bg_color=Color(0.09, 0.1, 0.14, 1)
 
 [display]
 
