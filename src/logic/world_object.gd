@@ -6,6 +6,8 @@ extends RefCounted
 const CHANGEABLE := ["cell", "mirrored", "hidden", "state"]
 ## Kinds that lie flat on the ground: they block nothing and the character walks over them.
 const FLAT_KINDS := ["bridge", "raft", "stepping_stones"]
+## Kinds that stand in the bed of the water instead of on firm ground.
+const WET_KINDS := ["steps", "steps_down"]
 
 var id := ""
 var kind := ""
@@ -23,6 +25,10 @@ var access: Array[Vector2i] = []
 
 func is_flat() -> bool:
 	return kind in FLAT_KINDS
+
+
+func is_wet() -> bool:
+	return kind in WET_KINDS
 
 
 func copy() -> WorldObject:

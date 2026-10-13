@@ -15,6 +15,9 @@
 	"pause.confirm_no": "Nein, zurück",
 	"notebook.whole": "Wieder heil",
 	"notebook.broken": "Hier stimmt noch etwas nicht",
+	"item.crank": "Kurbel",
+	"item.wick": "Docht",
+	"item.notebook": "Notizbuch",
 	"banner.whole": "%s ist wieder heil",
 	"kind.memory": "Erinnerung",
 	"kind.piece": "Weltstück",
@@ -147,20 +150,25 @@
 	],
 	"old_man.borrowed": [
 		"Die Spieluhr schweigt. Hörst du? Eben.",
-		"Ich habe sie immer aufgezogen mit … es liegt im Schrank. Es gehört mir nicht.",
-		"Ich gebe nichts heraus, von dem ich nicht weiß, wem es gehört. So war ich schon immer. Glaube ich."
-	],
-	"cupboard.guarded": [
-		"Lass den Schrank zu.",
-		"Was da liegt, ist geliehen. Sag mir, von wem, dann sehen wir weiter."
+		"Ich habe sie immer aufgezogen mit … einem Ding. Geliehen. Von wem, weiß ich nicht mehr.",
+		"Ich habe es weggepackt, damit es nicht verloren geht. Irgendwohin. Seit Jahren finde ich es nicht."
 	],
 	"old_man.yours": [
-		"Der Müller, sagst du? Der Müller! Natürlich.",
-		"Dann gehört sie ihm. Bring sie ihm. Und grüß ihn. Er weiß schon, von wem."
+		"Der Müller, sagst du? Eine Kurbel? Die Kurbel! Natürlich.",
+		"Dann gehört sie ihm. Ich habe sie weggepackt, irgendwohin. Seit Jahren finde ich sie nicht.",
+		"Wenn du sie findest, bring sie ihm. Und grüß ihn. Er weiß schon, von wem."
 	],
 	"cupboard.crank": [
-		"Er öffnet den Schrank. Zwischen alten Decken liegt eine schwere eiserne Kurbel.",
-		"Ich nehme sie mit."
+		"Decken. Noch mehr Decken. Dahinter etwas Schweres, Kaltes.",
+		"Eine eiserne Kurbel. Ich nehme sie mit."
+	],
+	"old_man.found": [
+		"Im Schrank? Da habe ich hundertmal nachgesehen.",
+		"Glaube ich."
+	],
+	"cupboard.plain": [
+		"Ein alter Schrank. Decken, Leinen, ein Geruch nach Lavendel.",
+		"Ich wüsste nicht, wonach ich hier suchen sollte."
 	],
 	"old_man.carry": [
 		"Bring sie dem Müller.",
@@ -275,6 +283,14 @@
 	"raft.away": [
 		"Hier führte ein Floß über den Bach.",
 		"Es liegt jetzt oben im Teich, am anderen Ufer. Der Wind muss es hinübergetrieben haben."
+	],
+	"sluice.unknown_below": [
+		"Ein Wehr. Dahinter staut sich das Wasser, das Bett darunter liegt trocken.",
+		"Wenn ich es öffne, läuft das Bett voll. Am Rand führen Stufen dort hinunter. Ich sollte erst sehen, wohin."
+	],
+	"sluice.dark_below": [
+		"Wenn ich das Wehr öffne, läuft das Bett voll, und unten im Weiher gehen die Trittsteine unter.",
+		"Auf der Insel dort ist es noch dunkel. Erst das."
 	],
 	"sluice.opens": [
 		"Das Wehr gibt nach. Das Wasser läuft ab, den Bach hinunter.",
@@ -400,7 +416,7 @@
 	"note.light_means_home.title": "Licht vor der Tür",
 	"note.light_means_home.text": "Im Dorf heißt ein dunkles Haus: niemand daheim. Dann klopft man auch nicht.",
 	"note.lent_thing.title": "Etwas Geliehenes",
-	"note.lent_thing.text": "Im Schrank des Alten liegt etwas, womit er die Spieluhr aufzog. Es gehört ihm nicht. Er weiß nicht mehr, wem.",
+	"note.lent_thing.text": "Der Alte zog die Spieluhr mit etwas Geliehenem auf. Er hat es weggepackt und findet es seit Jahren nicht. Wem es gehört, weiß er nicht mehr.",
 	"note.millers_crank.title": "Die Kurbel des Müllers",
 	"note.millers_crank.text": "Der Müller hat seine Kurbel verliehen, an einen, der etwas Kleines aufziehen wollte. An wen, weiß er nicht mehr.",
 	"note.still_place.title": "Wo es zurückkommt",

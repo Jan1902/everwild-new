@@ -21,6 +21,7 @@ func _init() -> void:
 
 	_label(theme, &"DialogueName", 30, WARM)
 	_label(theme, &"DialogueText", 40, PALE)
+	_label(theme, &"DialogueMark", 28, Color(WARM, 0.7))
 	_panel(theme, &"DialoguePanel", Color(NIGHT, 0.84), 18, 36)
 
 	_label(theme, &"PaperHeading", 44, INK)

@@ -495,13 +495,13 @@ func _test_story() -> void:
 	_check(session.state.world == "house_inside", "Door of the lit house does not lead inside")
 
 	_check(_said(_use(session, "old_man"), "old_man.first"), "Old man does not greet the player")
-	_check(_said(_use(session, "cupboard"), "cupboard.guarded"), "Cupboard opens unasked")
+	_check(_said(_use(session, "cupboard"), "cupboard.plain"), "Cupboard shows more than blankets before anyone looks for the crank")
 	_check("crank" not in session.state.items, "Crank can be taken without knowing whose it is")
 	_use(session, "table")
 	_check("notebook" in session.state.items, "Notebook cannot be taken from the table")
 	_check("lee_of_stone" in session.state.notes, "What the player learned before is not in the notebook")
 	_check(_said(_use(session, "old_man"), "old_man.borrowed"), "Old man does not tell about the borrowed thing")
-	_check(_said(_use(session, "cupboard"), "cupboard.guarded"), "Old man hands out the crank without a name")
+	_check(_said(_use(session, "cupboard"), "cupboard.plain"), "Crank is found before the player knows what to look for")
 	_check(_said(_use(session, "music_box"), "music_box.silent"), "Music box plays without a crank")
 	session.enter(Vector2i(2, 5))
 
@@ -535,7 +535,8 @@ func _test_story() -> void:
 
 	# The crank and the mill.
 	_use(session, "house_west")
-	_check(_said(_use(session, "old_man"), "old_man.yours") and "crank" in session.state.items, "Old man does not hand over the crank once the player knows whose it is")
+	_check(_said(_use(session, "old_man"), "old_man.yours") and "crank" not in session.state.items, "Old man still hands the crank over himself")
+	_check(_said(_use(session, "cupboard"), "cupboard.crank") and "crank" in session.state.items, "Crank is not found in the cupboard once the old man has told about it")
 	_check(_use(session, "cupboard").is_empty(), "Crank can be taken twice")
 	_check(_said(_use(session, "music_box"), "music_box.wrong"), "Music box plays right in the broken village")
 	session.enter(Vector2i(2, 5))
@@ -556,12 +557,16 @@ func _test_story() -> void:
 	_use(session, "arch_on")
 	_check(session.state.world == "village", "Arch of the spring does not skip the forgotten pond")
 	session.state.world = "spring"
+	_check(_said(_use(session, "sluice"), "sluice.unknown_below"), "Sluice opens before the player has seen what lies below")
 	_use(session, "steps")
 	_check(session.state.world == "pond" and "pond" in session.state.notes, "Dry bed does not lead down to the pond")
 	var pond := session.world()
 	_check(pond.find_path(Vector2i(3, 5), Vector2i(6, 5)).size() > 0, "Stepping stones do not carry at low water")
 	_check(_said(_use(session, "fisher"), "fisher.mud"), "Fisherwoman does not tell about the mud")
 	_check(_said(_use(session, "boat"), "boat.hers"), "Boat goes in the mud")
+	session.state.world = "spring"
+	_check(_said(_use(session, "sluice"), "sluice.dark_below"), "Sluice opens while the island in the pond is still dark")
+	session.state.world = "pond"
 	_use(session, "pond_lantern")
 	_check(_said(_use(session, "fisher"), "fisher.light_on"), "Fisherwoman does not see the light")
 	_use(session, "steps")

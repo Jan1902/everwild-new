@@ -15,6 +15,9 @@
 	"pause.confirm_no": "No, go back",
 	"notebook.whole": "Whole again",
 	"notebook.broken": "Something is still wrong here",
+	"item.crank": "crank",
+	"item.wick": "wick",
+	"item.notebook": "notebook",
 	"banner.whole": "%s is whole again",
 	"kind.memory": "Memory",
 	"kind.piece": "Piece of the world",
@@ -147,20 +150,25 @@
 	],
 	"old_man.borrowed": [
 		"The music box is silent. Do you hear? Exactly.",
-		"I always wound it with … it is in the cupboard. It is not mine.",
-		"I hand out nothing unless I know whose it is. I have always been like that. I think."
-	],
-	"cupboard.guarded": [
-		"Leave the cupboard shut.",
-		"What lies in there is borrowed. Tell me from whom, then we shall see."
+		"I always wound it with … a thing. Borrowed. From whom, I no longer know.",
+		"I put it away so it would not get lost. Somewhere. I have not found it for years."
 	],
 	"old_man.yours": [
-		"The miller, you say? The miller! Of course.",
-		"Then it is his. Take it to him. And greet him. He will know from whom."
+		"The miller, you say? A crank? The crank! Of course.",
+		"Then it is his. I put it away, somewhere. I have not found it for years.",
+		"If you find it, take it to him. And give him my regards. He will know from whom."
 	],
 	"cupboard.crank": [
-		"He opens the cupboard. Between old blankets lies a heavy iron crank.",
-		"I take it."
+		"Blankets. More blankets. Behind them something heavy and cold.",
+		"An iron crank. I take it along."
+	],
+	"old_man.found": [
+		"In the cupboard? I have looked there a hundred times.",
+		"I think."
+	],
+	"cupboard.plain": [
+		"An old cupboard. Blankets, linen, a smell of lavender.",
+		"I would not know what to look for in here."
 	],
 	"old_man.carry": [
 		"Take it to the miller.",
@@ -275,6 +283,14 @@
 	"raft.away": [
 		"A raft used to lead across the brook here.",
 		"Now it lies up in the pool, on the far bank. The wind must have driven it over."
+	],
+	"sluice.unknown_below": [
+		"A sluice. Behind it the water is held back, the bed below lies dry.",
+		"If I open it, the bed will fill. At the edge, steps lead down there. I should see where to first."
+	],
+	"sluice.dark_below": [
+		"If I open the sluice, the bed will fill, and down in the pond the stepping stones will go under.",
+		"On the island there it is still dark. That first."
 	],
 	"sluice.opens": [
 		"The sluice gives way. The water runs off, down the brook.",
@@ -400,7 +416,7 @@
 	"note.light_means_home.title": "Light at the door",
 	"note.light_means_home.text": "In the village a dark house means: nobody home. Then you do not knock either.",
 	"note.lent_thing.title": "Something borrowed",
-	"note.lent_thing.text": "In the old man's cupboard lies the thing he wound the music box with. It is not his. He no longer knows whose.",
+	"note.lent_thing.text": "The old man wound the music box with something borrowed. He put it away and has not found it for years. Whose it is, he no longer knows.",
 	"note.millers_crank.title": "The miller's crank",
 	"note.millers_crank.text": "The miller lent out his crank, to someone who wanted to wind something small. He no longer knows to whom.",
 	"note.still_place.title": "Where it comes back",

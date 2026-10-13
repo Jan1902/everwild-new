@@ -164,6 +164,8 @@ func errors() -> Array[String]:
 		var flat := thing.is_flat()
 		for cell in thing.occupied_cells():
 			var fits := ground(cell) == Ground.BRIDGE if flat else ground(cell) in FIRM
+			if thing.is_wet():
+				fits = ground(cell) == Ground.WATER
 			if not fits:
 				list.append("Object '%s' at %s stands on the wrong ground" % [thing.id, cell])
 			if not flat and seen.has(cell):

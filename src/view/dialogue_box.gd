@@ -3,12 +3,17 @@ extends CanvasLayer
 ## Shows what someone says, line by line, at the bottom of the screen. A tap shows the whole
 ## line at once, the next tap moves on. Once a line is complete, a small pulsing arrow shows that
 ## a tap continues. While the box is open it takes all taps, wherever they land.
+##
+## Lines can carry a mark: a few faint words in the corner of the box, beside the name, that
+## note what the line leaves unsaid, such as a thing that has just changed hands.
 
 ## Characters per second the text appears with.
 const SPEED := 45.0
 ## Seconds a line has to be on screen before a tap counts, so a tap meant for the world does
 ## not skip it.
 const GRACE := 0.25
+## Seconds a mark takes to appear.
+const MARK_FADE := 0.7
 
 ## The last line has been tapped away.
 signal closed
@@ -17,8 +22,10 @@ signal closed
 var _cover := Control.new()
 var _name := Label.new()
 var _text := Label.new()
+var _mark := Label.new()
+var _mark_fade: Tween
 var _arrow := Control.new()
-## Lines still to come, each with "who" (name, may be empty) and "line".
+## Lines still to come, each with "who" (name, may be empty), "line" and "mark" (may be empty).
 var _queue: Array[Dictionary] = []
 var _open := false
 var _shown_for := 0.0
@@ -50,8 +57,15 @@ func _ready() -> void:
 	column.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	panel.add_child(column)
 
+	# The name on the left, the mark in the opposite corner.
+	var heading := HBoxContainer.new()
+	heading.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	column.add_child(heading)
 	_name.theme_type_variation = &"DialogueName"
-	column.add_child(_name)
+	_name.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	heading.add_child(_name)
+	_mark.theme_type_variation = &"DialogueMark"
+	heading.add_child(_mark)
 
 	_text.theme_type_variation = &"DialogueText"
 	_text.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -75,10 +89,11 @@ func is_open() -> bool:
 	return _open
 
 
-## Adds lines to show. who is the name of the speaker, empty for none.
-func say(who: String, lines: Array[String]) -> void:
+## Adds lines to show. who is the name of the speaker, empty for none. A mark stays in the
+## corner of the box for as long as these lines are on show.
+func say(who: String, lines: Array[String], mark := "") -> void:
 	for line in lines:
-		_queue.append({"who": who, "line": line})
+		_queue.append({"who": who, "line": line, "mark": mark})
 	if not is_open():
 		_next()
 
@@ -148,7 +163,14 @@ func _next() -> void:
 		return
 	var entry: Dictionary = _queue.pop_front()
 	_name.text = entry.who
-	_name.visible = not entry.who.is_empty()
+	# A mark that is new comes in softly; one that stays from the line before just stays.
+	if entry.mark != _mark.text or not _open:
+		if _mark_fade:
+			_mark_fade.kill()
+		_mark.text = entry.mark
+		_mark.modulate.a = 0.0
+		_mark_fade = create_tween()
+		_mark_fade.tween_property(_mark, "modulate:a", 1.0, MARK_FADE)
 	_text.text = entry.line
 	_text.visible_characters = 0
 	_shown_for = 0.0

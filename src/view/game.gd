@@ -425,15 +425,23 @@ func _show(effects: Array) -> void:
 	_forget()
 	_notebook.refresh()
 	var leaving := effects.find_custom(func(effect: Dictionary) -> bool: return effect.has("go"))
+	# What has changed hands since the last thing said. Words alone do not always make that
+	# clear, so the next thing said carries it as a mark in the corner of the dialogue.
+	var changed_hands := []
 	for number in effects.size():
 		var effect: Dictionary = effects[number]
+		if effect.has("give"):
+			changed_hands.append("+ " + Texts.text("item." + effect["give"]))
+		if effect.has("take"):
+			changed_hands.append("− " + Texts.text("item." + effect["take"]))
 		if effect.has("note"):
 			_notebook.mark_unread()
 		if effect.has("whole"):
 			_celebrate(effect["whole"])
 		# What is said after leaving waits for the arrival.
 		if effect.has("say") and (leaving < 0 or number < leaving):
-			_say(effect)
+			_say(effect, "   ".join(changed_hands))
+			changed_hands.clear()
 	if leaving >= 0:
 		_travel(effects[leaving], effects.slice(leaving + 1))
 	else:
@@ -442,9 +450,9 @@ func _show(effects: Array) -> void:
 	save()
 
 
-func _say(effect: Dictionary) -> void:
+func _say(effect: Dictionary, mark := "") -> void:
 	# Lines without a speaker are the player talking to themselves.
-	_dialogue.say(Texts.text("name." + effect.get("who", "self")), Texts.lines(effect["say"]))
+	_dialogue.say(Texts.text("name." + effect.get("who", "self")), Texts.lines(effect["say"]), mark)
 
 
 ## Marks the moment a world has become whole: its name appears for a while, the notebook has

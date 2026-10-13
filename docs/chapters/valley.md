@@ -212,8 +212,8 @@ hint: old_man.book_on_table
 ```step
 id: take_crank
 at: house_inside
-does: Den Alten ansprechen oder den Schrank antippen. Weiß der Spieler vom Müller, gibt der Alte die Kurbel heraus.
-needs: note.millers_crank
+does: Den Schrank antippen und die Kurbel zwischen den Decken finden. Das geht erst, wenn der Alte gesagt hat, dass er sie weggepackt hat und nicht mehr findet; das sagt er, sobald der Spieler vom Müller weiß. Eine Randnotiz im Dialogfeld zeigt, dass die Kurbel eingesteckt ist.
+needs: note.millers_crank, fact.crank_sought
 gives: item.crank
 hint: old_man.lent_thing, miller.millers_crank
 ```
@@ -386,7 +386,7 @@ back: always
 ```way
 from: spring.far
 to: pond
-by: Stufen am unteren Ende des Ostufers, dann zu Fuß durch das trockene Bachbett
+by: Stufen am Ende des Bachbetts, wo der Bach über den Rand fällt (vom Ostufer aus), dann zu Fuß durch das trockene Bett
 needs: not fact.water
 back: same
 ```
@@ -404,7 +404,8 @@ hint: sight
 ```step
 id: open_sluice
 at: spring.far
-does: Das Wehr öffnen.
+does: Das Wehr öffnen. Es lässt sich erst öffnen, wenn die Laterne auf der Insel im Weiher brennt: Vorher würde das Wasser nur den Weg dorthin versperren, und die Figur sagt, warum sie es lässt.
+needs: fact.island_lantern
 gives: fact.water
 fixes: spring.sluice
 undo: close_sluice
@@ -577,7 +578,7 @@ id: old_man.borrowed
 who: old_man
 when: item.notebook, not fact.mill_runs
 knows: lent_thing, music_box
-says: Die Spieluhr schweigt. Er hat sie immer mit etwas aufgezogen, das ihm nicht gehört. Es liegt im Schrank, und er gibt nichts heraus, von dem er nicht weiß, wem es gehört.
+says: Die Spieluhr schweigt. Er hat sie immer mit etwas aufgezogen, das ihm nicht gehört. Er hat es weggepackt, irgendwohin, und findet es seit Jahren nicht. Von wem es ist, weiß er nicht mehr.
 gives: note.lent_thing
 ```
 
@@ -751,7 +752,7 @@ minutes: 6
 order: take_crank, start_mill, miller.backwards, millers_seat, set_vane
 ```
 
-Der Schrank öffnet sich erst, wenn der Spieler beide Hälften kennt. Mit der Kurbel läuft die Mühle zuerst rückwärts; die richtige Richtung der Fahne zeigt die Erinnerung am Platz des Müllers. Mit dem richtigen Wind halten alle Laternen ohne Stein, und das Floß treibt zurück.
+Die Kurbel findet sich erst, wenn der Spieler beide Hälften kennt: Dann sagt der Alte, dass er sie weggepackt hat und nicht mehr findet, und der Spieler sucht im Schrank. Mit der Kurbel läuft die Mühle zuerst rückwärts; die richtige Richtung der Fahne zeigt die Erinnerung am Platz des Müllers. Mit dem richtigen Wind halten alle Laternen ohne Stein, und das Floß treibt zurück.
 
 ```path
 part: Quelle und Weiher
