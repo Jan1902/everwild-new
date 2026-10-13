@@ -210,7 +210,7 @@
 		"Since the Rift she stands still. Not a sail moves. Not a breath of air up here.",
 		"The crank is missing. I lent it out. To someone who wanted to wind something. Something small.",
 		"To whom … it is on the tip of my tongue. Has been for weeks. Or years.",
-		"I stand here every evening and watch the weather. Now there is none. Only sometimes, when I stand quite still …"
+		"I stand here every evening and watch the weather. Now there is none."
 	],
 	"miller.have_crank": [
 		"That is it! Where from … never mind.",
@@ -241,6 +241,14 @@
 		"The vane clicks into place.",
 		"The sails stop. Then they turn the other way.",
 		"The wind is back. The right one."
+	],
+	"vane.idle": [
+		"A weather vane. It points to the edge of the hill.",
+		"Not a breath of air. It does not stir."
+	],
+	"vane.unsure": [
+		"I could turn it.",
+		"But which way did it point?"
 	],
 	"vane.fixed": [
 		"The miller has fastened the weather vane.",
@@ -408,11 +416,11 @@
 	"note.fishers_evening.title": "The jetty",
 	"note.fishers_evening.text": "The fisherwoman sat on the jetty by her house every evening. From there you could see a great light above the water.",
 	"note.arch_village.title": "The arch in the village",
-	"note.arch_village.text": "A stone arch stood at the eastern edge. When I remembered it, it stood there again. Beside it I saw a stone lying where none lies now.",
+	"note.arch_village.text": "A stone arch stood at the eastern edge. When I remembered it, it stood there again.",
 	"note.stone_places.title": "The stone by the bridge",
 	"note.stone_places.text": "It lay beside the bridge in the grass. Not on the path and not in front of the house.",
 	"note.vane_direction.title": "The weather vane",
-	"note.vane_direction.text": "From the miller's place I saw the mill as it was. The vane pointed to the far edge of the hill, away from the path.",
+	"note.vane_direction.text": "From the miller's place I saw the mill as it was. The vane pointed towards the mill.",
 	"note.big_light.title": "The great light",
 	"note.big_light.text": "From the fisherwoman's jetty I saw it: a great light high above the water. There must be another piece up there.",
 	"note.lookout.title": "The old man's place",

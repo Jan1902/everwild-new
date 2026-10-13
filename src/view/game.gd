@@ -13,6 +13,16 @@ const MOOD_CHANGE_DURATION := 2.5
 const TRAVEL_FADE := 0.35
 ## Seconds a crossing aboard something takes.
 const RIDE_DURATION := 4.0
+## The quake a "go" effect can ask for: seconds the ground shakes while the music runs down, how
+## far the picture is thrown about at the end (in pixels of the world), seconds the picture takes
+## to go dark at the end of the shaking, seconds it stays dark, and seconds the light takes to
+## return. The sound (tools/quake_sound.py) is made for the same times.
+const QUAKE_DURATION := 2.8
+const QUAKE_SHAKE := 16.0
+const QUAKE_DARKENING := 0.9
+const QUAKE_DARK := 1.6
+const QUAKE_DAWN := 4.5
+const QUAKE_SOUND := "res://assets/sounds/quake.wav"
 ## Seconds the player has to stand still before rules that wait for lingering fire.
 const LINGER_DELAY := 3.5
 ## Remembering: seconds the remembered part of the world takes to show through and to fade
@@ -62,6 +72,9 @@ var _pause := PauseView.new()
 var _banner := Banner.new()
 var _settings: Settings
 var _travelling := false
+## The scene a change of worlds is making, if it is one, and its sound.
+var _scene: Tween
+var _rumble := AudioStreamPlayer.new()
 ## False while the start screen is up. The music waits for it.
 var _started := true
 ## Seconds the player has been standing still, and whether this standstill has shown its memory.
@@ -112,6 +125,11 @@ func _ready() -> void:
 	_build_grading()
 	_build_curtain()
 	add_child(_music)
+	# Until sounds have a bus of their own, the one sound there is follows the music volume.
+	_rumble.bus = Music.BUS
+	if ResourceLoader.exists(QUAKE_SOUND):
+		_rumble.stream = load(QUAKE_SOUND)
+	add_child(_rumble)
 	_music.set_volume(_settings.music_volume)
 	add_child(_banner)
 	add_child(_notebook)
@@ -238,6 +256,10 @@ func new_game() -> void:
 	session = Session.create(_game)
 	session.state.start_screen_seen = seen
 	_travelling = false
+	if _scene:
+		_scene.kill()
+	_rumble.stop()
+	_camera.offset = Vector2.ZERO
 	_curtain.color.a = 0.0
 	_dialogue.clear()
 	_notebook.reset()
@@ -426,8 +448,8 @@ func _set_glow(amount: float) -> void:
 
 
 ## Shows the place the player has been moved to. What is being said is heard out first. Then the
-## player crosses aboard what the "go" effect names, or the picture fades to black for a moment.
-## What was said after leaving follows on arrival.
+## player crosses aboard what the "go" effect names, the ground quakes if it asks for that, or
+## the picture fades to black for a moment. What was said after leaving follows on arrival.
 func _travel(go: Dictionary, afterwards: Array) -> void:
 	var travelling := session
 	_travelling = true
@@ -435,7 +457,9 @@ func _travel(go: Dictionary, afterwards: Array) -> void:
 	stage.player.walk([] as Array[Vector2i])
 	if _dialogue.is_open():
 		await _dialogue.closed
-	if go.has("by") and session == travelling:
+	if go.get("as", "") == "quake" and session == travelling:
+		await _quake()
+	elif go.has("by") and session == travelling:
 		await stage.ride(go["by"], go.get("with", []), RIDE_DURATION).finished
 		if session == travelling:
 			_build_stage()
@@ -448,10 +472,48 @@ func _travel(go: Dictionary, afterwards: Array) -> void:
 	# A new game may have begun in the meantime. Then this journey is no longer anybody's.
 	if session != travelling:
 		return
-	_travelling = false
 	for effect: Dictionary in afterwards:
 		if effect.has("say"):
 			_say(effect)
+	# A player lying on the ground gets up once they have come to, which is what they say there.
+	if stage.player.is_lying():
+		if _dialogue.is_open():
+			await _dialogue.closed
+		if session != travelling:
+			return
+		await stage.player.get_up().finished
+		if session != travelling:
+			return
+	_travelling = false
+
+
+## The ground shakes harder and harder while the music runs down, and the picture goes dark.
+## After a while in the dark the light slowly returns on the place the player has been moved
+## to, where they lie on the ground.
+func _quake() -> void:
+	# The mood on show stays as it is, so nothing sets the pitch of the music anew.
+	if _mood_change:
+		_mood_change.kill()
+	_music.sink(QUAKE_DURATION)
+	_rumble.play()
+	_scene = create_tween().set_parallel()
+	_scene.tween_method(_shake, 0.0, 1.0, QUAKE_DURATION).set_ease(Tween.EASE_IN).set_trans(Tween.TRANS_QUAD)
+	_scene.tween_property(_curtain, "color:a", 1.0, QUAKE_DARKENING).set_delay(QUAKE_DURATION - QUAKE_DARKENING)
+	await _scene.finished
+	_shake(0.0)
+	# Stopped, the music of the other place starts afresh and fades in.
+	_music.stop()
+	_build_stage()
+	stage.player.lie_down()
+	_scene = create_tween()
+	_scene.tween_interval(QUAKE_DARK)
+	_scene.tween_property(_curtain, "color:a", 0.0, QUAKE_DAWN).set_trans(Tween.TRANS_SINE)
+	await _scene.finished
+
+
+## Throws the picture about, from not at all (0) to as hard as the quake gets (1).
+func _shake(strength: float) -> void:
+	_camera.offset = Vector2(randf_range(-1.0, 1.0), randf_range(-1.0, 1.0)) * QUAKE_SHAKE * strength
 
 
 ## Puts the world the player is in on show.

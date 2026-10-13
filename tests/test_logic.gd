@@ -331,6 +331,7 @@ func _test_rule_check() -> void:
 		"unknown world": {"on": "always", "do": [{"change": "lamp", "world": "attic", "state": "lit"}]},
 		"effect go 'attic': unknown world": {"on": "always", "do": [{"go": "attic"}]},
 		"nobody can stand on that cell": {"on": "always", "do": [{"go": "cellar", "cell": [5, 5]}]},
+		"'as' is none of": {"on": "always", "do": [{"go": "cellar", "as": "storm"}]},
 		"fact 'fuond' is asked for but never set": {"on": "always", "if": [{"fact": "fuond", "is": false}], "do": [{"set": "found"}]},
 		"item 'macth' is asked for but never given": {"on": "always", "do": [{"take": "macth"}]},
 		"note 'lost' is asked for but never given": {"on": "always", "if": [{"note": "lost"}], "do": [{"set": "found"}]},
@@ -524,7 +525,6 @@ func _test_story() -> void:
 	_check(_said(_use(session, "miller"), "miller.crank"), "Miller does not tell about the crank")
 	_check(_said(_use(session, "arch_spring"), "arch.dark"), "Arch to the spring carries without its lantern")
 	_use(session, "mill_lantern")
-	_use(session, "vane")
 	_use(session, "arch_spring")
 	_check(session.state.world == "spring", "Arch of the mill hill does not lead to the spring")
 	_check(not session.world().is_walkable(Vector2i(7, 7)), "Brook can be crossed without the raft")

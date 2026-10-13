@@ -15,7 +15,7 @@
 		"cupboard": {"width": 104.0, "foot": [0.5, 0.85], "base": 46.0},
 		"raft": {"image": "bridge", "width": 127.0, "foot": [0.499, 0.457]},
 		"mill": {"width": 190.0, "foot": [0.5, 0.865], "base": 80.0, "sails": {"hub": [60, -126], "size": 250.0}},
-		"arch": {"width": 104.0, "foot": [0.516, 0.827], "wall": true, "light": [0, -36]},
+		"arch": {"width": 104.0, "foot": [0.516, 0.827], "wall": true, "light": [0, -36], "shimmer": true},
 		"sluice": {"width": 90.0, "foot": [0.5, 0.82], "wall": true},
 		"miller": {"width": 60.0, "foot": [0.5, 0.96], "base": 22.0},
 		"child": {"width": 30.0, "foot": [0.5, 0.97], "base": 14.0},

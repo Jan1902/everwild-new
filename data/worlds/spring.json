@@ -22,7 +22,7 @@
 	"ground_image": {"path": "res://assets/worlds/spring_ground.png", "scale": 1.607, "origin": [-764.52, 83.2]},
 	"music": "res://assets/music/spring_theme.mp3",
 	"mood": {},
-	"mood_wrong": {"wind": -1.2, "water": -1.0, "shadow": [-0.45, 0.3], "saturation": 0.55, "tint": [0.88, 1.0, 0.93], "fog": 0.22, "light": 0.35, "pitch": 0.92, "muffle": 0.6},
+	"mood_wrong": {"wind": -1.2, "water": -1.0, "shadow": [-0.45, 0.3], "saturation": 0.55, "tint": [0.88, 1.0, 0.93], "fog": 0.22, "light": 0.35, "pitch": 0.85, "muffle": 0.75},
 	"objects": [
 		{"id": "raft", "kind": "raft", "cell": [7, 7]},
 		{"id": "sluice", "kind": "sluice", "cell": [9, 4], "access": [[9, 5]], "state": "open"},

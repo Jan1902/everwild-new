@@ -69,7 +69,7 @@ Der Spieler bringt das Tal wieder in Gang und zündet am Ende das große Licht a
 
 ### Dorf vor dem Riss
 
-Der Prolog. Das Spiel beginnt im Haus des Alten. Der Spieler lernt hier Laufen, Antippen und wie das Dorf richtig aussieht. Der Riss kommt, wenn er nach getaner Arbeit zur Tür hinausgeht; bis es geführte Szenen gibt, erzählt ihn ein Text über der Blende.
+Der Prolog. Das Spiel beginnt im Haus des Alten. Der Spieler lernt hier Laufen, Antippen und wie das Dorf richtig aussieht. Der Riss kommt, wenn er nach getaner Arbeit zur Tür hinausgeht: Das Bild wackelt, die Musik läuft herunter, es wird dunkel. Wenn das Licht zurückkehrt, liegt er im kaputten Dorf am Weg.
 
 ```place
 id: before
@@ -231,7 +231,7 @@ hint: old_man.music_box
 id: cliff
 at: village.east
 why: Das Kind steht hier jeden Tag.
-shows: den Steinbogen am Ostrand, der jetzt fehlt, und den Stein im Osten an seinem alten Platz
+shows: den Steinbogen am Ostrand, der jetzt fehlt, und die brennende Laterne daneben. Der Stein im Osten liegt außerhalb des Ausschnitts, damit sein alter Platz nicht mit dem Windschatten verwechselt wird.
 needs: note.still_place
 gives: fact.arch_back, note.arch_village
 fixes: village.arch
@@ -270,7 +270,7 @@ gives: note.mill_hill
 | Fehler | Was man sieht |
 |---|---|
 | `lantern` | Die Laterne am Bogen zur Quelle ist dunkel. |
-| `vane` | Die Wetterfahne zeigt in eine andere Richtung als die Wolken ziehen. |
+| `vane` | Die Wetterfahne zeigt in eine andere Richtung als die Wolken ziehen: Richtig zeigt sie zur Mühle. Nach dem Riss steht sie eine Vierteldrehung daneben, damit der Unterschied zur Erinnerung zu sehen ist (die beiden Enden des Pfeils sehen sich ähnlich). |
 | `sails` | Die Flügel stehen. Mit falscher Wetterfahne drehen sie rückwärts. |
 | `field` | Das Feld hinter der Mühle ist verdorrt. |
 
@@ -296,16 +296,16 @@ hint: sight
 ```step
 id: set_vane
 at: mill_hill
-does: Die Wetterfahne weiterdrehen. Läuft die Mühle einmal richtig, macht der Müller sie fest.
-needs: not fact.wind_right
-cycles: fact.vane = south, west, north, east
+does: Die Wetterfahne zur Mühle hin drehen. Sie lässt sich erst drehen, wenn die Mühle rückwärts läuft und der Spieler aus der Erinnerung weiß, wohin sie zeigte. Läuft die Mühle richtig, macht der Müller sie fest.
+needs: fact.mill_runs, note.vane_direction, not fact.wind_right
+gives: fact.vane = east
 hint: memory.millers_seat, miller.vane_decides
 ```
 
 ```step
 id: start_mill
 at: mill_hill
-does: Die Kurbel einsetzen und die Mühle anwerfen. Die Kurbel bleibt stecken. Steht die Wetterfahne falsch, läuft die Mühle rückwärts, bis sie richtig steht.
+does: Die Kurbel einsetzen und die Mühle anwerfen. Die Kurbel bleibt stecken. Die Wetterfahne steht falsch, also läuft die Mühle rückwärts, bis sie richtig steht.
 needs: item.crank
 takes: item.crank
 gives: fact.mill_runs
@@ -316,20 +316,20 @@ hint: miller.millers_crank
 id: millers_seat
 at: mill_hill
 why: Der Müller steht hier jeden Abend und sieht dem Wetter zu.
-shows: die Mühle mit drehenden Flügeln und die Wetterfahne nach Norden
-needs: note.still_place
+shows: die Mühle mit drehenden Flügeln und die Wetterfahne zur Mühle hin (`east`)
+needs: note.still_place, fact.mill_runs, not fact.wind_right
 gives: note.vane_direction
 ```
 
 ```rule
 id: vane_right
-when: fact.vane=north
+when: fact.vane=east
 fixes: mill_hill.vane
 ```
 
 ```rule
 id: wind_turns
-when: fact.mill_runs, fact.vane=north
+when: fact.mill_runs, fact.vane=east
 gives: fact.wind_right
 fixes: mill_hill.sails, village.wind, spring.raft
 ```
@@ -624,7 +624,7 @@ id: miller.crank
 who: miller
 when: not fact.mill_runs
 knows: millers_crank
-says: Ohne Kurbel wirft er die Mühle nicht an. Er hat sie verliehen, an einen, der etwas aufziehen wollte. Etwas Kleines. An wen, fällt ihm nicht ein.
+says: Ohne Kurbel wirft er die Mühle nicht an. Er hat sie verliehen, an einen, der etwas aufziehen wollte. Etwas Kleines. An wen, fällt ihm nicht ein. Von der Wetterfahne und seinem Platz spricht er hier noch nicht: eine Aufgabe je Gespräch.
 gives: note.millers_crank
 ```
 
@@ -748,7 +748,7 @@ An der Quelle ist beim ersten Besuch nichts zu tun: Das Floß ist fort, die Late
 ```path
 part: Kurbel und Mühle
 minutes: 6
-order: take_crank, set_vane, start_mill, miller.backwards, millers_seat, set_vane
+order: take_crank, start_mill, miller.backwards, millers_seat, set_vane
 ```
 
 Der Schrank öffnet sich erst, wenn der Spieler beide Hälften kennt. Mit der Kurbel läuft die Mühle zuerst rückwärts; die richtige Richtung der Fahne zeigt die Erinnerung am Platz des Müllers. Mit dem richtigen Wind halten alle Laternen ohne Stein, und das Floß treibt zurück.
@@ -788,12 +788,12 @@ Es fehlt noch:
 - **Die Spieluhr als Klang.** Sie hat ein Bild, aber das Leitmotiv ist nicht zu hören; das Spiel kann bisher nur ein Musikstück je Welt abspielen.
 - **Das ferne Licht am Weiher** ist ein gezeichneter Schein.
 - **Niedriges Wasser:** Der trockene Bach und der niedrige Weiher sehen noch aus wie Wasser, das falsch fließt. Dass der Stand sinkt, zeigen nur die Trittsteine und die Texte.
-- **Geführte Szenen** für den Riss (siehe Backlog).
+- **Ein eigenes Bild der liegenden Figur** für den Riss; bisher ist es das umgekippte Standbild.
 
 ## Offen
 
 1. **Wehr wieder schließen:** Feld und Weiher folgen dem Wehr (Regel 5). Mühlenhügel, Quelle und Weiher können deshalb kurz heil sein und es wieder verlieren.
-2. **Wetterfahne:** Vier Stellungen lassen sich auch ohne Erinnerung durchprobieren. Strenger wäre, dass sie sich erst mit dem Eintrag `vane_direction` bewegt.
+2. **Wetterfahne:** Sie bewegt sich erst mit dem Eintrag `vane_direction` und dann mit einem Tipp in die richtige Stellung. Das ist kein Rätsel mehr, nur noch ein Schritt; schwerer wäre, dass der Spieler die Richtung selbst wählt.
 3. **Steine:** Der Windschatten ist nach zwei Tipps gefunden. Das schützt vor Sackgassen, ist aber kaum ein Rätsel. Schwerer wäre, dass der Spieler die Richtung selbst wählt.
 4. **Prolog:** Das Buch liegt schon auf dem Tisch und lässt sich nicht nehmen. Ob der Spieler es im Prolog selbst hinlegt, entscheidet die große Geschichte.
 5. **Wenige Fehler:** Quelle und Weiher haben je drei, die Warte einen. Das Konzept will vier bis sechs.

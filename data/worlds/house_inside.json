@@ -46,7 +46,7 @@
 		{"on": "interact", "object": "table", "if": [{"fact": "met_old_man"}, {"object": "table", "state": "notebook"}], "do": [{"change": "table", "state": ""}, {"give": "notebook"}, {"note": "village"}, {"say": "notebook.taken"}]},
 		{"on": "interact", "object": "cupboard", "if": [{"fact": "rift"}, {"fact": "crank_taken", "is": false}, {"note": "millers_crank"}], "do": [{"give": "crank"}, {"set": "crank_taken"}, {"note": "lent_thing"}, {"say": "old_man.yours", "who": "old_man"}, {"say": "cupboard.crank"}]},
 		{"on": "interact", "object": "cupboard", "if": [{"fact": "rift"}, {"fact": "crank_taken", "is": false}], "do": [{"say": "cupboard.guarded", "who": "old_man"}]},
-		{"on": "enter", "cells": [[2, 5]], "if": [{"fact": "rift", "is": false}, {"object": "music_box", "state": "playing"}], "do": [{"say": "rift.comes"}, {"set": "rift"}, {"break": "village"}, {"break": "house_inside"}, {"break": "mill_hill"}, {"break": "spring"}, {"break": "pond"}, {"break": "watch"}, {"go": "village", "cell": [6, 11]}, {"say": "rift.wake"}]},
+		{"on": "enter", "cells": [[2, 5]], "if": [{"fact": "rift", "is": false}, {"object": "music_box", "state": "playing"}], "do": [{"say": "rift.comes"}, {"set": "rift"}, {"break": "village"}, {"break": "house_inside"}, {"break": "mill_hill"}, {"break": "spring"}, {"break": "pond"}, {"break": "watch"}, {"go": "village", "cell": [6, 11], "as": "quake"}, {"say": "rift.wake"}]},
 		{"on": "enter", "cells": [[2, 5]], "do": [{"go": "village", "cell": [4, 7]}]}
 	]
 }

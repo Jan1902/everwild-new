@@ -14,6 +14,12 @@ const UNTOUCHABLE := ["distant_light"]
 ## points along the x axis of the grid.
 const ARROW_TURNS := {"east": 0.0, "south": 0.25, "west": 0.5, "north": 0.75}
 const LIGHT_COLOR := Color(1.0, 0.78, 0.42)
+## The light in an open way to another world: its colour, how strong it is at its brightest,
+## how large compared with a lamp's, and breaths per second.
+const SHIMMER_COLOR := Color(1.0, 0.9, 0.68)
+const SHIMMER_OPACITY := 0.65
+const SHIMMER_SIZE := 1.15
+const SHIMMER_SPEED := 0.35
 ## Colour laid over a lantern that is out.
 const UNLIT := Color(0.62, 0.66, 0.78)
 ## Where the notebook lies on the table, relative to the table's foot.
@@ -211,6 +217,12 @@ func _process(delta: float) -> void:
 	if _glow == null:
 		return
 	_flicker += delta
+	if _layout.get("shimmer", false):
+		# It shines the same in every mood, so an open way shows even where all lamps are dim.
+		var breath := 0.5 + 0.5 * sin(_flicker * TAU * SHIMMER_SPEED)
+		_glow.modulate = Color(SHIMMER_COLOR, SHIMMER_OPACITY * (0.7 + 0.3 * breath))
+		_glow.scale = Vector2.ONE * SHIMMER_SIZE * (0.92 + 0.08 * breath)
+		return
 	var jitter := 0.88 + 0.08 * sin(_flicker * 9.0) + 0.04 * sin(_flicker * 23.0)
 	_glow.modulate = Color(LIGHT_COLOR, 0.45 * light * jitter)
 	_glow.scale = Vector2.ONE * (1.0 + 0.06 * sin(_flicker * 6.0))

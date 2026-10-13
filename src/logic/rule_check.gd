@@ -28,7 +28,7 @@ const EFFECTS := {
 	"change": ["world", "cell", "state", "mirrored", "hidden"],
 	"break": [],
 	"restore": [],
-	"go": ["cell", "by", "with"],
+	"go": ["cell", "by", "with", "as"],
 	"say": ["who"],
 	"remember": [],
 }
@@ -200,6 +200,8 @@ func _check_effects(effects: Variant, home: String, place: String) -> void:
 						_add(place, what + ": 'cell' is not [x, y]")
 					elif _session.world(name).ground(World.read_properties(effect).cell) not in World.WALKABLE:
 						_add(place, what + ": nobody can stand on that cell")
+				if effect.has("as") and effect["as"] not in Session.ARRIVALS:
+					_add(place, what + ": 'as' is none of " + ", ".join(Session.ARRIVALS))
 				var aboard: Array = effect.get("with", []) if effect.get("with", []) is Array else [null]
 				for object_id: Variant in [effect.get("by", "")] + aboard:
 					if not object_id is String:

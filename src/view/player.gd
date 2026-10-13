@@ -12,6 +12,10 @@ const SPEED := 3.5
 ## Frames per second of the walk cycle.
 const WALK_SPEED := 7.0
 const VIEWS := ["front", "back"]
+## How far the standing image is tipped over while the character lies on the ground, and seconds
+## the character takes to get up.
+const LYING := -PI * 0.5
+const GET_UP_DURATION := 1.6
 
 ## Cell reached most recently.
 var cell := Vector2i.ZERO
@@ -65,6 +69,25 @@ func place(new_cell: Vector2i) -> void:
 	position = Iso.to_point(_exact)
 	shadow.position = position
 	_show_look()
+
+
+## Lays the character on the ground where it is. There is no image of that; the standing one is
+## tipped over at the feet.
+func lie_down() -> void:
+	_body.rotation = LYING
+	shadow.visible = false
+
+
+func is_lying() -> bool:
+	return _body.rotation != 0.0
+
+
+## Lets the character get up. Returns the movement.
+func get_up() -> Tween:
+	var rising := create_tween()
+	rising.tween_property(_body, "rotation", 0.0, GET_UP_DURATION).set_trans(Tween.TRANS_SINE)
+	rising.tween_callback(shadow.show)
+	return rising
 
 
 ## Cell a new path has to start from: the target of the step in progress.

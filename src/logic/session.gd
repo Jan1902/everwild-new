@@ -23,12 +23,13 @@ extends RefCounted
 ##   {"change": object, "world": id, "cell": [x, y], "state": s, "mirrored": b, "hidden": b}
 ##   {"break": world}                 turns a world into its broken version
 ##   {"restore": world}               turns a world back into the intact one
-##   {"go": world, "cell": [x, y], "by": object, "with": [objects]}
+##   {"go": world, "cell": [x, y], "by": object, "with": [objects], "as": way}
 ##                                    moves the player to another world (default: its start cell).
 ##                                    "by" and "with" only tell the view how: aboard that object
 ##                                    of the world the player leaves, which this rule also moves,
 ##                                    together with those others. What a rule says before "go"
-##                                    is said before leaving, what it says after it on arrival
+##                                    is said before leaving, what it says after it on arrival.
+##                                    "as" tells the view to make a scene of it (see ARRIVALS)
 ##   {"remember": memory}             changes nothing; the view lets the part of the world that
 ##                                    belongs to this place of memory (see World.memories) show
 ##                                    through as it was, until the player moves again. Not
@@ -50,6 +51,10 @@ extends RefCounted
 ## another. Such a rule has to undo its own condition, or it would fire forever.
 
 const WORLD_DIR := "res://data/worlds/"
+## What a "go" effect can name as "as". The view shows it; nothing else depends on it.
+##   quake   the ground shakes and all goes dark; the player comes to in the other place, lying
+##           on the ground, as the light slowly returns
+const ARRIVALS := ["quake"]
 ## Rounds after which reactions are given up, in case rules keep triggering each other.
 const REACTION_LIMIT := 20
 

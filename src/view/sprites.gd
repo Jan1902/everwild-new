@@ -16,6 +16,8 @@ extends RefCounted
 ##     offset  position of that spot relative to the centre of the footprint
 ##     wind    sways in the wind
 ##     light   spot of a light source, in world pixels relative to the foot
+##     shimmer the light is that of a way to another world: it does not follow the mood, is
+##             brighter and larger than a lamp's and breathes slowly
 ##     base    radius of the soft shadow right at the foot, which anchors the object to the ground
 ##     box     wall and ridge height in world pixels; the shadow is then computed from the
 ##             footprint instead of the silhouette

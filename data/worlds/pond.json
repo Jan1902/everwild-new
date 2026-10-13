@@ -18,7 +18,7 @@
 	"ground_image": {"path": "res://assets/worlds/pond_ground.png", "scale": 1.985, "origin": [-548.84, 59.73]},
 	"music": "res://assets/music/pond_theme.mp3",
 	"mood": {},
-	"mood_wrong": {"wind": -1.0, "water": 0.0, "shadow": [-0.4, 0.3], "saturation": 0.5, "tint": [0.86, 0.95, 1.0], "fog": 0.26, "light": 0.3, "pitch": 0.9, "muffle": 0.65},
+	"mood_wrong": {"wind": -1.0, "water": 0.0, "shadow": [-0.4, 0.3], "saturation": 0.5, "tint": [0.86, 0.95, 1.0], "fog": 0.26, "light": 0.3, "pitch": 0.84, "muffle": 0.78},
 	"objects": [
 		{"id": "stones", "kind": "stepping_stones", "cell": [4, 5], "size": [2, 1], "hidden": true},
 		{"id": "steps", "kind": "steps", "cell": [4, 1], "access": [[4, 2]]},

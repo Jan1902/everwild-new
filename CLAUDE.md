@@ -25,7 +25,7 @@ Der Spielinhalt steht je Kapitel in `docs/chapters/` (bisher `valley.md`): Gesch
   - `SaveFile`: schreibt und liest den Spielstand. Ein unlesbarer Stand wird als `save.json.unusable` beiseitegelegt, nicht überschrieben.
   - `Mood`, `Iso`: Stimmungsregler und Umrechnung zwischen Zelle und Bildpunkt.
 - `src/view/`: alles Sichtbare, Shader in `src/view/shaders/`. Die Hauptszene `scenes/game.tscn` baut ihre Knoten per Code auf.
-  - `game.gd`: verbindet Session, Eingabe und Ansicht und entscheidet, was wann passiert (Laufen, Verweilen, Weltwechsel, Stimmung, Speichern).
+  - `game.gd`: verbindet Session, Eingabe und Ansicht und entscheidet, was wann passiert (Laufen, Verweilen, Weltwechsel, Stimmung, Speichern). Ein Weltwechsel ist eine kurze Blende, eine Fahrt (`"by"`) oder eine Szene (`"as"`, bisher nur `quake`, der Riss).
   - `Stage`: eine Welt auf dem Bildschirm (Boden, Wasser, Schatten, `ObjectView` je Objekt (ohne Bild als gezeichneter Platzhalter), `Player`, die durchscheinende Erinnerung). Wird bei jedem Weltwechsel neu gebaut.
   - `Music`: spielt das Stück der Welt und blendet über. Der Bus „Music“ mit dem Dämpfungsfilter steht in `default_bus_layout.tres`, die Schleife in den Import-Einstellungen der Stücke.
   - `Sprites`: liest `data/sprites.json` und hält, was alle Ansichten teilen (Materialien, Lichtflecken, Treffer-Masken). Gehört dem laufenden Spiel und wird an jede Ansicht übergeben; es gibt keinen statischen Zustand in der Ansicht.
@@ -39,8 +39,8 @@ Der Spielinhalt steht je Kapitel in `docs/chapters/` (bisher `valley.md`): Gesch
 - `data/sprites.json`: wie jedes Bild in der Welt sitzt (Breite, Fußpunkt, Schatten, Licht) und die Maße, die Spiel und Bildwerkzeuge teilen (Rand, Laufbilder). Die Schlüssel sind in `src/view/sprites.gd` beschrieben.
 - `data/notes.json`: alle Einträge des Notizbuchs mit Art, Welt und Verknüpfungen (immer in beide Richtungen).
 - `data/texts/`: alle sichtbaren Texte je Sprache (`en.json`, `de.json`), mit denselben Schlüsseln in jeder Datei. Regeln nennen nur Schlüssel.
-- `assets/`: Bilder und Musik, die das Spiel lädt (`objects/`, `worlds/`, `music/`), dazu das Theme der Oberfläche (`ui/theme.tres`, erzeugt von `tools/build_theme.gd`).
-- `tools/`: Python-Skripte für Bild- und Musikgenerierung, eigene Umgebung in `tools/.venv` (Pakete in `tools/requirements.txt`). Die Stilvorgabe für alle Bild-Prompts steht in `tools/style.py`. `world_images.py <welt>` (Bodenbild einer Außenwelt), `village_images.py`, `bridge_image.py`, `room_images.py`, `fragment_images.py`, `valley_images.py` und `walk_images.py` erzeugen die Rohbilder (jede Datei höchstens einmal), `crop_sprites.py` schneidet sie zu und legt sie nach `assets/`. Wie ein Bild in der Welt sitzt (Breite, Fußpunkt), steht in `data/sprites.json`.
+- `assets/`: Bilder, Musik und Geräusche, die das Spiel lädt (`objects/`, `worlds/`, `music/`, `sounds/`), dazu das Theme der Oberfläche (`ui/theme.tres`, erzeugt von `tools/build_theme.gd`).
+- `tools/`: Python-Skripte für Bild- und Musikgenerierung, eigene Umgebung in `tools/.venv` (Pakete in `tools/requirements.txt`). Die Stilvorgabe für alle Bild-Prompts steht in `tools/style.py`. `world_images.py <welt>` (Bodenbild einer Außenwelt), `village_images.py`, `bridge_image.py`, `room_images.py`, `fragment_images.py`, `valley_images.py` und `walk_images.py` erzeugen die Rohbilder (jede Datei höchstens einmal), `crop_sprites.py` schneidet sie zu und legt sie nach `assets/`. Wie ein Bild in der Welt sitzt (Breite, Fußpunkt), steht in `data/sprites.json`. `quake_sound.py` errechnet das Grollen des Risses aus Rauschen (kostet nichts, braucht keine Pakete).
 - `styletest/`: generierte Rohbilder und Testmusik, von Godot ignoriert.
 
 ## Befehle
