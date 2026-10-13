@@ -49,7 +49,7 @@ func _init(sprites: Sprites) -> void:
 		_placements["walk_" + view] = sprites.placement(frames.get_frame_texture("walk_" + view, 0), walk_layout)
 
 		var cast := sprites.build_image(standing, layout)
-		cast.material = sprites.shadow_material()
+		sprites.make_cast(cast, sprites.shadow_material())
 		shadow.add_child(cast)
 		_casts[view] = cast
 	_body.sprite_frames = frames

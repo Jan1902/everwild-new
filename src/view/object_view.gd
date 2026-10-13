@@ -191,9 +191,9 @@ func build_shadow() -> Node2D:
 	var cast := _image.duplicate() as Sprite2D
 	cast.position = Vector2.ZERO
 	if layout.get("wall", false):
-		cast.material = _sprites.wall_shadow_material(_shown.mirrored)
+		_sprites.make_cast(cast, _sprites.wall_shadow_material(_shown.mirrored))
 	else:
-		cast.material = _sprites.shadow_material()
+		_sprites.make_cast(cast, _sprites.shadow_material())
 	shadow.add_child(cast)
 	return shadow
 

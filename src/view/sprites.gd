@@ -111,6 +111,18 @@ func build_base(radius: float) -> Sprite2D:
 	return base
 
 
+## Makes an image, placed by build_image(), the shadow it casts. The shader lays the image down
+## beside where it stands, which the engine does not know: it would stop drawing the shadow as
+## soon as the upright image has left the screen. So the image is given the area a shadow can
+## reach, for any shadow cast no longer than the object is high.
+func make_cast(image: Sprite2D, material: ShaderMaterial) -> void:
+	image.material = material
+	var upright := image.get_rect()
+	var far := upright.position.abs().max(upright.end.abs())
+	var reach := (far.x + far.y) * 1.5
+	RenderingServer.canvas_item_set_custom_rect(image.get_canvas_item(), true, Rect2(-reach, -reach, reach * 2.0, reach * 2.0))
+
+
 ## Whether the pixel of an image is painted.
 func is_painted(texture: Texture2D, pixel: Vector2i) -> bool:
 	var path := texture.resource_path
