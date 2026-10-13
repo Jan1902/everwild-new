@@ -29,15 +29,14 @@ Das erste Kapitel (`docs/chapters/valley.md`) ist von Anfang bis Ende spielbar: 
    - Figuren verwirrter und mysteriöser, Hinweise nicht als Anweisung.
    - Mehr Widerstand, das Notizbuch soll nötig sein.
 3. **Bilder und Musik des Tals beurteilen.** Zwei Bodenbilder, vierzehn Objektbilder und zwei Musikstücke sind generiert und eingebaut. Jan beurteilt Stil und Klang. Die Maße der neuen Bilder (`data/sprites.json`) sind nach Augenmaß gesetzt. Die Spieluhr hat noch keinen Klang.
-4. **Niedriges Wasser sichtbar machen.** Der trockene Bach im Dorf und der fast leere Weiher sehen aus wie Wasser, das falsch fließt. Dass der Stand sinkt, zeigen nur die Trittsteine und die Texte.
+4. **Niedriges Wasser beurteilen (Jan).** Wo der Stand gesunken ist, liegt jetzt das Bett frei: Der Bach im Dorf und unterhalb des Wehrs ist trocken, im Weiher bleiben Pfützen. Offen ist der Geschmack: Farbe des Betts, wie viel Wasser im Weiher bleibt (`level` in `mood_wrong`), und dass das Wasser beim Öffnen des Wehrs in zweieinhalb Sekunden zurückkehrt wie jede Stimmung.
 5. **Den Riss als Szene beurteilen (Jan).** Die Szene steht: Das Bild wackelt immer stärker, die Musik läuft herunter, es grollt, das Bild wird dunkel und nach einer Weile langsam wieder hell, und die Figur liegt am Weg und steht auf, wenn sie zu sich gekommen ist. Offen ist das Gefühl: Stärke und Dauer des Wackelns, die Länge der Dunkelheit, und vor allem das Grollen, das aus Rauschen errechnet ist (`tools/quake_sound.py`) und das Claude nicht hören kann. Die liegende Figur ist das umgekippte Standbild; ein eigenes Bild fehlt.
-6. **Neubeginn sichtbar machen (Jan).** Nach „Neu beginnen“ steht die Figur im Haus des Alten. Wer vorher schon dort stand, sieht fast dasselbe Bild und hält den Knopf für kaputt. Braucht eine Blende oder ein anderes Zeichen, dass ein neues Spiel läuft.
-7. **Man bleibt oft stecken (Jan, erstes Anspielen).** Bisher hing es an drei Stellen, die behoben sind: Ein Stein rollte hinter einen Baum, der Platz des Müllers war nicht zu finden (jetzt gilt überall: neben die Figur stellen und warten), und der Alte gab die Kurbel nur über den Schrank heraus, nicht im Gespräch. Offen bleibt das Muster dahinter:
+6. **Man bleibt oft stecken (Jan, erstes Anspielen).** Bisher hing es an drei Stellen, die behoben sind: Ein Stein rollte hinter einen Baum, der Platz des Müllers war nicht zu finden (jetzt gilt überall: neben die Figur stellen und warten), und der Alte gab die Kurbel nur über den Schrank heraus, nicht im Gespräch. Offen bleibt das Muster dahinter:
    - Nichts in der Welt zeigt, wo man verweilen kann und dass gerade etwas geschieht, solange man wartet.
    - Jeder Schritt muss über alles gehen, was ein Spieler naheliegend versucht (die Figur ansprechen statt das Ding antippen und umgekehrt).
    - Sagt eine Figur zweimal dasselbe, obwohl der Spieler inzwischen mehr weiß, wirkt das wie eine Sackgasse.
    - Jan hat das Dorf erst mit Erklärung gelöst. Das zweite Antippen der Steine und der Windschatten erklären sich nicht von selbst.
-8. **Sonderfälle in der Ansicht.** Das Notizbuch auf dem Tisch, das ferne Licht am Weiher und die Zeichnungen für Objekte ohne Bild stehen als Sonderfälle je Objektart in `ObjectView`.
+7. **Sonderfälle in der Ansicht.** Das Notizbuch auf dem Tisch, das ferne Licht am Weiher und die Zeichnungen für Objekte ohne Bild stehen als Sonderfälle je Objektart in `ObjectView`.
 
 ### Weitere Punkte
 
@@ -53,7 +52,7 @@ Das erste Kapitel (`docs/chapters/valley.md`) ist von Anfang bis Ende spielbar: 
 
 1. **Titelbildschirm.** Der Startbildschirm mit dem Hinweis auf Kopfhörer steht und erscheint nur beim allerersten Start; die Pause-Seite mit Lautstärke, Sprache und „Neu beginnen“ steht auch. Es fehlt ein Titel, sobald der Name feststeht.
 2. **Pause-Seite ergänzen.** Es gibt ein erstes Geräusch (das Grollen des Risses); es läuft vorläufig über den Bus der Musik und folgt ihrem Regler. Mit weiteren Geräuschen braucht es einen eigenen Bus und einen eigenen Regler. Wird die Sprache gewechselt, während ein Dialog offen ist, bleiben dessen schon begonnene Zeilen in der alten Sprache.
-3. **Android weiter prüfen.** Der Testbau läuft auf Jans Handy einwandfrei, auch die Oberfläche aus Controls, die Pause-Seite und die Zurück-Geste. Offen sind noch das App-Symbol und andere Bildschirmformate: Die Knöpfe in den Ecken sitzen fest 36 Pixel vom Rand und beachten den sicheren Bereich des Bildschirms (Kamera-Aussparung, runde Ecken) nicht.
+3. **Android weiter prüfen.** Der Testbau läuft auf Jans Handy einwandfrei, auch die Oberfläche aus Controls, die Pause-Seite und die Zurück-Geste. Das App-Symbol steht (`tools/app_icon.py`, aus Bildern des Spiels zusammengesetzt); auf dem Handy hat es noch niemand gesehen. Offen sind andere Bildschirmformate: Die Knöpfe in den Ecken sitzen fest 36 Pixel vom Rand und beachten den sicheren Bereich des Bildschirms (Kamera-Aussparung, runde Ecken) nicht.
 4. **Renderer vergleichen.** Das Spiel läuft mit „mobile“ (Vulkan). Für reines 2D auf Android ist „compatibility“ üblicher. Einmal auf dem Handy nebeneinander ansehen.
 
 ## Grafik und Ton

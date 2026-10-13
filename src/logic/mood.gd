@@ -3,12 +3,14 @@ extends RefCounted
 ## All the dials that make a world feel right or wrong. Pure data.
 
 ## Names of all dials, as used in world files.
-const DIALS := ["wind", "water", "shadow", "saturation", "tint", "fog", "light", "pitch", "muffle"]
+const DIALS := ["wind", "water", "level", "shadow", "saturation", "tint", "fog", "light", "pitch", "muffle"]
 
 ## Wind direction and strength. Positive blows to the right, negative to the left.
 var wind := 1.0
 ## Flow direction and speed of the water. Negative flows backwards.
 var water := 1.0
+## Level of the water, from dry (0) to full (1). As it falls, the bed comes out from the banks.
+var level := 1.0
 ## Shadow cast in the ground plane, seen from above: direction and length per unit of object
 ## height. x points right on screen, y towards the viewer.
 var shadow := Vector2(0.5, 0.2)
@@ -31,6 +33,7 @@ static func from_data(data: Dictionary, base: Mood = null) -> Mood:
 	var m := blend(base, base, 0.0) if base else Mood.new()
 	m.wind = data.get("wind", m.wind)
 	m.water = data.get("water", m.water)
+	m.level = data.get("level", m.level)
 	m.saturation = data.get("saturation", m.saturation)
 	m.fog = data.get("fog", m.fog)
 	m.light = data.get("light", m.light)

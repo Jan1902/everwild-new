@@ -787,7 +787,6 @@ Es fehlt noch:
 
 - **Die Spieluhr als Klang.** Sie hat ein Bild, aber das Leitmotiv ist nicht zu hören; das Spiel kann bisher nur ein Musikstück je Welt abspielen.
 - **Das ferne Licht am Weiher** ist ein gezeichneter Schein.
-- **Niedriges Wasser:** Der trockene Bach und der niedrige Weiher sehen noch aus wie Wasser, das falsch fließt. Dass der Stand sinkt, zeigen nur die Trittsteine und die Texte.
 - **Ein eigenes Bild der liegenden Figur** für den Riss; bisher ist es das umgekippte Standbild.
 
 ## Offen

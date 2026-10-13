@@ -14,7 +14,7 @@ const SUNK_PITCH := 0.45
 ## Music that is off pitch also wavers, like a tape that does not run evenly: how far the pitch
 ## swings to either side for a pitch that is off by one (it is never off by that much), and the
 ## two speeds of the swinging in turns per second.
-const WAVER := 0.28
+const WAVER := 0.09
 const WAVER_SPEEDS := [0.37, 1.13]
 
 ## Two players that swap roles: one plays the current track, the other one lets the previous

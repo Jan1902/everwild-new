@@ -23,6 +23,10 @@ const QUAKE_DARKENING := 0.9
 const QUAKE_DARK := 1.6
 const QUAKE_DAWN := 4.5
 const QUAKE_SOUND := "res://assets/sounds/quake.wav"
+## A new game: seconds the picture takes to go dark, stays dark and takes to come back.
+const NEW_GAME_FADE := 0.5
+const NEW_GAME_DARK := 0.7
+const NEW_GAME_DAWN := 1.6
 ## Seconds the player has to stand still before rules that wait for lingering fire.
 const LINGER_DELAY := 3.5
 ## Remembering: seconds the remembered part of the world takes to show through and to fade
@@ -250,21 +254,34 @@ func set_broken(enabled: bool, instant := false) -> void:
 	save()
 
 
-## Throws the game in progress away and starts from the beginning.
+## Throws the game in progress away and starts from the beginning. The picture goes dark and
+## comes back and the music starts afresh, so the player sees that a new game has begun even
+## where it begins with the picture they were just looking at.
 func new_game() -> void:
 	var seen := session.state.start_screen_seen
 	session = Session.create(_game)
 	session.state.start_screen_seen = seen
-	_travelling = false
+	save()
 	if _scene:
 		_scene.kill()
 	_rumble.stop()
-	_camera.offset = Vector2.ZERO
-	_curtain.color.a = 0.0
 	_dialogue.clear()
 	_notebook.reset()
+	# Nothing can be done until the new game is on show.
+	_travelling = true
+	_scene = create_tween()
+	_scene.tween_property(_curtain, "color:a", 1.0, NEW_GAME_FADE)
+	_scene.tween_callback(_show_new_game)
+	_scene.tween_interval(NEW_GAME_DARK)
+	_scene.tween_property(_curtain, "color:a", 0.0, NEW_GAME_DAWN).set_trans(Tween.TRANS_SINE)
+	_scene.tween_callback(func() -> void: _travelling = false)
+
+
+func _show_new_game() -> void:
+	_camera.offset = Vector2.ZERO
+	# Stopped, the music starts afresh and fades in, even if it is the same track.
+	_music.stop()
 	_build_stage()
-	save()
 
 
 ## Writes the game to its save file.
@@ -561,6 +578,7 @@ func _apply_mood() -> void:
 	var m := Mood.blend(_mood_from, _mood_to, mood_progress)
 	RenderingServer.global_shader_parameter_set(&"wind", m.wind)
 	RenderingServer.global_shader_parameter_set(&"water", m.water)
+	RenderingServer.global_shader_parameter_set(&"water_level", m.level)
 	RenderingServer.global_shader_parameter_set(&"shadow", m.shadow)
 	stage.set_mood(m.light, m.shadow)
 	_grading.set_shader_parameter("saturation", m.saturation)

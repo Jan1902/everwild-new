@@ -15,6 +15,7 @@ config/description="A quiet isometric exploration puzzle for mobile."
 run/main_scene="res://scenes/game.tscn"
 config/quit_on_go_back=false
 config/features=PackedStringArray("4.7", "Mobile")
+config/icon="res://assets/icon/icon.png"
 
 [display]
 
@@ -41,6 +42,10 @@ wind={
 "value": 1.0
 }
 water={
+"type": "float",
+"value": 1.0
+}
+water_level={
 "type": "float",
 "value": 1.0
 }

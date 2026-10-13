@@ -26,7 +26,7 @@
 	"ground_image": {"path": "res://assets/worlds/village_ground.png", "scale": 1.298, "origin": [-922.13, 104.53]},
 	"music": "res://assets/music/village_theme.mp3",
 	"mood": {},
-	"mood_wrong": {"wind": -1.4, "water": -1.0, "shadow": [-0.55, 0.15], "saturation": 0.55, "tint": [0.86, 0.92, 1.0], "fog": 0.18, "light": 0.35, "pitch": 0.86, "muffle": 0.75},
+	"mood_wrong": {"wind": -1.4, "water": -1.0, "level": 0.0, "shadow": [-0.55, 0.15], "saturation": 0.55, "tint": [0.86, 0.92, 1.0], "fog": 0.18, "light": 0.35, "pitch": 0.86, "muffle": 0.75},
 	"objects": [
 		{"kind": "bridge", "cell": [13, 9]},
 		{"id": "house_mid", "kind": "house", "cell": [8, 5], "size": [2, 2], "access": [[10, 6]]},
@@ -68,7 +68,7 @@
 		{"id": "lanterns", "fixed_if": [{"any": [{"fact": "rift", "is": false}, {"not": {"any": [{"not": {"object": "lantern_west", "state": "lit"}}, {"not": {"object": "lantern_bridge", "state": "lit"}}, {"not": {"object": "lantern_east", "state": "lit"}}]}}]}], "restores": ["light"]},
 		{"id": "arch", "fixed_if": [{"object": "arch", "hidden": false}], "restores": ["fog"]},
 		{"id": "wind", "fixed_if": [{"object": "tree_south", "mirrored": false}], "restores": ["wind"]},
-		{"id": "brook", "fixed_if": [{"object": "sluice", "world": "spring", "state": "open"}], "restores": ["water"]},
+		{"id": "brook", "fixed_if": [{"object": "sluice", "world": "spring", "state": "open"}], "restores": ["water", "level"]},
 		{"id": "stones", "fixed_if": [{"object": "rock_bridge", "cell": [11, 8]}, {"object": "rock_east", "cell": [16, 14]}], "restores": ["shadow"]},
 		{"id": "music_box", "fixed_if": [{"any": [{"fact": "rift", "is": false}, {"object": "music_box", "world": "house_inside", "state": "playing"}]}], "restores": ["pitch", "muffle"]}
 	],

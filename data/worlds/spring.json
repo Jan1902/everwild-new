@@ -22,7 +22,7 @@
 	"ground_image": {"path": "res://assets/worlds/spring_ground.png", "scale": 1.607, "origin": [-764.52, 83.2]},
 	"music": "res://assets/music/spring_theme.mp3",
 	"mood": {},
-	"mood_wrong": {"wind": -1.2, "water": -1.0, "shadow": [-0.45, 0.3], "saturation": 0.55, "tint": [0.88, 1.0, 0.93], "fog": 0.22, "light": 0.35, "pitch": 0.85, "muffle": 0.75},
+	"mood_wrong": {"wind": -1.2, "water": -1.0, "level": 0.7, "shadow": [-0.45, 0.3], "saturation": 0.55, "tint": [0.88, 1.0, 0.93], "fog": 0.22, "light": 0.35, "pitch": 0.85, "muffle": 0.75},
 	"objects": [
 		{"id": "raft", "kind": "raft", "cell": [7, 7]},
 		{"id": "sluice", "kind": "sluice", "cell": [9, 4], "access": [[9, 5]], "state": "open"},
@@ -49,7 +49,7 @@
 	"faults": [
 		{"id": "lantern", "fixed_if": [{"object": "spring_lantern", "state": "lit"}], "restores": ["light"]},
 		{"id": "raft", "fixed_if": [{"object": "raft", "cell": [7, 7]}], "restores": ["wind"]},
-		{"id": "sluice", "fixed_if": [{"object": "sluice", "state": "open"}], "restores": ["water"]}
+		{"id": "sluice", "fixed_if": [{"object": "sluice", "state": "open"}], "restores": ["water", "level"]}
 	],
 	"rules": [
 		{"on": "always", "if": [{"object": "mill", "world": "mill_hill", "state": "turning"}, {"object": "raft", "cell": [9, 3]}], "do": [{"change": "raft", "cell": [7, 7]}]},

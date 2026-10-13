@@ -34,6 +34,12 @@ extends RefCounted
 const PATH := "res://data/sprites.json"
 const IMAGE_DIR := "res://assets/objects/"
 const SHADOW_COLOR := Color(0.08, 0.1, 0.22)
+## Ground that has water on or under it.
+const WATER_GROUND := [World.Ground.WATER, World.Ground.BRIDGE]
+## The picture of how deep the water of a world is: pixels per cell, and cells from the bank
+## beyond which it no longer tells distances apart (DEPTH_RANGE in water_bed.gdshaderinc).
+const DEPTH_DETAIL := 4
+const DEPTH_RANGE := 3
 
 var margin := 0.0
 var walk_width := 1.0
@@ -48,6 +54,8 @@ var _wall_shadow_materials := {}
 var _light_blob: GradientTexture2D
 var _base_blob: GradientTexture2D
 var _water_noise: NoiseTexture2D
+## World id -> how far every point of its water is from the bank.
+var _water_depths := {}
 ## Path of an image -> which of its pixels are painted, for telling what a tap hits.
 var _masks := {}
 
@@ -180,6 +188,36 @@ func water_noise() -> NoiseTexture2D:
 		_water_noise.width = 256
 		_water_noise.height = 256
 	return _water_noise
+
+
+## How far every point of the water of a world is from the nearest bank, as a picture over
+## the grid: black at the bank and on land, white DEPTH_RANGE cells out or more. A falling level
+## bares the bed from the banks inwards, so this is what tells a brook from the middle of a pond.
+func water_depth(world: World) -> ImageTexture:
+	if not _water_depths.has(world.id):
+		var image := Image.create(world.size.x * DEPTH_DETAIL, world.size.y * DEPTH_DETAIL, false, Image.FORMAT_R8)
+		for y in image.get_height():
+			for x in image.get_width():
+				# Cells are named by their centre, so the picture starts half a cell before it.
+				var point := (Vector2(x, y) + Vector2(0.5, 0.5)) / DEPTH_DETAIL - Vector2(0.5, 0.5)
+				image.set_pixel(x, y, Color(_bank_distance(world, point) / DEPTH_RANGE, 0, 0))
+		_water_depths[world.id] = ImageTexture.create_from_image(image)
+	return _water_depths[world.id]
+
+
+## Cells from a point, given in cells, to the nearest ground without water. 0 on such ground,
+## at most DEPTH_RANGE.
+func _bank_distance(world: World, point: Vector2) -> float:
+	var here := Vector2i(point.round())
+	if world.ground(here) not in WATER_GROUND:
+		return 0.0
+	var nearest := float(DEPTH_RANGE)
+	for y in range(here.y - DEPTH_RANGE, here.y + DEPTH_RANGE + 1):
+		for x in range(here.x - DEPTH_RANGE, here.x + DEPTH_RANGE + 1):
+			if world.ground(Vector2i(x, y)) not in WATER_GROUND:
+				var away := (point - Vector2(x, y)).abs() - Vector2(0.5, 0.5)
+				nearest = minf(nearest, away.max(Vector2.ZERO).length())
+	return nearest
 
 
 func _get_base_blob() -> GradientTexture2D:
