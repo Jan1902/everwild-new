@@ -24,6 +24,8 @@ extends RefCounted
 ##     wall    the object is flat and upright and stands along a ground axis, like an arch or a
 ##             gate; its shadow is cast from that plane instead of from a flat silhouette
 ##     image   name of the image file if it is not the kind
+##     state_images  states that show the image of another state, such as the music box that
+##             plays wrong and looks as it does when it plays right
 ##     faces   which way the image looks, "left" or "right" (the default): people turn
 ##             towards the player and the way they walk
 ##     walk    for people with a walk cycle: which way the frames of each view ("front",

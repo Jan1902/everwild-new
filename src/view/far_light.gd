@@ -5,8 +5,8 @@ extends Node2D
 
 const CORE := Color(1.0, 0.97, 0.85)
 const HALO := Color(1.0, 0.78, 0.45)
-const RADIUS := 18.0
-const HALO_RADIUS := 95.0
+const RADIUS := 11.0
+const HALO_RADIUS := 55.0
 ## Seconds it takes to come on.
 const KINDLE := 1.4
 

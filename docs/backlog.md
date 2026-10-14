@@ -34,14 +34,12 @@ Die Entscheidungen stehen in `concept.md` („Damit das Spiel fesselt“). Zum A
 
 1. **Jan spielt den Anfang an** (Prolog und Dorf, bis durch den Bogen) und urteilt: Fühlt sich das Zusammenziehen gut an, auch mit dem Daumen? Ist das Buch zu ordentlich oder zu chaotisch? Trägt die Szene, ist sie zu lang (rund 25 Sekunden)? Sind die Hinweise zu früh, zu spät, zu deutlich? Klingen Stimmen, Klänge und Spieluhr (Claude kann nicht hören)? Bleibt es dabei, dass der Spieler sein Buch vom Alten bekommt?
 2. **Was beim Bauen aufgefallen ist und offen bleibt:**
-   - Die Zettel liegen nur so lange, wo der Spieler sie hingelegt hat, bis das Spiel neu startet; ihre Lage wird nicht gespeichert.
-   - Das ferne Licht der Szene ist ein gezeichneter Schein. Mit dem Boden des Dorfs im Bild wirkt es leicht wie eine Sonne.
-   - Nur der Alte hat Laufbilder. Frau und Kind gleiten mit einem Wippen; die Figuren laufen durch alles hindurch, was ihnen auf ihrem kurzen Weg im Weg steht, auch durch den Spieler.
-   - Die Spieluhr spielt eine errechnete Melodie, die mit den generierten Stücken nichts zu tun hat. Wird sie das Leitmotiv, müssten die Stücke sie aufnehmen. Die schiefe Spieluhr nach dem Riss hat noch keinen Klang.
-   - Der Spieler wird oft von Bäumen verdeckt, gerade an Verweil-Stellen (am Abhang steht er hinter dem Baum neben dem Kind).
+   - Das ferne Licht der Szene ist ein gezeichneter Schein, jetzt kleiner; die Szene dauert noch rund 18 Sekunden.
+   - Der Alte, die Frau und das Kind haben Laufbilder; Müller, Fischerin und Wehrwärter gehen bisher nirgends hin und brauchen keine.
+   - Die Spieluhr spielt eine errechnete Melodie, die mit den generierten Stücken nichts zu tun hat. Wird sie das Leitmotiv, müssten die Stücke sie aufnehmen.
 3. **Rätsel des Tals umbauen:** Abweichungen selbst erkennen statt abholen, mehrere Fäden zugleich statt einer Kette. Erster Schritt ist getan: Im Dorf laufen Haus und Bogen jetzt nebeneinander. Weitere Einsichten für Mühlenhügel, Quelle und Weiher, und die Pfeile mit „?“ auf der Karte (Quelle und Weiher überspringen ein Stück) brauchen je eine Einsicht, die sie auflöst.
 4. **Ende des Kapitels:** Szene, Erkenntnis und ein Hinweis aufs nächste Kapitel. Vorschlag: Das große Licht fängt Feuer, die Kamera zieht auf, die Stücke schließen sich auf der Karte zum Ring, und weit draußen antwortet ein zweites Licht; auf der Karte erscheint ein Pfeil aus dem Tal hinaus mit „?“. Die Bausteine (Szenen, fernes Licht, Karte) sind da.
-5. **Stimmen der Figuren.** Die errechneten Brabbelstimmen klingen nach Roboter (Jan) und sind abgeschaltet. Wege: echte Stimmen als kurze Silben und Laute aufnehmen oder generieren lassen (ein Sprachmodell, das Lautmalerei ohne Worte spricht; kostet Geld, nur auf Jans Anweisung) und wie bisher zerschnitten abspielen; oder keine Stimme, nur ein leiser Laut beim Öffnen einer Zeile (Atem, „hm“).
+5. **Stimmen der Figuren.** Zum Ausprobieren hat der Alte sechs generierte wortlose Laute, einer zu Beginn jeder Zeile. Gefällt es Jan, bekommen Frau, Kind, Müller, Fischerin und Wehrwärter ihre (`tools/voice_sounds.py`, je eine Stimme und Anweisung).
 6. **Schieber am Wehr ersetzen.** Das Rätsel ist gestrichen (Jan); die Quelle braucht ein neues, das zum Ort passt. Vorschlag: Der Wehrwärter öffnet erst, wenn es Morgen ist, und woran man hier den Morgen erkennt, setzt der Spieler im Buch zusammen.
 7. **Blindtest** mit zwei oder drei Leuten, sobald 1 und 3 stehen.
 

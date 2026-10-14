@@ -176,6 +176,12 @@ func _test_state() -> void:
 	state.start_screen_seen = true
 	loaded = GameState.from_data(JSON.parse_string(JSON.stringify(state.to_data())))
 	_check(loaded != null and loaded.start_screen_seen, "State forgets that the start screen was shown")
+	state.give("match")
+	state.take("match")
+	state.slips["hint"] = [12.5, 40.0]
+	loaded = GameState.from_data(JSON.parse_string(JSON.stringify(state.to_data())))
+	_check(loaded != null and "match" in loaded.held and "match" not in loaded.items, "State forgets what the player has carried")
+	_check(loaded != null and loaded.slips == {"hint": [12.5, 40.0]}, "State forgets where notes lie in the notebook")
 	_check(GameState.from_data("nonsense") == null, "Nonsense is accepted as a saved state")
 	_check(GameState.from_data({"version": 999, "world": "tiny", "cell": [0, 0]}) == null, "Unknown version is accepted")
 	_check(GameState.from_data({"version": GameState.VERSION, "world": "tiny"}) == null, "State without a cell is accepted")
@@ -571,6 +577,7 @@ func _test_story() -> void:
 	_check(_said(_use(session, "cupboard"), "cupboard.crank") and "crank" in session.state.items, "Crank is not found in the cupboard once the player knows whose it is")
 	_check(_use(session, "cupboard").is_empty(), "Crank can be taken twice")
 	_check(_said(_use(session, "music_box"), "music_box.wrong"), "Music box plays right in the broken village")
+	_check(session.music() == "res://assets/sounds/music_box.wav" and "crank" in session.state.items, "Music box wound in the broken village does not play its tune off key, or keeps the crank")
 	session.enter(Vector2i(2, 5))
 	_use(session, "arch")
 	_check(_said(_use(session, "mill"), "mill.backwards"), "Mill turns the right way with the vane wrong")

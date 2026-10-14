@@ -21,6 +21,11 @@ var items: Array[String] = []
 ## Ids of everything the player has ever carried, in the order they got it. The notebook lists
 ## them and crosses out what was given away; no rule asks for it.
 var held: Array[String] = []
+## Where the player has put notes in the notebook themselves: note id -> [x, y] on its page.
+## Only the notebook uses it.
+var slips := {}
+## How many notes there were when the player last opened the notebook. Notes beyond them are new.
+var notes_seen := 0
 ## Ids of the notebook entries, in the order they were found.
 var notes: Array[String] = []
 ## Ids of the worlds whose becoming whole someone there has already remarked on. Nothing in
@@ -67,6 +72,8 @@ func copy() -> GameState:
 	twin.objects = objects.duplicate(true)
 	twin.items = items.duplicate()
 	twin.held = held.duplicate()
+	twin.slips = slips.duplicate(true)
+	twin.notes_seen = notes_seen
 	twin.notes = notes.duplicate()
 	twin.whole_greeted = whole_greeted.duplicate()
 	twin.start_screen_seen = start_screen_seen
@@ -91,6 +98,8 @@ func to_data() -> Dictionary:
 		"objects": changed,
 		"items": items.duplicate(),
 		"held": held.duplicate(),
+		"slips": slips.duplicate(true),
+		"notes_seen": notes_seen,
 		"notes": notes.duplicate(),
 		"whole_greeted": whole_greeted.duplicate(),
 		"start_screen_seen": start_screen_seen,
@@ -131,6 +140,13 @@ static func from_data(data: Variant) -> GameState:
 	for item in state.items:
 		if item not in state.held:
 			state.held.append(item)
+	if _is_number(data.get("notes_seen")):
+		state.notes_seen = int(data.notes_seen)
+	var saved_slips: Variant = data.get("slips", {})
+	if saved_slips is Dictionary:
+		for note: Variant in saved_slips:
+			if _is_pair(saved_slips[note]):
+				state.slips[str(note)] = [float(saved_slips[note][0]), float(saved_slips[note][1])]
 	state.notes.assign(saved_notes)
 	var saved_greeted: Variant = data.get("whole_greeted", [])
 	if _is_texts(saved_greeted):

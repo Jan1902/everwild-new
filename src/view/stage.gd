@@ -12,6 +12,11 @@ const GHOST_COLOR := Color(1.15, 1.1, 1.0, 0.6)
 const GHOST_FADE_OUT := 0.8
 ## Seconds something takes to appear that was not there before.
 const APPEAR_DURATION := 2.5
+## Kinds that turn see-through while the player stands behind them, how far, and in how many
+## seconds.
+const SEE_THROUGH := ["tree", "house", "mill", "cupboard"]
+const SEE_THROUGH_ALPHA := 0.45
+const SEE_THROUGH_FADE := 0.25
 
 ## Where those aboard a vehicle stand, relative to its foot: the player first, then the others.
 const SEATS: Array[Vector2] = [Vector2(-20, -8), Vector2(18, 4), Vector2(0, 0)]
@@ -75,12 +80,18 @@ func _init(shown: World, sprites: Sprites, player_cell: Vector2i) -> void:
 	add_child(hint)
 
 
-func _process(_delta: float) -> void:
+func _process(delta: float) -> void:
+	# Points of the player's body that, when covered, mean the player is hidden.
+	var body: Array[Vector2] = [player.position + Vector2(0, -20), player.position + Vector2(0, -50)]
 	for object_id: String in _views:
 		var view: ObjectView = _views[object_id]
 		if view.life:
 			view.life.player_point = player.position if player.visible else Vector2.INF
 			view.life.speaking = object_id == speaker or view.kind == speaker
+		# Something tall in front of the player lets them show through.
+		if view.kind in SEE_THROUGH:
+			var hides := player.visible and view.position.y > player.position.y and body.any(view.covers)
+			view.modulate.a = move_toward(view.modulate.a, SEE_THROUGH_ALPHA if hides else 1.0, delta / SEE_THROUGH_FADE)
 
 
 ## Takes the stage down. The character stops at once, so it reports no more cells.

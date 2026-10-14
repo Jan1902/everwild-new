@@ -3,7 +3,7 @@
 	"start": [2, 4],
 	"mood_from": "village",
 	"music": "res://assets/music/room_theme.mp3",
-	"music_if": [{"if": [{"object": "music_box", "state": "playing"}], "music": "res://assets/sounds/music_box.wav"}],
+	"music_if": [{"if": [{"any": [{"object": "music_box", "state": "playing"}, {"object": "music_box", "state": "wrong"}]}], "music": "res://assets/sounds/music_box.wav"}],
 	"ground_image": {"path": "res://assets/worlds/house_inside_ground.png", "scale": 1.567, "origin": [-490.1, -238.78]},
 	"ground": [
 		"      ",
@@ -46,7 +46,7 @@
 		{"on": "interact", "object": "music_box", "if": [{"fact": "rift", "is": false}, {"fact": "evening_asked"}, {"object": "lantern_west", "state": "lit", "world": "village"}, {"object": "lantern_bridge", "state": "lit", "world": "village"}, {"object": "lantern_east", "state": "lit", "world": "village"}], "do": [{"change": "music_box", "state": "playing"}, {"say": "music_box.evening"}, {"say": "old_man.leaving", "who": "old_man"}, {"scene": "old_man_leaves"}, {"change": "old_man", "hidden": true}, {"note": "old_man_went"}]},
 		{"on": "interact", "object": "music_box", "if": [{"fact": "rift", "is": false}], "do": [{"say": "music_box.later"}]},
 		{"on": "interact", "object": "music_box", "if": [{"item": "crank"}, {"fixed": "lanterns", "world": "village"}, {"fixed": "arch", "world": "village"}, {"fixed": "wind", "world": "village"}, {"fixed": "brook", "world": "village"}, {"fixed": "carts", "world": "village"}], "do": [{"change": "music_box", "state": "playing"}, {"take": "crank"}, {"say": "music_box.plays"}]},
-		{"on": "interact", "object": "music_box", "if": [{"item": "crank"}], "do": [{"say": "music_box.wrong"}]},
+		{"on": "interact", "object": "music_box", "if": [{"item": "crank"}], "do": [{"change": "music_box", "state": "wrong"}, {"say": "music_box.wrong"}]},
 		{"on": "interact", "object": "music_box", "do": [{"say": "music_box.silent"}]},
 		{"on": "interact", "object": "table", "do": [{"say": "table.plain"}]},
 		{"on": "interact", "object": "cupboard", "if": [{"fact": "rift"}, {"fact": "crank_taken", "is": false}, {"note": "crank_whose"}], "do": [{"give": "crank"}, {"set": "crank_taken"}, {"say": "cupboard.crank"}, {"say": "old_man.found", "who": "old_man"}]},

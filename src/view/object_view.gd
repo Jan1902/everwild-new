@@ -76,7 +76,7 @@ func setup(object: WorldObject, sprites: Sprites) -> void:
 	if _layout.is_empty():
 		return
 	var layout := _layout
-	var path := sprites.image_path(layout.get("image", kind), object.state)
+	var path := sprites.image_path(layout.get("image", kind), layout.get("state_images", {}).get(object.state, object.state))
 	if path.is_empty():
 		return
 	var mirrored := object.mirrored

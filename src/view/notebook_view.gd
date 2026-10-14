@@ -90,8 +90,7 @@ var _fresh: Array[String] = []
 ## The slip opened for reading, or null.
 var _reader: NoteCard
 var _cards: Array[NoteCard] = []
-## Notes the player has put somewhere else themselves: id -> position on the page.
-var _placed := {}
+
 ## Notes the player had seen when the book was last open; the others are new.
 var _seen: Array[String] = []
 ## The slip under the finger, where the finger came down, how far the slip is from it, whether
@@ -153,6 +152,10 @@ func is_open() -> bool:
 ## Shows or hides the button, depending on whether the player carries the notebook.
 func refresh() -> void:
 	_button.visible = ITEM in session.state.items
+	# Something is new only if a note has been written down since the book was last open; notes
+	# that someone says again are already in it.
+	if not _open and session.state.notes.size() > session.state.notes_seen:
+		mark_unread()
 	_map.session = session
 	if _open:
 		_map.refresh()
@@ -177,6 +180,7 @@ func open(note := "") -> void:
 	if not note.is_empty():
 		_read(note)
 	_seen = session.state.notes.duplicate()
+	session.state.notes_seen = session.state.notes.size()
 	if sounds:
 		sounds.play("page")
 	_button.queue_redraw()
@@ -184,6 +188,9 @@ func open(note := "") -> void:
 
 
 func close() -> void:
+	# What was written down while the book was open, such as an insight, has been seen.
+	if _open:
+		session.state.notes_seen = session.state.notes.size()
 	_open = false
 	_page.visible = false
 	_held = null
@@ -197,7 +204,6 @@ func close() -> void:
 ## Brings the notebook back to how a new game starts: closed, tidy and with nothing unread.
 func reset() -> void:
 	close()
-	_placed.clear()
 	_seen.clear()
 	_fresh.clear()
 	_page_index = 0
@@ -298,7 +304,7 @@ func _fill() -> void:
 		var card := NoteCard.new()
 		var crossed := session.holds(notes[note].get("crossed_if", [{"fact": "-never-"}]), session.definition.get("start", ""))
 		card.setup(note, notes[note].get("kind", ""), crossed, notes[note].get("from", []).size())
-		card.position = _placed.get(note, _spot(number % PER_PAGE, note))
+		card.position = _placed(note, _spot(number % PER_PAGE, note))
 		card.rotation = _jitter(note, 1) * TILT
 		if note in _fresh:
 			card.glow = 1.0
@@ -321,6 +327,17 @@ func _turn(step: int) -> bool:
 		sounds.play("page")
 	_fill()
 	return true
+
+
+## Where the player has put a note, or the given place if they have not.
+func _placed(note: String, otherwise: Vector2) -> Vector2:
+	var place: Variant = session.state.slips.get(note)
+	return Vector2(place[0], place[1]) if place is Array else otherwise
+
+
+## Remembers where a note lies, in the saved game.
+func _place(note: String, at: Vector2) -> void:
+	session.state.slips[note] = [at.x, at.y]
 
 
 ## The page of slips a note lies on.
@@ -437,7 +454,7 @@ func _on_release(point: Vector2) -> void:
 		# Put down somewhere else on its own page, it stays there. On another page it goes back
 		# to its own.
 		if _page_index == _home_page:
-			_placed[held.note] = held.position
+			_place(held.note, held.position)
 		else:
 			_fill()
 		return
@@ -454,7 +471,7 @@ func _on_release(point: Vector2) -> void:
 	for effect: Dictionary in effects:
 		if effect.has("note") and session.notes().get(effect["note"], {}).has("from"):
 			insight = effect["note"]
-	_placed[insight] = target.position
+	_place(insight, target.position)
 	if sounds:
 		sounds.play("insight")
 	_open_time = 0.0

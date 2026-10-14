@@ -23,7 +23,7 @@ from image_gen import openai_image
 from style import PAINTED_STYLE, VIEW
 
 RAW = PROJECT / "styletest" / "walk"
-ROOM = PROJECT / "styletest" / "room"
+STYLETEST = PROJECT / "styletest"
 OBJECTS = PROJECT / "assets" / "objects"
 FRAMES = SPRITES["walk_frames"]
 THRESHOLD = 24
@@ -54,17 +54,26 @@ BEHIND = (
     "we see their back, the back of the head and no face."
 )
 OLD = " The person is old and walks slowly, slightly bent, with small steps."
-# reference: the standing figure the sheet is drawn after (in styletest/room).
+CHILD = " The person is a small child and walks with light, quick little steps."
+# reference: the standing figure the sheet is drawn after (in styletest/, with its folder).
 # standing: the standing image in assets/objects whose height the frames get.
 SHEETS = {
     "player_front": {"direction": "lower right", "seen": "seen from the front", "extra": "",
-                     "reference": "player_front", "standing": "player_front"},
+                     "reference": "room/player_front", "standing": "player_front"},
     "player_back": {"direction": "upper right", "seen": "seen from behind", "extra": "",
-                    "reference": "player_back", "standing": "player_back"},
+                    "reference": "room/player_back", "standing": "player_back"},
     "old_man_front": {"direction": "lower right", "seen": "seen from the front", "extra": OLD,
-                      "reference": "old_man", "standing": "old_man"},
+                      "reference": "room/old_man", "standing": "old_man"},
     "old_man_back": {"direction": "upper right", "seen": "seen from behind", "extra": BEHIND + OLD,
-                     "reference": "old_man", "standing": "old_man"},
+                     "reference": "room/old_man", "standing": "old_man"},
+    "woman_front": {"direction": "lower right", "seen": "seen from the front", "extra": "",
+                    "reference": "room/woman", "standing": "woman"},
+    "woman_back": {"direction": "upper right", "seen": "seen from behind", "extra": BEHIND,
+                   "reference": "room/woman", "standing": "woman"},
+    "child_front": {"direction": "lower right", "seen": "seen from the front", "extra": CHILD,
+                    "reference": "valley/child", "standing": "child"},
+    "child_back": {"direction": "upper right", "seen": "seen from behind", "extra": BEHIND + CHILD,
+                   "reference": "valley/child", "standing": "child"},
 }
 
 
@@ -80,7 +89,7 @@ def generate(names):
         try:
             usage = openai_image(
                 prompt, target, size="1536x1024", transparent=True,
-                references=[reference, ROOM / f"{sheet['reference']}.png"],
+                references=[reference, STYLETEST / f"{sheet['reference']}.png"],
             )
             return f"{name}: OK {json.dumps(usage)}"
         except Exception as error:

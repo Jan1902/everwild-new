@@ -159,7 +159,7 @@ func _ready() -> void:
 	_notebook.opened.connect(_on_notebook_opened)
 	_notebook.thought.connect(_show)
 	add_child(_notebook)
-	_dialogue.syllable.connect(_sounds.syllable)
+	_dialogue.line_begun.connect(_sounds.voice)
 	add_child(_dialogue)
 	_pause.set_volume(_settings.music_volume, _settings.sound_volume)
 	_pause.volume_changed.connect(_on_volume_changed)
@@ -505,8 +505,7 @@ func _show(effects: Array) -> void:
 			changed_hands.append("+ " + Texts.text("item." + effect["give"]))
 		if effect.has("take"):
 			changed_hands.append("− " + Texts.text("item." + effect["take"]))
-		if effect.has("note"):
-			_notebook.mark_unread()
+
 		if effect.has("whole"):
 			_celebrate(effect["whole"])
 		if effect.has("say") and (cut < 0 or number < cut):

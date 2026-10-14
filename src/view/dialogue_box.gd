@@ -7,8 +7,8 @@ extends CanvasLayer
 ## Lines can carry a mark: a few faint words in the corner of the box, beside the name, that
 ## note what the line leaves unsaid, such as a thing that has just changed hands.
 ##
-## While a line appears, the speaker babbles: every few letters the box asks for one syllable of
-## their voice (signal syllable), which those who have one answer with a sound.
+## When a line of someone who has a voice begins, the box says so (signal line_begun), and a
+## small sound of theirs is heard.
 
 ## Characters per second the text appears with.
 const SPEED := 45.0
@@ -17,14 +17,12 @@ const SPEED := 45.0
 const GRACE := 0.25
 ## Seconds a mark takes to appear.
 const MARK_FADE := 0.7
-## Letters per syllable of a voice. Some speak slower than others.
-const LETTERS_PER_SYLLABLE := 3
-const SLOW_VOICES := {"old_man": 4, "keeper": 4}
+
 
 ## The last line has been tapped away.
 signal closed
-## A syllable of the speaker's voice is due.
-signal syllable(speaker: String)
+## A line of this speaker begins.
+signal line_begun(speaker: String)
 
 ## Covers the whole screen while the box is open and catches every tap.
 var _cover := Control.new()
@@ -38,8 +36,7 @@ var _arrow := Control.new()
 var _queue: Array[Dictionary] = []
 var _speaker := ""
 ## Letters of the line on screen that have been voiced.
-var _voiced := 0
-var _letters := 0
+
 var _open := false
 var _shown_for := 0.0
 ## Whether the whole line is on screen.
@@ -134,7 +131,6 @@ func _process(delta: float) -> void:
 			_reveal()
 		else:
 			_text.visible_characters = shown
-			_voice(shown)
 	# The arrow bobs gently and breathes, so it reads as "go on" without nagging.
 	_arrow.modulate.a = 0.65 + 0.35 * sin(_shown_for * 4.0)
 	_arrow.queue_redraw()
@@ -150,19 +146,6 @@ func _on_cover_input(event: InputEvent) -> void:
 	else:
 		_reveal()
 
-
-## Asks for a syllable whenever enough new letters are on screen. Spaces and punctuation are
-## no letters, so pauses in a line are heard as pauses.
-func _voice(shown: int) -> void:
-	var every: int = SLOW_VOICES.get(_speaker, LETTERS_PER_SYLLABLE)
-	var line := _text.text
-	while _voiced < shown and _voiced < line.length():
-		var letter := line[_voiced]
-		_voiced += 1
-		if letter.to_upper() != letter.to_lower() or letter.is_valid_int():
-			_letters += 1
-			if _letters % every == 1 or every == 1:
-				syllable.emit(_speaker)
 
 
 ## Shows the whole line and the arrow.
@@ -206,8 +189,7 @@ func _next() -> void:
 		_mark_fade = create_tween()
 		_mark_fade.tween_property(_mark, "modulate:a", 1.0, MARK_FADE)
 	_speaker = entry.speaker
-	_voiced = 0
-	_letters = 0
+	line_begun.emit(_speaker)
 	_text.text = entry.line
 	_text.visible_characters = 0
 	_shown_for = 0.0
