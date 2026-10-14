@@ -8,6 +8,8 @@ const UNLIT_STATES := ["out", "closed", "dark"]
 const SAILS_SPEED := 0.7
 ## States in which the sails of a mill turn, and which way.
 const SAILS_TURNING := {"turning": 1.0, "backwards": -1.0}
+## Kinds that are people: they get a life of their own (see FigureLife).
+const PEOPLE := ["old_man", "woman", "child", "miller", "fisher", "keeper"]
 ## Placeholders that hang in the sky: a tap never means them.
 const UNTOUCHABLE := ["distant_light"]
 ## The area of a placeholder that takes taps, around its foot: about one cell wide and a person
@@ -25,14 +27,15 @@ const SHIMMER_SIZE := 1.15
 const SHIMMER_SPEED := 0.35
 ## Colour laid over a lantern that is out.
 const UNLIT := Color(0.62, 0.66, 0.78)
-## Where the notebook lies on the table, relative to the table's foot.
-const NOTEBOOK_SPOT := Vector2(-12, -38)
+
 ## Seconds an object takes to slide to another cell.
 const MOVE_DURATION := 0.45
 ## Seconds a light takes to come on: a flame catches quickly, the light in an open way to another
 ## world rises slowly.
 const KINDLE_DURATION := 0.5
 const SHIMMER_RISE := 1.8
+## Sparks a flame throws as it catches.
+const SPARKS := 22
 
 var kind := ""
 var size := Vector2i.ONE
@@ -40,6 +43,11 @@ var size := Vector2i.ONE
 var shadow: Node2D
 ## Brightness of the object's light, from the mood of the world.
 var light := 1.0
+## Whether the view only shows the object and does nothing of its own, like a memory showing
+## through. Set before setup().
+var still := false
+## What makes a person look alive. Null for everything else.
+var life: FigureLife
 
 var _sprites: Sprites
 var _shown: WorldObject
@@ -79,8 +87,11 @@ func setup(object: WorldObject, sprites: Sprites) -> void:
 	if not lit:
 		_image.modulate = UNLIT
 	add_child(_image)
-	if kind == "table" and object.state == "notebook":
-		add_child(_build_notebook())
+	if kind in PEOPLE and not still:
+		life = FigureLife.new()
+		life.setup(self, _image, sprites, kind, mirrored, object.stroll)
+		add_child(life)
+
 	var sails_path := sprites.image_path("sails")
 	if layout.has("sails") and not sails_path.is_empty():
 		# The sails are painted from the front. Laid into the plane of the right wall, they turn
@@ -126,25 +137,27 @@ func setup(object: WorldObject, sprites: Sprites) -> void:
 		set_process(true)
 
 
-## A small closed book lying on the table, drawn from a few flat areas like the painted images.
-func _build_notebook() -> Node2D:
-	var book := Node2D.new()
-	book.position = _image.position + NOTEBOOK_SPOT
-	var along := Vector2(10, 5)
-	var across := Vector2(-7, 3.5)
-	var thick := Vector2(0, 3)
+## The player's notebook lying in the grass, a little open, drawn from a few flat areas like the
+## painted images.
+func _draw_book() -> void:
+	_draw_ground_shadow(18.0)
+	var along := Vector2(14, 7)
+	var across := Vector2(-10, 5)
+	var thick := Vector2(0, 4)
 	var top := PackedVector2Array([-along - across, along - across, along + across, -along + across])
-	var parts := [
+	for part: Array in [
 		[PackedVector2Array([top[3], top[2], top[2] + thick, top[3] + thick]), Color("efe6d0")],
 		[PackedVector2Array([top[2], top[1], top[1] + thick, top[2] + thick]), Color("d9cdb2")],
 		[top, Color("8c3b2e")],
-	]
-	for part: Array in parts:
-		var area := Polygon2D.new()
-		area.polygon = part[0]
-		area.color = part[1]
-		book.add_child(area)
-	return book
+	]:
+		draw_colored_polygon(PackedVector2Array(Array(part[0]).map(func(point: Vector2) -> Vector2: return point + Vector2(0, -6))), part[1])
+
+
+## How high the object stands above its foot, in world pixels. Placeholders are about a person.
+func height() -> float:
+	if _image == null:
+		return 24.0 if kind == "book" else -PLACEHOLDER_AREA.position.y
+	return -(_image.position.y + _image.offset.y * _image.scale.y)
 
 
 ## Whether the object has a light that is on.
@@ -152,17 +165,51 @@ func is_lit() -> bool:
 	return _glow != null
 
 
-## Lets the light come on from dark instead of being there at once.
-func light_up() -> void:
+## Lets the light come on from dark instead of being there at once. A flame throws a few sparks
+## as it catches. Returns false if the object has no light that is on.
+func light_up() -> bool:
 	if _glow == null:
-		return
-	var duration := SHIMMER_RISE if _layout.get("shimmer", false) else KINDLE_DURATION
+		return false
+	var shimmer: bool = _layout.get("shimmer", false)
+	var duration := SHIMMER_RISE if shimmer else KINDLE_DURATION
 	_lit = 0.0
 	_glow.modulate.a = 0.0
 	_image.modulate = UNLIT
 	var rise := create_tween().set_parallel().set_trans(Tween.TRANS_SINE)
 	rise.tween_property(self, "_lit", 1.0, duration)
 	rise.tween_property(_image, "modulate", Color.WHITE, duration)
+	if not shimmer:
+		add_child(_sparks(_glow.position))
+	return true
+
+
+## Sparks that fly up from a flame catching and fade. They take themselves away when done.
+func _sparks(at: Vector2) -> CPUParticles2D:
+	var sparks := CPUParticles2D.new()
+	sparks.position = at
+	sparks.amount = SPARKS
+	sparks.one_shot = true
+	sparks.explosiveness = 0.85
+	sparks.lifetime = 1.1
+	sparks.direction = Vector2.UP
+	sparks.spread = 70.0
+	sparks.initial_velocity_min = 30.0
+	sparks.initial_velocity_max = 90.0
+	sparks.gravity = Vector2(0, 40)
+	sparks.damping_min = 20.0
+	sparks.damping_max = 40.0
+	sparks.scale_amount_min = 1.5
+	sparks.scale_amount_max = 3.5
+	var fade := Gradient.new()
+	fade.set_color(0, Color(1.0, 0.92, 0.6, 1.0))
+	fade.set_color(1, Color(LIGHT_COLOR, 0.0))
+	sparks.color_ramp = fade
+	var add_material := CanvasItemMaterial.new()
+	add_material.blend_mode = CanvasItemMaterial.BLEND_MODE_ADD
+	sparks.material = add_material
+	sparks.finished.connect(sparks.queue_free)
+	sparks.emitting = true
+	return sparks
 
 
 ## Whether the view shows the object as it is now.
@@ -179,6 +226,9 @@ func follow(object: WorldObject) -> bool:
 		return false
 	_shown = moved
 	var target := _point(object.cell)
+	if life:
+		life.go_home(target, object.stroll)
+		return true
 	var slide := create_tween().set_parallel().set_trans(Tween.TRANS_SINE)
 	slide.tween_property(self, "position", target, MOVE_DURATION)
 	if shadow:
@@ -274,12 +324,16 @@ func _draw() -> void:
 			_draw_rock()
 		"house":
 			_draw_house()
-		"person", "old_man", "woman", "miller", "fisher":
+		"person", "old_man", "woman", "miller", "fisher", "keeper":
 			_draw_person(1.0)
 		"child":
 			_draw_person(0.68)
 		"distant_light":
 			_draw_glow(Vector2(-60, -150), 46.0)
+		"book":
+			_draw_book()
+		"gate":
+			_draw_gate()
 
 
 func _draw_ground_shadow(radius: float) -> void:
@@ -307,6 +361,20 @@ func _draw_person(height: float) -> void:
 	draw_circle(Vector2(-2 if _shown.mirrored else 2, -66), 14.0, Color("e6cdb0"))
 	draw_arc(Vector2(0, -68), 14.0, PI, TAU, 12, Color("d9d6d0"), 5.0)
 	draw_set_transform(Vector2.ZERO)
+
+
+## A sliding gate in its frame, the board pulled up or let down.
+func _draw_gate() -> void:
+	_draw_ground_shadow(30.0)
+	var wood := Color("5e4630")
+	var lift := -52.0 if _shown.state == "up" else 0.0
+	draw_rect(Rect2(-24, -34, 48, 34), Color("2c3a44"))
+	draw_rect(Rect2(-3, -100 + lift, 6, 70), Color("5b5f66"))
+	draw_rect(Rect2(-24, -36 + lift, 48, 36), Color("3e7f9a"))
+	draw_rect(Rect2(-24, -36 + lift, 48, 6), Color("2f6680"))
+	draw_rect(Rect2(-32, -96, 9, 98), wood)
+	draw_rect(Rect2(23, -96, 9, 98), wood)
+	draw_rect(Rect2(-34, -102, 68, 10), wood)
 
 
 ## A soft light in the distance.

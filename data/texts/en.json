@@ -1,20 +1,16 @@
 {
 	"start.advice": "This game lives from its mood.\nIt is at its best with headphones, or somewhere quiet.",
 	"start.begin": "Tap to begin",
-	"notebook.title": "Notebook",
-	"notebook.empty": "Nothing written down yet.",
-	"notebook.links": "Belongs with",
-	"notebook.unknown": "something I do not know yet",
 	"pause.title": "Pause",
 	"pause.volume": "Music",
+	"pause.sounds": "Sounds",
 	"pause.language": "Language",
 	"pause.new_game": "Start over",
 	"pause.continue": "Continue",
 	"pause.confirm": "Start over from the beginning?\nEverything you have done so far will be lost.",
 	"pause.confirm_yes": "Yes, start over",
 	"pause.confirm_no": "No, go back",
-	"notebook.whole": "Whole again",
-	"notebook.broken": "Something is still wrong here",
+	"notebook.carrying": "With me",
 	"item.crank": "crank",
 	"item.wick": "wick",
 	"item.notebook": "notebook",
@@ -22,12 +18,14 @@
 	"kind.piece": "Piece of the world",
 	"kind.hint": "Hint",
 	"kind.rift": "The Rift",
+	"kind.insight": "Insight",
 	"name.self": "Me",
 	"name.old_man": "Old man",
 	"name.stranger": "Woman by the brook",
 	"name.miller": "Miller",
 	"name.child": "Child",
 	"name.fisher": "Fisherwoman",
+	"name.keeper": "Sluice keeper",
 	"world.village": "The village",
 	"world.house_inside": "The house",
 	"world.mill_hill": "The mill hill",
@@ -35,10 +33,9 @@
 	"world.pond": "The pond",
 	"world.watch": "The watch",
 	"old_man.before": [
-		"There you are. Evening is coming.",
+		"There you are. Evening's coming.",
 		"The lanterns, as always. All three. Don't forget the one by the bridge.",
-		"And when you are back … wind the music box for me. My fingers won't do it any more.",
-		"I have to be off then. I am late."
+		"And when you're back … wind the music box for me. My fingers won't any more."
 	],
 	"old_man.before_again": [
 		"The lanterns first. Then the music box.",
@@ -48,9 +45,13 @@
 		"A small music box. The crank is already in place.",
 		"Later. The other things first."
 	],
-	"table.before": [
-		"A book lies on the table.",
-		"It lies there as if it always had."
+	"table.plain": [
+		"His table. A ring from a cup, a few crumbs."
+	],
+	"notebook.found": [
+		"A small book in the grass. The cover is damp.",
+		"It's my handwriting. This evening is already in it: the lanterns, the music box, his way.",
+		"And something I didn't write. Or don't remember writing."
 	],
 	"stranger.before": [
 		"Good evening.",
@@ -58,6 +59,10 @@
 	],
 	"child.before": [
 		"I am counting the lights. When you are done, there are three."
+	],
+	"child.shy": [
+		"…",
+		"You haven't got it with you. You always have it with you."
 	],
 	"arch.before": [
 		"The arch to the mill hill.",
@@ -69,20 +74,26 @@
 		"Then he gets up and takes his coat."
 	],
 	"old_man.leaving": [
-		"That is how it went. Just so.",
-		"I have to be off. You go ahead, I will be right behind you."
+		"That's how it went. Just like that.",
+		"I have to go, up there. Stay a while and listen to it.",
+		"Then come after me. You know where."
 	],
 	"rift.comes": [
-		"In the doorway I hear the tune behind me. It grows slower. Deeper.",
+		"I want to follow him. In the doorway I hear the melody behind me.",
+		"It slows down. Deeper.",
 		"…"
 	],
 	"rift.wake": [
 		"Grass. Wind from the wrong side.",
-		"I am lying by the path. For how long?"
+		"I'm lying by the path. For how long?"
 	],
 	"lantern.blown": [
 		"The flame takes. It flickers.",
 		"Then the wind carries it off."
+	],
+	"cart.home": [
+		"The cart stands where it stood.",
+		"Where else would I push it?"
 	],
 	"stranger.wind": [
 		"You come across the bridge. Nobody has done that for a long time.",
@@ -103,10 +114,6 @@
 	"stranger.whole": [
 		"Now it is my evening again.",
 		"You used to pass here every evening. I never asked where to."
-	],
-	"child.shy": [
-		"…",
-		"You do not have it with you."
 	],
 	"child.still": [
 		"The book! You always had that with you.",
@@ -133,19 +140,14 @@
 		"That was not the way back.",
 		"The arch skipped something."
 	],
+	"arch.where": [
+		"The arch carries. Something shimmers beyond it.",
+		"But to where? An arch only takes you where you mean to go. Where did I mean to go?"
+	],
 	"old_man.first": [
-		"… You. I know your walk.",
+		"… You. I know your step.",
 		"Sit down. No. You never sit down.",
-		"There is a book on the table. It has been lying there for as long as I can think. The writing is not mine."
-	],
-	"old_man.take_it": [
-		"The book. There on the table.",
-		"Take it. It has been looking at you all this time."
-	],
-	"notebook.taken": [
-		"A small notebook. The first pages are written on.",
-		"It is my handwriting.",
-		"What I have learned today is already in it."
+		"You always write everything in that book of yours. Write down that I'm sitting here. What I'm waiting for, I don't remember."
 	],
 	"old_man.borrowed": [
 		"The music box is silent. Do you hear? Exactly.",
@@ -154,8 +156,8 @@
 	],
 	"old_man.yours": [
 		"The miller, you say? A crank? The crank! Of course.",
-		"Then it is his. I put it away, somewhere. I have not found it for years.",
-		"If you find it, take it to him. And give him my regards. He will know from whom."
+		"I put it away so it wouldn't get lost. Between the blankets, I think.",
+		"If you find it, take it to him. And give him my regards. He'll know who from."
 	],
 	"cupboard.crank": [
 		"Blankets. More blankets. Behind them something heavy and cold.",
@@ -168,6 +170,10 @@
 	"cupboard.plain": [
 		"An old cupboard. Blankets, linen, a smell of lavender.",
 		"I would not know what to look for in here."
+	],
+	"cupboard.think": [
+		"Blankets, linen, a smell of lavender.",
+		"He put away something borrowed. The miller lent something out. Do those belong together in my book?"
 	],
 	"old_man.carry": [
 		"Take it to the miller.",
@@ -183,19 +189,14 @@
 	],
 	"old_man.humming": [
 		"Hm-hm, hmm … that is how it went. Just so.",
-		"In the evenings I always went up somewhere. Every evening.",
-		"Where to … it will not come to me."
-	],
-	"old_man.above": [
-		"A great light, you say. Above the water.",
-		"The watch. I lit it every evening. Every one.",
-		"That evening I was just about to leave. I still heard the music box. It was running backwards.",
-		"I cannot get up there any more. My legs no longer know the way.",
-		"Here. The wick. It will not burn without it. You go."
+		"That evening it ran backwards. I had my coat on and was about to leave.",
+		"Leave, where to … In the evenings I always went up somewhere. It will not come to me.",
+		"Before that I fetched something up at the sluice. Every evening. The one at the sluice may still know."
 	],
 	"old_man.go": [
+		"The watch, you say. Yes. Yes! I lit it every evening.",
 		"Go on. I will listen to the music box.",
-		"When it burns up there, I shall see it from the window."
+		"When it burns up there, I will see it from the window."
 	],
 	"music_box.silent": [
 		"A small music box. It is silent.",
@@ -206,7 +207,7 @@
 		"The tune comes out crooked, too low, as if under water. Something outside is still wrong."
 	],
 	"music_box.plays": [
-		"The crank catches.",
+		"The crank catches. It stays in; this is where it belongs.",
 		"The tune. As on the evening before everything tore.",
 		"The old man lifts his head."
 	],
@@ -304,12 +305,57 @@
 		"Now it comes back to me. Every evening I stood here and watched the weather."
 	],
 	"whole.spring": [
-		"The water runs. The raft lies by the bank, the lantern burns.",
-		"This is how it was here. I am sure of it."
+		"The water runs, the raft lies at the bank, the lantern burns.",
+		"This is how it was every morning. I know again why I stand at the sluice."
 	],
 	"whole.pond": [
 		"The house. My house. The door still sticks as it used to.",
-		"I know again how the evening goes: light on, across, home."
+		"I know again how the evening goes: light on, across, home. And then sit here on the jetty and look up."
+	],
+	"keeper.evening": [
+		"In the evening I close the sluice, in the morning I open it. It was always so.",
+		"It is evening. It has been evening for a very long time.",
+		"Turn the wheel yourself if you think so. But look first at what lies below.",
+		"I let those gates down as well. How they stood in the morning … I stand here every day and it will not come to me."
+	],
+	"keeper.open": [
+		"It runs. That is the sound of morning.",
+		"In the evenings someone always came by and fetched something. I still have it. I just no longer know for whom."
+	],
+	"keeper.above": [
+		"A great light above the pond. Yes.",
+		"The watch. The old man from the village went up every evening and lit it.",
+		"He came by here and fetched his wick. I twist them from the rushes at the spring.",
+		"Then the fisherwoman rowed him over. Across the water, there is no other way to the arch.",
+		"He does not come any more. Here, the wick from that evening. You go."
+	],
+	"keeper.go": [
+		"Across the pond, by boat. The arch stands on the fisherwoman's shore.",
+		"The great light only catches when everything burns below. It was always so."
+	],
+	"gates.unsure": [
+		"Three sliding gates in the channels above the sluice.",
+		"I could pull them. But how did they stand in the morning?"
+	],
+	"gates.right": [
+		"The gate clicks into place.",
+		"Now all three stand as they did in the morning."
+	],
+	"gates.set": [
+		"The gates stand as they stood in the morning."
+	],
+	"memory.basin": [
+		"The three gates as they stood in the morning.",
+		"They do not all stand the same."
+	],
+	"keeper.open_gates": [
+		"It runs. But it does not run right.",
+		"The gates still stand as in the evening. In the morning they stood differently.",
+		"I stand here every day and look at them, and it will not come to me."
+	],
+	"sluice.gates_first": [
+		"The wheel will not give.",
+		"The gates above the sluice still stand as in the evening. Nothing will run off like this."
 	],
 	"sluice.opens": [
 		"The sluice gives way. The water runs off, down the brook.",
@@ -363,7 +409,8 @@
 	],
 	"memory.jetty": [
 		"Above the water, high up: a great light.",
-		"There is another piece. One that nobody knows any more."
+		"There is another piece. One that nobody knows any more.",
+		"Whoever stands up at the sluice sees everyone who comes down to this water. Perhaps he knows who went up there."
 	],
 	"view.village.dark": [
 		"Far below: the village.",
@@ -456,6 +503,8 @@
 	"note.cart_places.text": "It stood beside the bridge in the grass. Not on the path and not in front of the house.",
 	"note.vane_direction.title": "The weather vane",
 	"note.vane_direction.text": "From the miller's place I saw the mill as it was. The vane pointed towards the mill.",
+	"note.gate_positions.title": "The three gates",
+	"note.gate_positions.text": "From the keeper's place I saw them as they stood in the morning: the two outer ones up, the middle one down.",
 	"note.big_light.title": "The great light",
 	"note.big_light.text": "From the fisherwoman's jetty I saw it: a great light high above the water. There must be another piece up there.",
 	"note.lookout.title": "The old man's place",
@@ -469,5 +518,19 @@
 	"note.rift_fisher.title": "The Rift: the mirror",
 	"note.rift_fisher.text": "The fisherwoman says: the great light was still mirrored in the pond when it had already gone out above.",
 	"note.rift_old_man.title": "The Rift: the music box",
-	"note.rift_old_man.text": "The old man says: he was just about to leave and heard the music box. It was running backwards. I was there. I only heard it grow slower."
+	"note.rift_old_man.text": "The old man says: he was just about to leave and heard the music box. It was running backwards. I was there. I only heard it grow slower.",
+	"note.evening_round.title": "Evening round",
+	"note.evening_round.text": "Three lanterns. The one by the bridge!! Then wind the music box, he can't any more.",
+	"note.old_man_went.title": "He has gone",
+	"note.old_man_went.text": "Through the arch at the eastern edge, up to the mill hill. And then on? I'm to follow.",
+	"note.lantern_blown.title": "No light",
+	"note.lantern_blown.text": "The flame takes, then the wind tears it away. It comes from the wrong side.",
+	"note.shelter.title": "Lee!",
+	"note.shelter.text": "Behind the hay cart it's still. If it stands on the windward side of a lantern, the flame will hold.",
+	"note.mill_way.title": "Where the arch leads",
+	"note.mill_way.text": "Where the child stands, the arch used to be. The old man went through it, to the mill hill. That's where it leads. That's where I'm going.",
+	"note.crank_whose.title": "The crank!",
+	"note.crank_whose.text": "The old man's borrowed thing is the miller's crank. He put it away. Somewhere in his house?",
+	"note.rift_own.title": "My handwriting",
+	"note.rift_own.text": "He's going up. I'm to follow. When the light up there –\n(I don't know when I wrote this.)"
 }

@@ -2,8 +2,8 @@ class_name Solver
 extends RefCounted
 ## Plays a game through in every possible way and checks that it can always be completed.
 ##
-## A move is using an object, stepping onto a cell whose rule fires, or lingering where a rule
-## waits for it. Walking around without firing a rule changes nothing, so the player's cell only
+## A move is using an object, stepping onto a cell whose rule fires, lingering where a rule
+## waits for it, or drawing two notes of the notebook together into an insight. Walking around without firing a rule changes nothing, so the player's cell only
 ## counts as "which connected area".
 ##
 ## Two states count as the same if they differ only in what no rule ever asks for, such as notes
@@ -12,7 +12,7 @@ extends RefCounted
 ## Search is given up beyond this many states.
 const LIMIT := 200000
 ## Effects that never change what a rule can ask for.
-const IDLE_EFFECTS := ["say", "remember"]
+const IDLE_EFFECTS := ["say", "remember", "scene"]
 
 var _session: Session
 ## Names of facts, items and notes that some condition asks for.
@@ -62,7 +62,9 @@ func _search() -> Dictionary:
 			goals.append(next)
 		for step: Dictionary in _moves():
 			_session.restore(saved[next].copy())
-			if step.has("object"):
+			if step.has("combine"):
+				_session.combine(step.combine[0], step.combine[1])
+			elif step.has("object"):
 				# The cell lies in the area, so walking there fires nothing.
 				_session.state.cell = step.cell
 				_session.interact(step.object)
@@ -123,6 +125,12 @@ func _search() -> Dictionary:
 ## Goes through all rules once and notes what they ask for and where they wait for the player.
 func _read_rules() -> void:
 	_note_asked(_session.definition.get("complete_if", []))
+	# Notes that make an insight together matter as much as the insight does.
+	var notes := _session.notes()
+	for note: String in notes:
+		for source: String in notes[note].get("from", []):
+			_asked.note[source] = true
+			_asked.item[Session.NOTEBOOK] = true
 	for world_id: String in _session.world_ids():
 		var world := _session.world(world_id)
 		_enter_cells[world_id] = {}
@@ -193,9 +201,13 @@ func _key() -> String:
 
 
 ## All moves possible in the current state: {"cell"} to step onto, {"object", "cell"} to use
-## the object from that cell, or {"linger", "cell"} to stand still there.
+## the object from that cell, {"linger", "cell"} to stand still there, or {"combine"} with the
+## two notes to draw together.
 func _moves() -> Array[Dictionary]:
 	var moves: Array[Dictionary] = []
+	for open: Array in _session.open_insights():
+		if _asked.note.has(open[2]):
+			moves.append({"combine": [open[0], open[1]]})
 	var world := _session.world()
 	var area := _area()
 	for cell: Vector2i in area.doors:
@@ -291,6 +303,8 @@ func _settle() -> void:
 
 
 static func _describe(step: Dictionary) -> String:
+	if step.has("combine"):
+		return "think %s + %s" % step.combine
 	if step.has("object"):
 		return "use %s" % step.object
 	if step.has("linger"):

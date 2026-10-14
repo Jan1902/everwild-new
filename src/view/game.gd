@@ -23,6 +23,8 @@ const QUAKE_DARKENING := 0.9
 const QUAKE_DARK := 1.6
 const QUAKE_DAWN := 4.5
 const QUAKE_SOUND := "res://assets/sounds/quake.wav"
+## How bright the picture flares at the start of the quake, from 0 to 1.
+const QUAKE_FLASH := 0.85
 ## The start of the app: the picture comes out of the colour the engine's splash screen and the
 ## start screen have, after staying in it for a moment, in this many seconds.
 const START_DARK := 0.25
@@ -33,6 +35,10 @@ const NEW_GAME_DARK := 0.7
 const NEW_GAME_DAWN := 1.6
 ## Seconds the player has to stand still before rules that wait for lingering fire.
 const LINGER_DELAY := 3.5
+## Seconds without anything going on before the hint the world has for the moment shows, and how
+## far above an object it floats.
+const HINT_DELAY := 1.6
+const HINT_LIFT := 0.0
 ## Remembering: seconds the remembered part of the world takes to show through and to fade
 ## again, how far its colours move towards the remembered ones, how far the music does, and how
 ## much larger than the remembered cells the part of the picture is that changes.
@@ -43,7 +49,9 @@ const MEMORY_MUSIC := 0.3
 const MEMORY_MARGIN := 1.5
 ## The moment a world becomes whole: how bright the warm light gets that swells over the
 ## picture, and seconds it takes to come and to go.
-const WHOLE_GLOW := 0.28
+const WHOLE_GLOW := 0.36
+## Motes of light that rise when a world becomes whole.
+const WHOLE_MOTES := 90
 const WHOLE_GLOW_IN := 0.9
 const WHOLE_GLOW_OUT := 3.0
 
@@ -65,6 +73,7 @@ var _sprites := Sprites.new()
 var _camera: Camera2D
 var _grading: ShaderMaterial
 var _music := Music.new()
+var _sounds := Sounds.new()
 var _mood_from := Mood.new()
 var _mood_to := Mood.new()
 var _mood_change: Tween
@@ -87,6 +96,12 @@ var _started := true
 ## Seconds the player has been standing still, and whether this standstill has shown its memory.
 var _idle := 0.0
 var _lingered := false
+## Seconds nothing has been going on, for the hints.
+var _hint_wait := 0.0
+## What the camera follows during a scene instead of the player: a node or a point of the world
+## (Vector2.INF for none).
+var _focus_node: Node2D
+var _focus_point := Vector2.INF
 ## Whether the player is remembering, the part of the world that shows through, and the change
 ## of memory_progress in progress.
 var _remembering := false
@@ -132,16 +147,23 @@ func _ready() -> void:
 	_build_grading()
 	_build_curtain()
 	add_child(_music)
-	# Until sounds have a bus of their own, the one sound there is follows the music volume.
-	_rumble.bus = Music.BUS
+	add_child(_sounds)
+	_rumble.bus = Sounds.BUS
 	if ResourceLoader.exists(QUAKE_SOUND):
 		_rumble.stream = load(QUAKE_SOUND)
 	add_child(_rumble)
 	_music.set_volume(_settings.music_volume)
+	_sounds.set_volume(_settings.sound_volume)
+	_notebook.sounds = _sounds
+	_notebook.dialogue = _dialogue
+	_notebook.opened.connect(_on_notebook_opened)
+	_notebook.thought.connect(_show)
 	add_child(_notebook)
+	_dialogue.syllable.connect(_sounds.syllable)
 	add_child(_dialogue)
-	_pause.set_volume(_settings.music_volume)
+	_pause.set_volume(_settings.music_volume, _settings.sound_volume)
 	_pause.volume_changed.connect(_on_volume_changed)
+	_pause.sound_volume_changed.connect(_on_sound_volume_changed)
 	_pause.language_changed.connect(_on_language_changed)
 	_pause.new_game_requested.connect(new_game)
 	_pause.closed.connect(_settings.write)
@@ -195,6 +217,30 @@ func _process(delta: float) -> void:
 		if _idle >= LINGER_DELAY:
 			_lingered = true
 			_linger()
+	stage.speaker = _dialogue.speaker()
+	# Standing on a place of memory, the player sees it gather while they wait.
+	var spots := stage.memory_spots
+	spots.focus = stage.player.cell
+	var waiting := 0.0 if _lingered or walking else clampf(_idle / LINGER_DELAY, 0.0, 1.0)
+	spots.progress = move_toward(spots.progress, waiting, delta * 2.0)
+	_update_hint(delta, walking)
+
+
+## Shows the hint the world has for this moment once the player has stood about for a while
+## without anything going on, and takes it away as soon as they do something.
+func _update_hint(delta: float, walking: bool) -> void:
+	var calm := not walking and not _travelling and _started and not _dialogue.is_open() and not _notebook.is_open()
+	_hint_wait = _hint_wait + delta if calm else 0.0
+	var hint := session.hint() if _hint_wait >= HINT_DELAY else {}
+	var target := Vector2.INF
+	if hint.has("object"):
+		var view := stage.view_of(hint["object"])
+		if view:
+			target = view.position + Vector2(0, -view.height() - HINT_LIFT)
+	elif hint.has("cell"):
+		target = Iso.to_point(World.read_properties(hint).cell)
+	stage.hint.point_at(target, hint.has("cell"))
+	_notebook.hint(hint.get("notebook", false))
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -216,6 +262,7 @@ func _unhandled_input(event: InputEvent) -> void:
 ## Reacts to a tap on a point of the world: uses the object there, otherwise walks to the cell.
 func tap(point: Vector2) -> bool:
 	_idle = 0.0
+	_hint_wait = 0.0
 	_forget()
 	# Objects with nothing to do at the moment let the tap through to the ground.
 	var object_id := stage.object_at(point, func(id: String) -> bool: return not session.interact_rule(id).is_empty())
@@ -330,6 +377,20 @@ func _on_volume_changed(volume: float) -> void:
 	_music.set_volume(volume)
 
 
+## The first time the notebook is opened ends the hint that points at it. While the book is
+## open, the character stops where they are, so nothing starts talking behind it.
+func _on_notebook_opened() -> void:
+	session.state.facts["notebook_read"] = true
+	_target_object = ""
+	stage.player.walk([] as Array[Vector2i])
+	save()
+
+
+func _on_sound_volume_changed(volume: float) -> void:
+	_settings.sound_volume = volume
+	_sounds.set_volume(volume)
+
+
 func _on_language_changed(language: String) -> void:
 	_settings.language = language
 	_settings.write()
@@ -341,7 +402,7 @@ func _on_start_dismissed() -> void:
 	_started = true
 	session.state.start_screen_seen = true
 	save()
-	_music.play(stage.world.music)
+	_music.play(session.music())
 
 
 func _walk(path: Array[Vector2i]) -> void:
@@ -389,6 +450,7 @@ func _remember(memory_id: String) -> void:
 	_remembering = true
 	_memory_zone = stage.world.memories[memory_id]
 	stage.remember(stage.world.remembered(memory_id), MEMORY_FADE_IN)
+	stage.memory_spots.hold(true)
 	_place_memory()
 	_change_memory(1.0, MEMORY_FADE_IN)
 
@@ -399,6 +461,7 @@ func _forget() -> void:
 		return
 	_remembering = false
 	stage.forget()
+	stage.memory_spots.hold(false)
 	_change_memory(0.0, MEMORY_FADE_OUT)
 
 
@@ -430,6 +493,9 @@ func _show(effects: Array) -> void:
 	_forget()
 	_notebook.refresh()
 	var leaving := effects.find_custom(func(effect: Dictionary) -> bool: return effect.has("go"))
+	var scene := effects.find_custom(func(effect: Dictionary) -> bool: return effect.has("scene"))
+	# What is said after a scene or after leaving waits for the end of the scene or the arrival.
+	var cut := leaving if scene < 0 or (leaving >= 0 and leaving < scene) else scene
 	# What has changed hands since the last thing said. Words alone do not always make that
 	# clear, so the next thing said carries it as a mark in the corner of the dialogue.
 	var changed_hands := []
@@ -443,22 +509,97 @@ func _show(effects: Array) -> void:
 			_notebook.mark_unread()
 		if effect.has("whole"):
 			_celebrate(effect["whole"])
-		# What is said after leaving waits for the arrival.
-		if effect.has("say") and (leaving < 0 or number < leaving):
+		if effect.has("say") and (cut < 0 or number < cut):
 			_say(effect, "   ".join(changed_hands))
 			changed_hands.clear()
-	if leaving >= 0:
+	if cut >= 0 and cut == scene:
+		if _started:
+			_music.play(session.music())
+		_play_scene(effects[scene]["scene"], effects.slice(scene + 1))
+	elif leaving >= 0:
 		_travel(effects[leaving], effects.slice(leaving + 1))
 	else:
 		stage.sync()
+		stage.memory_spots.show_on(session.memory_cells())
 		_change_mood()
 		_greet_whole()
+		# Something may have started or stopped playing, such as the music box.
+		if _started:
+			_music.play(session.music())
 	save()
 
 
+## Plays a scene once what is being said has been heard out, then shows what the rule does
+## after it: what is said, and leaving if it leaves.
+func _play_scene(scene_id: String, afterwards: Array) -> void:
+	var playing := session
+	_travelling = true
+	_target_object = ""
+	stage.player.walk([] as Array[Vector2i])
+	if _dialogue.is_open():
+		await _dialogue.closed
+	if session != playing:
+		return
+	await Cutscene.new(self).play(scene_id)
+	if session != playing:
+		return
+	_travelling = false
+	var leaving := afterwards.find_custom(func(effect: Dictionary) -> bool: return effect.has("go"))
+	for number in afterwards.size():
+		if afterwards[number].has("say") and (leaving < 0 or number < leaving):
+			_say(afterwards[number])
+	if leaving >= 0:
+		_travel(afterwards[leaving], afterwards.slice(leaving + 1))
+	save()
+
+
+## Puts another world on show for a scene, without the player in it.
+func show_world(world_id: String) -> void:
+	if stage:
+		stage.retire()
+	stage = Stage.new(session.world(world_id), _sprites, Vector2i(-1, -1))
+	stage.player.visible = false
+	stage.player.shadow.visible = false
+	add_child(stage)
+	_mood_from = session.mood(world_id)
+	_mood_to = _mood_from
+	mood_progress = 1.0
+
+
+## Ends a scene: the player's world is on show again and the camera follows them.
+func end_scene() -> void:
+	_focus_node = null
+	_focus_point = Vector2.INF
+	_build_stage()
+
+
+## Lets the camera follow a node, or rest on a point of the world.
+func focus_on(target: Variant) -> void:
+	_focus_node = target if target is Node2D else null
+	_focus_point = target if target is Vector2 else Vector2.INF
+
+
+## Lets the camera glide to a point of the world over the given seconds. Await it.
+func glide_camera(point: Vector2, seconds: float) -> void:
+	var from := _camera_target()
+	_focus_node = null
+	_focus_point = from
+	var glide := create_tween()
+	glide.tween_property(self, "_focus_point", point, seconds).set_trans(Tween.TRANS_SINE)
+	await glide.finished
+
+
+## Lets the curtain over the picture go to an opacity over the given seconds. Await it.
+func fade_curtain(alpha: float, seconds: float) -> void:
+	var fade := create_tween()
+	fade.tween_property(_curtain, "color:a", alpha, seconds)
+	await fade.finished
+
+
 func _say(effect: Dictionary, mark := "") -> void:
-	# Lines without a speaker are the player talking to themselves.
-	_dialogue.say(Texts.text("name." + effect.get("who", "self")), Texts.lines(effect["say"]), mark)
+	# Lines without a speaker are the player talking to themselves, which is not heard.
+	var who: String = effect.get("who", "self")
+	_dialogue.say(Texts.text("name." + who), Texts.lines(effect["say"]), mark, who)
 
 
 ## Marks the moment a world has become whole: the notebook has something new to show, and if
@@ -469,9 +610,49 @@ func _celebrate(world_id: String) -> void:
 	var here := stage.world
 	if world_id != here.id and world_id != here.mood_from:
 		return
+	# The moment belongs to the world, not to the words: it waits for what is said and for a
+	# crossing to be over.
+	var celebrating := session
+	while _dialogue.is_open() or _travelling:
+		await get_tree().process_frame
+	if session != celebrating:
+		return
 	var glow := create_tween()
 	glow.tween_method(_set_glow, 0.0, WHOLE_GLOW, WHOLE_GLOW_IN).set_trans(Tween.TRANS_SINE)
 	glow.tween_method(_set_glow, WHOLE_GLOW, 0.0, WHOLE_GLOW_OUT).set_trans(Tween.TRANS_SINE)
+	_sounds.play("whole")
+	_rise_motes()
+
+
+## Motes of warm light that rise over the whole picture and fade, as a world becomes whole.
+func _rise_motes() -> void:
+	var screen := get_viewport_rect().size
+	var motes := CPUParticles2D.new()
+	motes.amount = WHOLE_MOTES
+	motes.one_shot = true
+	motes.explosiveness = 0.25
+	motes.lifetime = 4.5
+	motes.position = Vector2(screen.x * 0.5, screen.y + 20.0)
+	motes.emission_shape = CPUParticles2D.EMISSION_SHAPE_RECTANGLE
+	motes.emission_rect_extents = Vector2(screen.x * 0.5, 40.0)
+	motes.direction = Vector2.UP
+	motes.spread = 12.0
+	motes.gravity = Vector2.ZERO
+	motes.initial_velocity_min = 140.0
+	motes.initial_velocity_max = 320.0
+	motes.scale_amount_min = 4.0
+	motes.scale_amount_max = 10.0
+	var fade := Gradient.new()
+	fade.set_color(0, Color(1.0, 0.9, 0.6, 0.0))
+	fade.add_point(0.2, Color(1.0, 0.92, 0.65, 0.85))
+	fade.set_color(fade.get_point_count() - 1, Color(1.0, 0.85, 0.5, 0.0))
+	motes.color_ramp = fade
+	var layer := CanvasLayer.new()
+	layer.layer = 11
+	layer.add_child(motes)
+	add_child(layer)
+	motes.finished.connect(layer.queue_free)
+	motes.emitting = true
 
 
 ## The first time the player is in a world that has become whole, someone there says so: that
@@ -542,6 +723,10 @@ func _quake() -> void:
 		_mood_change.kill()
 	_music.sink(QUAKE_DURATION)
 	_rumble.play()
+	# First it grows bright as noon for a moment, as the child will remember it.
+	var flash := create_tween()
+	flash.tween_method(_set_glow, 0.0, QUAKE_FLASH, 0.3).set_trans(Tween.TRANS_SINE)
+	flash.tween_method(_set_glow, QUAKE_FLASH, 0.0, 1.4).set_trans(Tween.TRANS_SINE)
 	_scene = create_tween().set_parallel()
 	_scene.tween_method(_shake, 0.0, 1.0, QUAKE_DURATION).set_ease(Tween.EASE_IN).set_trans(Tween.TRANS_QUAD)
 	_scene.tween_property(_curtain, "color:a", 1.0, QUAKE_DARKENING).set_delay(QUAKE_DURATION - QUAKE_DARKENING)
@@ -579,14 +764,22 @@ func _build_stage() -> void:
 
 	stage = Stage.new(world, _sprites, session.state.cell)
 	stage.player.cell_reached.connect(_on_cell_reached)
+	stage.kindled.connect(_on_kindled)
 	add_child(stage)
+	stage.memory_spots.show_on(session.memory_cells())
 	memory_progress = 0.0
 
 	_camera.position = _camera_target()
 	_camera.reset_smoothing()
 	if _started:
-		_music.play(world.music)
+		_music.play(session.music())
 	_change_mood(true)
+
+
+## A light has come on: a flame catches with a soft rush, an open way hums lower and longer.
+func _on_kindled(object_id: String) -> void:
+	var lamp := object_id.is_empty() or stage.world.get_object(object_id).kind != "arch"
+	_sounds.play("kindle", 0.0 if lamp else -4.0, 1.0 if lamp else 0.6)
 
 
 ## Starts the change from the mood on show to the mood the world has now.
@@ -625,6 +818,10 @@ func _apply_mood() -> void:
 
 
 func _camera_target() -> Vector2:
+	if is_instance_valid(_focus_node):
+		return _focus_node.position + Vector2(0, -40)
+	if _focus_point != Vector2.INF:
+		return _focus_point
 	return stage.player.position + Vector2(0, -40)
 
 

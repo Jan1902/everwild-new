@@ -30,6 +30,9 @@ extends RefCounted
 ##                                    together with those others. What a rule says before "go"
 ##                                    is said before leaving, what it says after it on arrival.
 ##                                    "as" tells the view to make a scene of it (see ARRIVALS)
+##   {"scene": id}                    changes nothing; the view plays the scene (data/scenes.json)
+##                                    once what is said before it has been heard out, and shows
+##                                    what follows it afterwards
 ##   {"remember": memory}             changes nothing; the view lets the part of the world that
 ##                                    belongs to this place of memory (see World.memories) show
 ##                                    through as it was, until the player moves again. Not
@@ -55,6 +58,11 @@ const WORLD_DIR := "res://data/worlds/"
 ##   quake   the ground shakes and all goes dark; the player comes to in the other place, lying
 ##           on the ground, as the light slowly returns
 const ARRIVALS := ["quake"]
+## The item the player thinks with: without it, no notes can be drawn together.
+const NOTEBOOK := "notebook"
+## Facts the view sets, not a rule: hints can ask for them.
+##   notebook_read   the player has opened the notebook
+const VIEW_FACTS := ["notebook_read"]
 ## Rounds after which reactions are given up, in case rules keep triggering each other.
 const REACTION_LIMIT := 20
 
@@ -153,6 +161,34 @@ func interact(object_id: String) -> Array:
 	return _fire(interact_rule(object_id))
 
 
+## Draws two notes of the notebook together. If they make an insight that is not written down
+## yet, it is, and the effects that took place are returned (see Notebook). Otherwise nothing
+## happens and the list is empty.
+func combine(first: String, second: String) -> Array:
+	if NOTEBOOK not in state.items or first not in state.notes or second not in state.notes:
+		return []
+	var insight := Notebook.insight_of(notes(), first, second)
+	if insight.is_empty() or insight in state.notes:
+		return []
+	return _fire({"do": [{"note": insight}]})
+
+
+## Insights that the notes written down so far would make and that are not written down yet,
+## each as [first, second, insight].
+func open_insights() -> Array:
+	var open := []
+	for id: String in notes():
+		var sources: Array = notes()[id].get("from", [])
+		if NOTEBOOK in state.items and sources.size() == 2 and id not in state.notes and sources[0] in state.notes and sources[1] in state.notes:
+			open.append([sources[0], sources[1], id])
+	return open
+
+
+## All notes the notebook can hold (see Notebook.read).
+func notes() -> Dictionary:
+	return Notebook.read()
+
+
 ## Whether the player stands where the object can be used from.
 func can_use(object_id: String) -> bool:
 	var thing := world().get_object(object_id)
@@ -173,6 +209,26 @@ func linger_rule(cell: Vector2i) -> Dictionary:
 		if World.rule_covers(rule, cell) or not (rule.has("cells") or rule.has("zone")):
 			return rule
 	return {}
+
+
+## Cells of the current world where standing still would let a memory show through now.
+func memory_cells() -> Array[Vector2i]:
+	var found: Array[Vector2i] = []
+	for rule in world().rules:
+		if rule.get("on") != "linger" or not rule.get("do", []).any(func(effect: Dictionary) -> bool: return effect.has("remember")):
+			continue
+		var cells: Array[Vector2i] = []
+		for pair: Array in rule.get("cells", []):
+			cells.append(Vector2i(int(pair[0]), int(pair[1])))
+		var zone: Array = rule.get("zone", [])
+		if zone.size() == 4:
+			for y in range(int(zone[1]), int(zone[1]) + int(zone[3])):
+				for x in range(int(zone[0]), int(zone[0]) + int(zone[2])):
+					cells.append(Vector2i(x, y))
+		for cell in cells:
+			if cell not in found and world().is_walkable(cell) and linger_rule(cell) == rule:
+				found.append(cell)
+	return found
 
 
 ## The rule that would fire when the player enters the cell. Empty if none would.
@@ -243,6 +299,29 @@ func is_complete() -> bool:
 		if not open_faults(world_id).is_empty():
 			return false
 	return true
+
+
+## The hint the current world has for the moment (see World.hints). Empty if it has none. A hint
+## on an object that is not there does not show.
+func hint() -> Dictionary:
+	for candidate in world().hints:
+		if not holds(candidate.get("if", []), state.world):
+			continue
+		if candidate.has("object"):
+			var thing := world().get_object(candidate["object"])
+			if thing == null or thing.hidden:
+				continue
+		return candidate
+	return {}
+
+
+## Path of the track a world plays now. Empty for none.
+func music(world_id := "") -> String:
+	var here := world(world_id)
+	for tune in here.music_if:
+		if holds(tune.get("if", []), here.id):
+			return tune.get("music", "")
+	return here.music
 
 
 ## Mood of a world as the player remembers it: the intact one.

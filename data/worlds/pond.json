@@ -23,7 +23,7 @@
 		{"id": "stones", "kind": "stepping_stones", "cell": [4, 5], "size": [2, 1], "hidden": true},
 		{"id": "steps", "kind": "steps", "cell": [5, 1]},
 		{"id": "arch_back", "kind": "arch", "cell": [1, 3], "access": [[2, 3]], "state": "open", "mirrored": true},
-		{"id": "arch_on", "kind": "arch", "cell": [1, 7], "access": [[2, 7]], "state": "open", "mirrored": true},
+		{"id": "arch_on", "kind": "arch", "cell": [12, 7], "access": [[11, 7]], "state": "open", "mirrored": true},
 		{"id": "fisher", "kind": "fisher", "cell": [2, 5], "hidden": true},
 		{"id": "fisher_home", "kind": "fisher", "cell": [11, 3]},
 		{"id": "boat", "kind": "boat", "cell": [10, 6]},
@@ -61,8 +61,8 @@
 		{"on": "interact", "object": "arch_back", "do": [{"go": "spring", "cell": [4, 11]}]},
 		{"on": "always", "if": [{"object": "pond_lantern", "state": "lit"}, {"object": "arch_on", "state": "closed"}], "do": [{"change": "arch_on", "state": "open"}]},
 		{"on": "always", "if": [{"object": "pond_lantern", "state": "out"}, {"object": "arch_on", "state": "open"}], "do": [{"change": "arch_on", "state": "closed"}]},
-		{"on": "interact", "object": "arch_on", "if": [{"object": "arch_on", "state": "open"}, {"note": "watch"}], "do": [{"go": "watch", "cell": [4, 5]}]},
-		{"on": "interact", "object": "arch_on", "if": [{"object": "arch_on", "state": "open"}], "do": [{"go": "village", "cell": [15, 13]}, {"say": "arch.skips"}]},
+		{"on": "interact", "object": "arch_on", "if": [{"object": "arch_on", "state": "open"}, {"note": "watch"}], "do": [{"change": "boat", "cell": [3, 6]}, {"go": "watch", "cell": [4, 5]}]},
+		{"on": "interact", "object": "arch_on", "if": [{"object": "arch_on", "state": "open"}], "do": [{"change": "boat", "cell": [3, 6]}, {"set": "watch_skipped"}, {"go": "village", "cell": [15, 13]}, {"say": "arch.skips"}]},
 		{"on": "interact", "object": "arch_on", "do": [{"say": "arch.dark"}]},
 		{"on": "interact", "object": "pond_lantern", "if": [{"object": "pond_lantern", "state": "out"}], "do": [{"change": "pond_lantern", "state": "lit"}]},
 		{"on": "interact", "object": "fisher", "if": [{"object": "pond_lantern", "state": "lit"}, {"object": "sluice", "world": "spring", "state": "open"}], "do": [{"say": "fisher.row", "who": "fisher"}, {"change": "fisher", "hidden": true}, {"change": "fisher_home", "hidden": false}, {"change": "boat", "cell": [10, 6]}, {"go": "pond", "cell": [10, 5], "by": "boat", "with": ["fisher"]}]},
@@ -76,7 +76,7 @@
 		{"on": "interact", "object": "boat", "do": [{"say": "boat.mud"}]},
 		{"on": "interact", "object": "fisher_home", "if": [{"whole": "watch"}], "do": [{"say": "fisher.whole", "who": "fisher"}]},
 		{"on": "interact", "object": "fisher_home", "do": [{"say": "fisher.home", "who": "fisher"}, {"note": "fishers_evening"}, {"note": "rift_fisher"}]},
-		{"on": "linger", "cells": [[10, 2], [11, 2], [12, 2], [10, 3], [12, 3], [10, 4], [11, 4], [12, 4]], "if": [{"note": "still_place"}, {"note": "fishers_evening"}, {"note": "big_light", "is": false}], "do": [{"remember": "jetty"}, {"note": "big_light"}, {"say": "memory.jetty"}]},
-		{"on": "linger", "cells": [[10, 2], [11, 2], [12, 2], [10, 3], [12, 3], [10, 4], [11, 4], [12, 4]], "if": [{"note": "still_place"}, {"note": "fishers_evening"}], "do": [{"remember": "jetty"}]}
+		{"on": "linger", "cells": [[10, 2], [11, 2], [12, 2], [10, 3], [12, 3], [10, 4], [11, 4], [12, 4]], "if": [{"note": "still_place"}, {"note": "big_light", "is": false}], "do": [{"remember": "jetty"}, {"note": "big_light"}, {"say": "memory.jetty"}]},
+		{"on": "linger", "cells": [[10, 2], [11, 2], [12, 2], [10, 3], [12, 3], [10, 4], [11, 4], [12, 4]], "if": [{"note": "still_place"}], "do": [{"remember": "jetty"}]}
 	]
 }

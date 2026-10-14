@@ -13,6 +13,9 @@ const NIGHT := Color(0.09, 0.1, 0.14)
 const WARM := Color(0.95, 0.8, 0.55)
 const PALE := Color(0.96, 0.95, 0.92)
 const CREAM := Color(0.93, 0.9, 0.84)
+## Handwriting for what the player writes in the notebook.
+const HAND := "res://assets/fonts/Caveat.ttf"
+const RIFT_INK := Color(0.2, 0.25, 0.38)
 
 
 func _init() -> void:
@@ -38,6 +41,19 @@ func _init() -> void:
 	_slider(theme)
 	_scroll_bar(theme)
 
+	# The notebook in the player's own hand: slips of paper and the map.
+	var hand: FontFile = load(HAND)
+	var bold := FontVariation.new()
+	bold.base_font = hand
+	bold.variation_opentype = {TextServerManager.get_primary_interface().name_to_tag("wght"): 700}
+	_hand(theme, &"NoteTitle", bold, 38, INK)
+	_hand(theme, &"NoteText", hand, 31, INK)
+	_hand(theme, &"NoteRiftTitle", bold, 38, RIFT_INK)
+	_hand(theme, &"NoteRiftText", hand, 31, RIFT_INK)
+	_hand(theme, &"NoteInsightTitle", bold, 40, MARK)
+	_hand(theme, &"MapName", bold, 34, INK)
+	_hand(theme, &"MapUnknown", bold, 46, MARK)
+
 	_label(theme, &"StartAdvice", 44, CREAM)
 	_label(theme, &"StartHint", 30, Color(CREAM, 0.55))
 
@@ -51,6 +67,12 @@ func _label(theme: Theme, variation: StringName, font_size: int, color: Color) -
 	theme.set_type_variation(variation, &"Label")
 	theme.set_font_size(&"font_size", variation, font_size)
 	theme.set_color(&"font_color", variation, color)
+
+
+func _hand(theme: Theme, variation: StringName, font: Font, font_size: int, color: Color) -> void:
+	_label(theme, variation, font_size, color)
+	theme.set_font(&"font", variation, font)
+	theme.set_constant(&"line_spacing", variation, -6)
 
 
 func _panel(theme: Theme, variation: StringName, color: Color, corner: int, margin: int) -> void:

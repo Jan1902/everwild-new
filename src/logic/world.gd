@@ -48,8 +48,15 @@ var memory_omits := {}
 ## "who" (the speaker, the player without one) and "if" (conditions that have to hold as well).
 ## Empty if nobody does.
 var whole_says := {}
+## Hints that show the player what to do next, for the first steps of the game. Each names what
+## it points at, "object" (an id), "cell" ([x, y]) or "notebook" (true: the notebook button), and
+## "if" (conditions). Only the first whose conditions hold shows.
+var hints: Array[Dictionary] = []
 ## Path of the music track, empty for none.
 var music := ""
+## Tracks that play instead while their conditions hold: each with "if" (conditions) and "music"
+## (path). The first that holds wins. The music box in the old man's room is one.
+var music_if: Array[Dictionary] = []
 ## Mood of the intact world and of its wrong version.
 var mood := Mood.new()
 var mood_wrong := Mood.new()
@@ -86,6 +93,8 @@ static func from_data(data: Dictionary, world_id := "") -> World:
 	world.start = _to_cell(data.get("start", [0, 0]))
 	world.ground_image = data.get("ground_image", {})
 	world.music = data.get("music", "")
+	world.music_if.assign(data.get("music_if", []))
+	world.hints.assign(data.get("hints", []))
 	world.mood = Mood.from_data(data.get("mood", {}))
 	world.mood_wrong = Mood.from_data(data.get("mood_wrong", {}), world.mood)
 	world.mood_from = data.get("mood_from", "")
@@ -100,6 +109,7 @@ static func from_data(data: Dictionary, world_id := "") -> World:
 		thing.hidden = entry.get("hidden", false)
 		thing.state = entry.get("state", "")
 		thing.access.assign(entry.get("access", []).map(_to_cell))
+		thing.stroll.assign(entry.get("stroll", []).map(_to_cell))
 		if world._by_id.has(thing.id):
 			world._errors.append("Object id '%s' is used twice" % thing.id)
 		world.objects.append(thing)

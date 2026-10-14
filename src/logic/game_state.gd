@@ -4,8 +4,9 @@ extends RefCounted
 ## Pure data. It can be written to a file and read back without any difference.
 
 ## Version of the saved format. Raise it when the format changes and convert older data in
-## from_data. Version 2 came with the valley chapter, whose worlds no older game fits.
-const VERSION := 2
+## from_data. Version 2 came with the valley chapter, whose worlds no older game fits, version 3
+## with the notebook as a puzzle: older games lack notes that ways now depend on.
+const VERSION := 3
 
 ## Id of the world the player is in, and the cell they stand on.
 var world := ""
@@ -17,6 +18,9 @@ var facts := {}
 var objects := {}
 ## Ids of the things the player carries. Kept sorted.
 var items: Array[String] = []
+## Ids of everything the player has ever carried, in the order they got it. The notebook lists
+## them and crosses out what was given away; no rule asks for it.
+var held: Array[String] = []
 ## Ids of the notebook entries, in the order they were found.
 var notes: Array[String] = []
 ## Ids of the worlds whose becoming whole someone there has already remarked on. Nothing in
@@ -41,6 +45,8 @@ func give(item: String) -> void:
 	if item not in items:
 		items.append(item)
 		items.sort()
+	if item not in held:
+		held.append(item)
 
 
 func take(item: String) -> void:
@@ -60,6 +66,7 @@ func copy() -> GameState:
 	twin.facts = facts.duplicate()
 	twin.objects = objects.duplicate(true)
 	twin.items = items.duplicate()
+	twin.held = held.duplicate()
 	twin.notes = notes.duplicate()
 	twin.whole_greeted = whole_greeted.duplicate()
 	twin.start_screen_seen = start_screen_seen
@@ -83,6 +90,7 @@ func to_data() -> Dictionary:
 		"facts": facts.duplicate(),
 		"objects": changed,
 		"items": items.duplicate(),
+		"held": held.duplicate(),
 		"notes": notes.duplicate(),
 		"whole_greeted": whole_greeted.duplicate(),
 		"start_screen_seen": start_screen_seen,
@@ -118,6 +126,11 @@ static func from_data(data: Variant) -> GameState:
 			state.change_object(str(world_id), str(object_id), properties)
 	state.items.assign(saved_items)
 	state.items.sort()
+	var saved_held: Variant = data.get("held", [])
+	state.held.assign(saved_held if _is_texts(saved_held) else [])
+	for item in state.items:
+		if item not in state.held:
+			state.held.append(item)
 	state.notes.assign(saved_notes)
 	var saved_greeted: Variant = data.get("whole_greeted", [])
 	if _is_texts(saved_greeted):

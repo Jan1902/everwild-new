@@ -31,10 +31,15 @@ const EFFECTS := {
 	"go": ["cell", "by", "with", "as"],
 	"say": ["who"],
 	"remember": [],
+	"scene": [],
 }
+
+const SCENES := "res://data/scenes.json"
+const MAP := "res://data/map.json"
 
 var _session: Session
 var _notes := {}
+var _scene_list := {}
 var _list: Array[String] = []
 ## Names that are asked for, each with the first place that does, and names that are provided.
 var _facts_asked := {}
@@ -79,7 +84,46 @@ func _run() -> void:
 			_check_conditions(fault.get("fixed_if"), world_id, place)
 		for number in world.rules.size():
 			_check_rule(world.rules[number], world, "%s, rule %d" % [world_id, number + 1])
+		for number in world.hints.size():
+			var hint := world.hints[number]
+			var place := "%s, hint %d" % [world_id, number + 1]
+			_check_keys(hint, ["object", "cell", "notebook", "if"], place, "hint")
+			_check_conditions(hint.get("if", []), world_id, place)
+			if hint.has("object") and world.get_object(str(hint["object"])) == null:
+				_add(place, "unknown object '%s'" % hint["object"])
+			if hint.has("cell") and not _is_cell(hint["cell"]):
+				_add(place, "'cell' is not [x, y]")
+		for number in world.music_if.size():
+			var tune := world.music_if[number]
+			var place := "%s, music_if %d" % [world_id, number + 1]
+			_check_keys(tune, ["if", "music"], place, "track")
+			_check_conditions(tune.get("if", []), world_id, place)
+			if not ResourceLoader.exists(str(tune.get("music", ""))):
+				_add(place, "track '%s' does not exist" % tune.get("music", ""))
 
+	# What the notebook asks: when a note is crossed out and when an arrow shows on the map.
+	var start: String = definition.get("start", "")
+	for note: String in _notes:
+		if _notes[note].has("crossed_if"):
+			_check_conditions(_notes[note]["crossed_if"], start, "notes, '%s' crossed_if" % note)
+	# Only a game that has all the pieces of the map is checked against it.
+	var map: Variant = JSON.parse_string(FileAccess.get_file_as_string(MAP))
+	if map is Dictionary and map.get("pieces", {}).keys().all(func(piece: String) -> bool: return piece in worlds):
+		var ways: Array = map.get("ways", [])
+		for number in ways.size():
+			var place := "map, way %d" % (number + 1)
+			_check_keys(ways[number], ["from", "to", "if", "unknown", "skips"], place, "way")
+			for end: String in ["from", "to"]:
+				if not map.get("pieces", {}).has(ways[number].get(end, "")):
+					_add(place, "'%s' is not a piece of the map" % end)
+			_check_conditions(ways[number].get("if", []), start, place)
+
+	for fact: String in Session.VIEW_FACTS:
+		_facts_set[fact] = true
+	# Insights are written down by thinking, not by a rule.
+	for note: String in _notes:
+		if _notes[note].has("from"):
+			_notes_given[note] = true
 	_report_missing(_facts_asked, _facts_set, "fact '%s' is asked for but never set")
 	_report_missing(_items_asked, _items_given, "item '%s' is asked for but never given")
 	_report_missing(_notes_asked, _notes_given, "note '%s' is asked for but never given")
@@ -189,6 +233,9 @@ func _check_effects(effects: Variant, home: String, place: String) -> void:
 			"remember":
 				if not home.is_empty() and not _session.world(home).memories.has(name):
 					_add(place, "%s: world '%s' has no such place of memory" % [what, home])
+			"scene":
+				if not _scenes().has(name):
+					_add(place, what + ": data/scenes.json has no such scene")
 			"break", "restore":
 				if name not in _session.world_ids():
 					_add(place, what + ": unknown world")
@@ -256,6 +303,14 @@ func _check_object(entry: Dictionary, object_id: String, where: String, place: S
 func _check_note(note: String, place: String, what: String) -> void:
 	if not _notes.is_empty() and not _notes.has(note):
 		_add(place, what + ": the notebook has no such note")
+
+
+## The scenes of the game (data/scenes.json): id -> steps.
+func _scenes() -> Dictionary:
+	if _scene_list.is_empty():
+		var data: Variant = JSON.parse_string(FileAccess.get_file_as_string(SCENES))
+		_scene_list = data if data is Dictionary else {}
+	return _scene_list
 
 
 func _has_fault(world_id: String, fault_id: String) -> bool:

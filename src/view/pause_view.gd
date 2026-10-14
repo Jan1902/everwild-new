@@ -1,11 +1,12 @@
 class_name PauseView
 extends CanvasLayer
 ## The pause page: a small button in the corner that halts the game and opens a page with the
-## few things to set (music volume, language) and the way to start over. It lies above the
+## few things to set (volume of music and sounds, language) and the way to start over. It lies above the
 ## notebook and the dialogue, so the game can be paused at any time. It closes with "continue"
 ## or a tap beside the page.
 
 signal volume_changed(volume: float)
+signal sound_volume_changed(volume: float)
 signal language_changed(language: String)
 signal new_game_requested
 signal closed
@@ -16,6 +17,7 @@ const ROW_HEIGHT := 76.0
 const LANGUAGE_NAMES := {"en": "English", "de": "Deutsch"}
 
 var _volume := 1.0
+var _sound_volume := 1.0
 var _open := false
 ## Whether the page asks if the player really wants to start over.
 var _asking := false
@@ -58,9 +60,10 @@ func is_open() -> bool:
 	return _open
 
 
-## Sets what the page shows as the music volume, from 0 to 1.
-func set_volume(volume: float) -> void:
+## Sets what the page shows as the volume of the music and of the sounds, from 0 to 1.
+func set_volume(volume: float, sound_volume: float) -> void:
 	_volume = volume
+	_sound_volume = sound_volume
 
 
 func open() -> void:
@@ -103,15 +106,9 @@ func _fill() -> void:
 
 	_column.add_child(_label(Texts.text("pause.title"), &"PaperHeading"))
 	_column.add_child(_label(Texts.text("pause.volume"), &"PaperSmall"))
-	var slider := HSlider.new()
-	slider.min_value = 0.0
-	slider.max_value = 1.0
-	slider.step = 0.05
-	slider.value = _volume
-	slider.focus_mode = Control.FOCUS_NONE
-	slider.custom_minimum_size.y = ROW_HEIGHT
-	slider.value_changed.connect(_on_volume_changed)
-	_column.add_child(slider)
+	_column.add_child(_slider(_volume, _on_volume_changed))
+	_column.add_child(_label(Texts.text("pause.sounds"), &"PaperSmall"))
+	_column.add_child(_slider(_sound_volume, _on_sound_volume_changed))
 
 	_column.add_child(_label(Texts.text("pause.language"), &"PaperSmall"))
 	var languages := HBoxContainer.new()
@@ -129,6 +126,23 @@ func _fill() -> void:
 func _on_volume_changed(volume: float) -> void:
 	_volume = volume
 	volume_changed.emit(volume)
+
+
+func _on_sound_volume_changed(volume: float) -> void:
+	_sound_volume = volume
+	sound_volume_changed.emit(volume)
+
+
+func _slider(value: float, changed: Callable) -> HSlider:
+	var slider := HSlider.new()
+	slider.min_value = 0.0
+	slider.max_value = 1.0
+	slider.step = 0.05
+	slider.value = value
+	slider.focus_mode = Control.FOCUS_NONE
+	slider.custom_minimum_size.y = ROW_HEIGHT
+	slider.value_changed.connect(changed)
+	return slider
 
 
 func _choose_language(language: String) -> void:

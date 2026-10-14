@@ -11,8 +11,10 @@ extends Node
 ## --swipe=x1,y1,x2,y2  swipes a finger from one point of the screen to another
 ## --notebook[=note]  opens the notebook, on this note if one is given
 ## --back             does what the back gesture of a phone does
-##                    (these five may be given several times and happen in the order given,
+## --hold=s           does nothing for s seconds, for scenes that take a while
+##                    (these six may be given several times and happen in the order given,
 ##                    with --wait seconds after each)
+## --shot=path        saves a screenshot at this point (may be given several times)
 ## --wait=s           waiting time after each step, default 1
 ## --mouse            taps come from the mouse, as on a computer, instead of a finger
 ## --screenshot=path  saves a screenshot at the end
@@ -47,6 +49,10 @@ func _ready() -> void:
 			steps.append(game.open_notebook.bind(argument.trim_prefix("--notebook").trim_prefix("=")))
 		elif argument == "--back":
 			steps.append(game.notification.bind(NOTIFICATION_WM_GO_BACK_REQUEST))
+		elif argument.begins_with("--hold="):
+			steps.append(_hold.bind(float(argument.trim_prefix("--hold="))))
+		elif argument.begins_with("--shot="):
+			steps.append(_shot.bind(argument.trim_prefix("--shot=")))
 		elif argument.begins_with("--wait="):
 			wait = float(argument.trim_prefix("--wait="))
 		elif argument.begins_with("--screenshot="):
@@ -56,7 +62,7 @@ func _ready() -> void:
 		game.set_broken(false, true)
 	await get_tree().create_timer(0.5).timeout
 	for step in steps:
-		step.call()
+		await step.call()
 		await get_tree().create_timer(wait).timeout
 	if steps.is_empty():
 		await get_tree().create_timer(wait).timeout
@@ -72,6 +78,15 @@ func _ready() -> void:
 	game.stop_music()
 	await get_tree().create_timer(0.2).timeout
 	get_tree().quit()
+
+
+func _hold(seconds: float) -> void:
+	await get_tree().create_timer(seconds).timeout
+
+
+func _shot(path: String) -> void:
+	await RenderingServer.frame_post_draw
+	get_viewport().get_texture().get_image().save_png(path)
 
 
 ## The two numbers of an argument like --tap=3,7.

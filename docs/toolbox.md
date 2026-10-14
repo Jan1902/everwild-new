@@ -42,6 +42,7 @@ Was es im Spiel gibt und woraus Inhalt gebaut wird. Etwas Neues, das hier nicht 
 | Sprechen | Benutzen einer Figur. | Wissen, Hinweise, Ton. | Eine Aufgabe je Gespräch (Regel 3). |
 | Verweilen | Neben einer Figur still stehen, dreieinhalb Sekunden. | Zeigt, wie es war. | Selten und an einen Ort gebunden; eine Figur führt es ein. |
 | Weltwechsel | Bogen, Tür, Stufen, Boot. | Gliedert das Kapitel in Stücke. | Ein Bogen trägt nur mit Licht und kennt nur, was im Notizbuch steht. |
+| Denken | Im Notizbuch einen Zettel auf einen anderen ziehen. Gehören sie zusammen, wird eine Einsicht aufgeschrieben. | Schlüsse, die der Spieler selbst zieht: wohin ein Bogen führt, wem etwas gehört, was eine Flamme schützt. | Die Einsicht muss etwas öffnen, sonst ist sie ein Register. Wenige Zettel liegen offen, sonst wird es Durchprobieren. |
 
 ### Womit die Welt antwortet
 
@@ -54,13 +55,17 @@ Was es im Spiel gibt und woraus Inhalt gebaut wird. Etwas Neues, das hier nicht 
 | Notiz | Ein Eintrag im Notizbuch mit Verknüpfungen. Fehlende Verwandte erscheinen als Lücke. |
 | Gegenstand | Wird getragen, selten, ohne eigene Oberfläche; eine Randnotiz im Dialog zeigt den Wechsel. |
 | Moment | Wird ein Stück heil: warmes Licht, die Figuren kehren an ihre Abendplätze zurück, und jemand dort sagt, dass es wie früher ist. Kein Schriftzug. |
-| Fahrt und Szene | Ein Weltwechsel als sichtbare Fahrt oder als feste Szene (der Riss). |
+| Fahrt und Szene | Ein Weltwechsel als sichtbare Fahrt oder als feste Szene (der Riss). Szenen als Daten (`data/scenes.json`): Figuren gehen, die Kamera folgt, eine andere Welt wird gezeigt, ein fernes Licht geht an. |
+| Karte | Die Weltstücke im Notizbuch, mit Pfeilen für Bögen. Ein Pfeil mit „?“ zeigt eine Lücke, die der Spieler schließen soll. |
+| Hinweis | Ein tippender Finger, nur im Prolog, wenn eine Weile nichts geschieht. |
+| Abendweg | Figuren, die vor dem Riss kleine Wege gehen. Nach dem Riss stehen sie still; ihr Gehen ist der Lohn des Heilwerdens. |
 
 ### Rätselmuster, die es schon gibt
 
 Aus dem Tal. Jedes lässt sich in einem neuen Kapitel mit anderem Inhalt wiederverwenden, sollte dann aber gewendet werden (Regel 17).
 
-- **Zwei Hälften.** Zwei Figuren wissen je die Hälfte: Der Müller hat etwas verliehen, der Alte hat etwas Geliehenes. Erst beide zusammen ergeben die Kurbel.
+- **Zwei Hälften.** Zwei Figuren wissen je die Hälfte: Der Müller hat etwas verliehen, der Alte hat etwas Geliehenes. Erst wenn der Spieler beide im Buch zusammenzieht, findet er die Kurbel.
+- **Der Prolog als Wissen.** Was der Spieler am Abend vor dem Riss gesehen hat, braucht er danach: Wohin der Alte ging, sagt ihm, wohin der Bogen führt.
 - **Schutz vor der Welt.** Etwas hält nur unter einer Bedingung, die man herstellen kann (die Laterne im Windschatten des Heuwagens).
 - **Der Weg hängt am Zustand.** Trittsteine tragen nur bei niedrigem Wasser, das Boot nur bei hohem. Wer das Wasser ändert, tauscht einen Weg gegen einen anderen.
 - **Ursache hier, Wirkung dort.** Das Wehr an der Quelle füllt den Bach im Dorf und den Weiher und lässt das Feld am Mühlenhügel wachsen.

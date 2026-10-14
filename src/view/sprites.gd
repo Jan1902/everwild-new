@@ -24,6 +24,10 @@ extends RefCounted
 ##     wall    the object is flat and upright and stands along a ground axis, like an arch or a
 ##             gate; its shadow is cast from that plane instead of from a flat silhouette
 ##     image   name of the image file if it is not the kind
+##     faces   which way the image looks, "left" or "right" (the default): people turn
+##             towards the player and the way they walk
+##     walk    for people with a walk cycle: which way the frames of each view ("front",
+##             "back") look, as "left" or "right"
 ##     sails   windmill sails that turn in the plane of the right wall: "hub" is their centre
 ##             relative to the foot, "size" their diameter in world pixels
 ##     arrow   an arrow that lies in the ground plane above the object and points where the

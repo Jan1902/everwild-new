@@ -1,8 +1,12 @@
-"""Tries out a walk animation for the player: one sprite sheet per view, cut into frames.
+"""Walk animations for figures: one sprite sheet per view, cut into frames.
 
-    python tools/walk_images.py generate   generate the two sprite sheets (2 calls)
-    python tools/walk_images.py cut [overview.jpg]
+    python tools/walk_images.py generate <sheet> [<sheet> ...]
+                                           generate the sprite sheets (one call each)
+    python tools/walk_images.py cut <sheet> [<sheet> ...] [--overview overview.jpg]
                                            cut the sheets into aligned frames for the game (free)
+
+The sheets are the keys of SHEETS, for example player_front or old_man_back. The frames are
+written as assets/objects/<sheet>_walk_<n>.png.
 
 Each sheet is generated at most once: existing files are never overwritten and failed calls are
 not repeated.
@@ -19,7 +23,7 @@ from image_gen import openai_image
 from style import PAINTED_STYLE, VIEW
 
 RAW = PROJECT / "styletest" / "walk"
-STANDING = PROJECT / "styletest" / "room"
+ROOM = PROJECT / "styletest" / "room"
 OBJECTS = PROJECT / "assets" / "objects"
 FRAMES = SPRITES["walk_frames"]
 THRESHOLD = 24
@@ -36,8 +40,8 @@ SHEET = (
     "Frame 3: the right leg steps forward, the left arm swings forward. "
     "Frame 4: both legs under the body again, passing each other. "
     "In every frame it is the same person with the same clothes, colours, proportions, size and "
-    "viewing angle as in the second attached image; only legs and arms move. All four figures "
-    "stand on the same baseline. "
+    "viewing angle as in the second attached image; only legs and arms move.{extra} All four "
+    "figures stand on the same baseline. "
     "Fully transparent background. No ground, no cast shadow, no frame borders, no numbers, no "
     "text."
 )
@@ -45,30 +49,45 @@ STYLE_NOTE = (
     "The first attached image is the painted ground of the game world. Use it only as a reference "
     "for painting style, brushwork and colour palette."
 )
-VIEWS = {
-    "player_front": {"direction": "lower right", "seen": "seen from the front"},
-    "player_back": {"direction": "upper right", "seen": "seen from behind"},
+BEHIND = (
+    " The second attached image shows the person from the front; here they are turned around, so "
+    "we see their back, the back of the head and no face."
+)
+OLD = " The person is old and walks slowly, slightly bent, with small steps."
+# reference: the standing figure the sheet is drawn after (in styletest/room).
+# standing: the standing image in assets/objects whose height the frames get.
+SHEETS = {
+    "player_front": {"direction": "lower right", "seen": "seen from the front", "extra": "",
+                     "reference": "player_front", "standing": "player_front"},
+    "player_back": {"direction": "upper right", "seen": "seen from behind", "extra": "",
+                    "reference": "player_back", "standing": "player_back"},
+    "old_man_front": {"direction": "lower right", "seen": "seen from the front", "extra": OLD,
+                      "reference": "old_man", "standing": "old_man"},
+    "old_man_back": {"direction": "upper right", "seen": "seen from behind", "extra": BEHIND + OLD,
+                     "reference": "old_man", "standing": "old_man"},
 }
 
 
-def generate():
+def generate(names):
     reference = PROJECT / "styletest" / "village" / "ground_small.png"
 
     def one(name):
         target = RAW / f"{name}_walk.png"
         if target.exists():
             return f"{name}: already exists, no call."
-        prompt = "\n\n".join([SHEET.format(**VIEWS[name]), VIEW, PAINTED_STYLE, STYLE_NOTE])
+        sheet = SHEETS[name]
+        prompt = "\n\n".join([SHEET.format(**sheet), VIEW, PAINTED_STYLE, STYLE_NOTE])
         try:
             usage = openai_image(
-                prompt, target, size="1536x1024", transparent=True, references=[reference, STANDING / f"{name}.png"]
+                prompt, target, size="1536x1024", transparent=True,
+                references=[reference, ROOM / f"{sheet['reference']}.png"],
             )
             return f"{name}: OK {json.dumps(usage)}"
         except Exception as error:
             return f"{name}: ERROR {error}"
 
-    with ThreadPoolExecutor(max_workers=2) as pool:
-        for line in pool.map(one, VIEWS):
+    with ThreadPoolExecutor(max_workers=len(names)) as pool:
+        for line in pool.map(one, names):
             print(line, flush=True)
 
 
@@ -99,10 +118,10 @@ def _head_centre(figure):
     return (box[0] + box[2]) / 2
 
 
-def cut():
+def cut(names, overview_path=None):
     sheets = []
-    for name in VIEWS:
-        standing = Image.open(OBJECTS / f"{name}.png")
+    for name in names:
+        standing = Image.open(OBJECTS / f"{SHEETS[name]['standing']}.png")
         content_width = round(standing.width / (1 + 2 * MARGIN))
         figures = _figures(Image.open(RAW / f"{name}_walk.png").convert("RGBA"))
         print(name, "figures found:", len(figures), [f.size for f in figures])
@@ -126,14 +145,22 @@ def cut():
             row.append(frame)
         sheets.append([standing] + row)
 
-    if len(sys.argv) > 2 and sheets:
+    if overview_path and sheets:
         cell = (max(i.width for s in sheets for i in s), max(i.height for s in sheets for i in s))
         overview = Image.new("RGBA", (cell[0] * (FRAMES + 1), cell[1] * len(sheets)), "#7fae6b")
         for y, images in enumerate(sheets):
             for x, image in enumerate(images):
                 overview.alpha_composite(image, (x * cell[0], y * cell[1] + cell[1] - image.height))
-        overview.convert("RGB").save(sys.argv[2], quality=90)
+        overview.convert("RGB").save(overview_path, quality=90)
 
 
 if __name__ == "__main__":
-    {"generate": generate, "cut": cut}[sys.argv[1]]()
+    arguments = sys.argv[2:]
+    overview = None
+    if "--overview" in arguments:
+        overview = arguments[arguments.index("--overview") + 1]
+        arguments = arguments[: arguments.index("--overview")]
+    if sys.argv[1] == "generate":
+        generate(arguments)
+    else:
+        cut(arguments, overview)

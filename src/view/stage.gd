@@ -3,17 +3,27 @@ extends Node2D
 ## One world on show: its ground, water, shadows, objects and the player character. A new stage
 ## is built whenever the player changes worlds.
 
+## A light has just come on: a flame has caught or a way to another world has opened.
+signal kindled(object_id: String)
+
 const SHADOW_OPACITY := 0.3
 ## Objects as the player remembers them show through in this colour.
 const GHOST_COLOR := Color(1.15, 1.1, 1.0, 0.6)
 const GHOST_FADE_OUT := 0.8
 ## Seconds something takes to appear that was not there before.
 const APPEAR_DURATION := 2.5
+
 ## Where those aboard a vehicle stand, relative to its foot: the player first, then the others.
 const SEATS: Array[Vector2] = [Vector2(-20, -8), Vector2(18, 4), Vector2(0, 0)]
 
 var world: World
 var player: Player
+## Id of the person speaking at the moment, empty for nobody.
+var speaker := ""
+## Where standing still would let a memory show through.
+var memory_spots := MemorySpots.new()
+## What to tap next, in the first steps of the game.
+var hint := HintView.new()
 
 var _sprites: Sprites
 var _flat := Node2D.new()
@@ -44,6 +54,7 @@ func _init(shown: World, sprites: Sprites, player_cell: Vector2i) -> void:
 	_shadows.clear_margin = 400.0
 	_shadows.self_modulate = Color(1, 1, 1, SHADOW_OPACITY)
 	add_child(_shadows)
+	add_child(memory_spots)
 	add_child(_marker)
 
 	# All other objects and the character share one layer that sorts by y: whatever stands
@@ -61,6 +72,15 @@ func _init(shown: World, sprites: Sprites, player_cell: Vector2i) -> void:
 	# The wind is in the air, above everything that stands.
 	_wind = WindView.new(_views)
 	add_child(_wind)
+	add_child(hint)
+
+
+func _process(_delta: float) -> void:
+	for object_id: String in _views:
+		var view: ObjectView = _views[object_id]
+		if view.life:
+			view.life.player_point = player.position if player.visible else Vector2.INF
+			view.life.speaking = object_id == speaker or view.kind == speaker
 
 
 ## Takes the stage down. The character stops at once, so it reports no more cells.
@@ -82,8 +102,8 @@ func sync() -> void:
 		view.queue_free()
 		_add_object(object)
 		# A light that has just been lit comes on, it does not snap on.
-		if was_visible and not was_lit:
-			_views[object.id].light_up()
+		if was_visible and not was_lit and _views[object.id].light_up():
+			kindled.emit(object.id)
 		if not was_visible and not object.hidden:
 			_views[object.id].modulate.a = 0.0
 			create_tween().tween_property(_views[object.id], "modulate:a", 1.0, APPEAR_DURATION).set_trans(Tween.TRANS_SINE)
@@ -129,6 +149,33 @@ func ride(vehicle_id: String, passenger_ids: Array, duration: float) -> Tween:
 	return crossing
 
 
+## Puts someone on show who is not part of the world, for a scene. Returns their view.
+func add_actor(object: WorldObject) -> ObjectView:
+	var view := ObjectView.new()
+	view.setup(object, _sprites)
+	view.light = _light
+	view.modulate.a = 0.0
+	_layer.add_child(view)
+	var shadow := view.build_shadow()
+	if shadow:
+		_shadows.add_child(shadow)
+	create_tween().tween_property(view, "modulate:a", 1.0, APPEAR_DURATION * 0.4)
+	return view
+
+
+## A light that comes on far away at a point of the world (see FarLight).
+func add_far_light(point: Vector2) -> void:
+	var light := FarLight.new()
+	light.position = point
+	add_child(light)
+	kindled.emit("")
+
+
+## The view of an object. Null if there is none.
+func view_of(object_id: String) -> ObjectView:
+	return _views.get(object_id)
+
+
 ## Brief feedback for a tap on a point of the world.
 func mark(point: Vector2) -> void:
 	_marker.show_at(point)
@@ -153,6 +200,7 @@ func remember(remembered: Array[WorldObject], fade_in: float) -> void:
 	_appear = create_tween().set_parallel()
 	for object in remembered:
 		var ghost := ObjectView.new()
+		ghost.still = true
 		ghost.setup(object, _sprites)
 		ghost.light = _light
 		ghost.modulate = Color(GHOST_COLOR, 0.0)

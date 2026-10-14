@@ -1,0 +1,20 @@
+{
+	"pieces": {
+		"village": [0.5, 0.8],
+		"mill_hill": [0.2, 0.52],
+		"spring": [0.32, 0.18],
+		"pond": [0.7, 0.18],
+		"watch": [0.82, 0.52]
+	},
+	"ways": [
+		{"from": "village", "to": "mill_hill", "if": [{"note": "mill_way"}]},
+		{"from": "village", "to": "mill_hill", "unknown": true, "if": [{"note": "arch_village"}, {"note": "mill_way", "is": false}]},
+		{"from": "mill_hill", "to": "spring", "if": [{"note": "spring"}]},
+		{"from": "mill_hill", "to": "spring", "unknown": true, "if": [{"note": "mill_hill"}, {"note": "spring", "is": false}]},
+		{"from": "spring", "to": "pond", "if": [{"note": "pond"}]},
+		{"from": "spring", "to": "village", "skips": true, "if": [{"fact": "pond_skipped"}, {"note": "pond", "is": false}]},
+		{"from": "pond", "to": "watch", "if": [{"note": "watch"}]},
+		{"from": "pond", "to": "village", "skips": true, "if": [{"fact": "watch_skipped"}, {"note": "watch", "is": false}]},
+		{"from": "watch", "to": "village", "if": [{"fact": "chapter_done"}]}
+	]
+}

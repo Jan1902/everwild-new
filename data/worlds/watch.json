@@ -57,7 +57,7 @@
 		{"on": "interact", "object": "big_light", "if": [{"item": "wick"}, {"whole": "village"}, {"whole": "mill_hill"}, {"whole": "spring"}, {"whole": "pond"}], "do": [{"change": "big_light", "state": "lit"}, {"take": "wick"}, {"set": "chapter_done"}, {"say": "big_light.lit"}]},
 		{"on": "interact", "object": "big_light", "if": [{"item": "wick"}], "do": [{"say": "big_light.weak"}]},
 		{"on": "interact", "object": "big_light", "do": [{"say": "big_light.dark"}]},
-		{"on": "interact", "object": "arch_back", "do": [{"go": "pond", "cell": [2, 6]}]},
+		{"on": "interact", "object": "arch_back", "do": [{"change": "boat", "world": "pond", "cell": [10, 6]}, {"go": "pond", "cell": [11, 6]}]},
 		{"on": "linger", "cells": [[4, 2], [5, 2], [6, 2], [4, 3], [6, 3], [4, 4], [5, 4], [6, 4]], "if": [{"note": "still_place"}], "do": [{"remember": "lookout"}, {"note": "lookout"}, {"say": "memory.lookout"}]}
 	]
 }

@@ -21,6 +21,9 @@ var state := ""
 ## Cells the object can be used from, such as the one in front of a door. Empty means every cell
 ## beside it.
 var access: Array[Vector2i] = []
+## Cells a person walks between on a good evening, the first being their place. Only the view
+## uses it (see FigureLife); for the game they stay on their cell.
+var stroll: Array[Vector2i] = []
 
 
 func is_flat() -> bool:
@@ -37,6 +40,7 @@ func copy() -> WorldObject:
 	twin.kind = kind
 	twin.size = size
 	twin.access = access.duplicate()
+	twin.stroll = stroll.duplicate()
 	twin.change(properties())
 	return twin
 

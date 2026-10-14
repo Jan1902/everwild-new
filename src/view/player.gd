@@ -32,6 +32,8 @@ var _towards_viewer := true
 var _facing_left := false
 ## View -> the standing image as the shadow it casts.
 var _casts := {}
+## Seconds the character has been around, for breathing.
+var _time := 0.0
 
 
 func _init(sprites: Sprites) -> void:
@@ -109,7 +111,9 @@ func walk(path: Array[Vector2i]) -> void:
 
 
 func _process(delta: float) -> void:
+	_time += delta
 	if _path.is_empty():
+		_breathe()
 		return
 	var remaining := SPEED * delta
 	while remaining > 0.0 and not _path.is_empty():
@@ -133,6 +137,14 @@ func _process(delta: float) -> void:
 	if absf(step.x) >= 0.01:
 		_facing_left = step.x < 0.0
 	_show_look()
+
+
+## Standing, the character breathes like the people of the world (see FigureLife).
+func _breathe() -> void:
+	var placed: Dictionary = _placements[_body.animation]
+	var breath := sin(_time * TAU * FigureLife.BREATH_SPEED)
+	var side := -1.0 if _facing_left else 1.0
+	_body.scale = placed.scale * Vector2(side * (1.0 - FigureLife.BREATH * 0.5 * breath), 1.0 + FigureLife.BREATH * breath)
 
 
 ## Shows the animation that fits the direction and whether the character is walking.
